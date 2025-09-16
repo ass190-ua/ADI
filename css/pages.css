@@ -1,0 +1,171 @@
+/* =========================================
+   Overrides y estilos de páginas concretas
+   ========================================= */
+
+.landing .hero { text-align: center; }
+.landing .preview { border:1px dashed var(--border); border-radius: 16px; padding: 10px; opacity:.85; }
+
+.home .grid-cards { grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); }
+.card.link { cursor:pointer; transition: transform .12s ease; }
+.card.link:hover { transform: translateY(-4px); }
+
+.chat-page .composer {
+  position: sticky; bottom: 0; padding-top: 12px;
+  background: linear-gradient(180deg, transparent, var(--bg));
+}
+
+/* ===== Landing "one-screen" centrada ===== */
+.landing-header{
+  background: linear-gradient(180deg, rgba(255,255,255,.02), rgba(0,0,0,0));
+  backdrop-filter: blur(6px);
+}
+
+/* Hero centrado y con degradado suave de fondo */
+.hero-full{
+  display:flex; align-items:center; justify-content:center;
+  text-align:center; padding:24px 0; position:relative;
+}
+.hero-full::before{
+  content:""; position:absolute; inset:0; z-index:-1;
+  background:
+    radial-gradient(600px 300px at 20% 30%, rgba(122,162,247,.14), transparent 70%),
+    radial-gradient(600px 300px at 80% 20%, rgba(166,218,149,.12), transparent 70%);
+}
+.hero-center{ width:min(980px,92%); margin-inline:auto; display:flex; flex-direction:column; gap:14px; align-items:center; }
+.hero-center .h1{ max-width:700px; margin:0; }
+.hero-center .lead{ max-width:640px; font-size:1.1rem; }
+
+.grad{
+  background: linear-gradient(90deg, var(--primary), var(--accent));
+  -webkit-background-clip:text; background-clip:text; color:transparent;
+}
+
+.hero-center .cta{ display:flex; gap:12px; flex-wrap:wrap; justify-content:center; }
+
+.preview-large{ margin-top:8px; max-width:760px; width:100%; }
+.preview-large img{ width:100%; border-radius:12px; display:block; }
+.preview-fallback{
+  width:100%; height:320px; border-radius:12px; border:1px solid var(--border);
+  display:none; place-items:center;
+  background: linear-gradient(180deg, rgba(255,255,255,.02), rgba(0,0,0,.08));
+  color:var(--muted); font-size:14px;
+}
+
+.benefits{ display:flex; gap:14px; flex-wrap:wrap; justify-content:center; }
+.benefits .card{ padding:12px 18px; display:inline-flex; align-items:center; gap:8px; }
+
+/* Auth pages (login/register) centradas sin calc() */
+.auth-page{
+  display:grid; place-items:center; min-height:100%;
+}
+
+/* ===== Footer estilo BookCase ===== */
+.book-footer{
+  background: rgba(255,255,255,.02);
+  border-top: 1px solid rgba(0,0,0,.35);
+  padding: 14px 0 10px;
+  color: #cfd8e3;
+}
+.book-footer .navline{
+  display:flex; align-items:center; justify-content:center;
+  gap: 14px; flex-wrap: wrap; margin-bottom: 6px;
+}
+.book-footer .footer-link{ color:#e6edf3; font-weight:500; }
+.book-footer .footer-link:hover{ text-decoration: underline; }
+.book-footer .sep{ opacity:.6; }
+.book-footer .social{ display:flex; gap:12px; }
+.book-footer .social .icon{
+  display:inline-flex; align-items:center; justify-content:center;
+  width:28px; height:28px; border-radius:999px;
+  background: rgba(255,255,255,.06); color:#e6edf3;
+  transition: transform .12s ease, background .12s ease, color .12s ease;
+}
+.book-footer .social .icon:hover{
+  transform: translateY(-2px);
+  background: rgba(255,255,255,.12);
+  color: white;
+}
+.book-footer .copy{
+  text-align:center; color: rgba(255,255,255,.7); font-size: 12px;
+}
+
+/* Responsive */
+@media (max-width: 560px){
+  .hero-center .h1{ font-size:28px; }
+  .preview-large{ max-width:92vw; }
+}
+
+/* Portada del perfil (degradado sutil con blur) */
+.profile-hero{
+  height: 160px;
+  border-radius: 16px;
+  background:
+    radial-gradient(600px 280px at 15% 40%, rgba(122,162,247,.20), transparent 70%),
+    radial-gradient(600px 280px at 85% 20%, rgba(166,218,149,.16), transparent 70%),
+    linear-gradient(180deg, rgba(255,255,255,.02), rgba(255,255,255,0));
+  filter: saturate(1.1);
+}
+
+/* Portada */
+.profile-hero{
+  height:160px; border-radius:16px;
+  background:
+    radial-gradient(600px 280px at 15% 40%, rgba(122,162,247,.20), transparent 70%),
+    radial-gradient(600px 280px at 85% 20%, rgba(166,218,149,.16), transparent 70%),
+    linear-gradient(180deg, rgba(255,255,255,.02), rgba(255,255,255,0));
+  position: relative; overflow: hidden;
+}
+
+/* La tarjeta de cabecera se superpone a la portada sin crear artefactos */
+.profile-header-card{ margin-top:-46px; position:relative; z-index:1; }
+
+/* Avatar grande + edición */
+.avatar-lg{ width:88px; height:88px; border-radius:50%; overflow:hidden; }
+.avatar-lg img{ width:100%; height:100%; object-fit:cover; display:block; }
+
+/* Hacer clic en cualquier parte del avatar para subir imagen */
+.avatar-edit { position:relative; }
+
+.avatar-edit input[type="file"]{
+  position:absolute; inset:0;
+  opacity:0; cursor:pointer; z-index:3;
+}
+
+.avatar-badge{
+  position:absolute;
+  inset:0;
+  margin:auto;
+  width:48px; height:48px;
+  border-radius:50%;
+  background: rgba(0,0,0,0.6);
+  display:grid; place-items:center;
+  color:#fff; font-size:22px;
+  z-index:2;
+  opacity:0; transition: opacity .2s;
+}
+
+.avatar-edit:hover .avatar-badge{
+  opacity:1;
+}
+
+.avatar-badge::before{
+  content:"📷";
+}
+
+/* Hover sutil */
+.avatar-edit:hover .avatar-badge{ transform: translateY(-1px); transition: transform .12s ease; }
+
+/* Estados de foco y hover */
+.input select:hover{ border-color: rgba(122,162,247,.6); }
+.input select:focus{ outline: 2px solid var(--primary); outline-offset: 2px; }
+
+/* Popup de opciones (cuando se abre el menú) */
+.input select option{
+  background: var(--panel);
+  color: var(--text);
+}
+.input select option:checked,
+.input select option:hover{
+  background: rgba(122,162,247,.25);
+  color: var(--text);
+}

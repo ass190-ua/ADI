@@ -1,0 +1,95 @@
+/* Tarjetas */
+.card.pad { padding: var(--pad); }
+.card.media { overflow:hidden; }
+.card .title { font-weight: 650; margin-bottom: 8px; }
+.card .subtitle { color: var(--muted); font-size: 14px; }
+
+/* Lista con avatar */
+.list { display:flex; flex-direction:column; }
+.list-item { display:flex; align-items:center; gap:14px; padding:12px; border-bottom:1px solid var(--border); }
+.list-item:hover { background: rgba(255,255,255,.03); }
+.avatar { width:40px; height:40px; border-radius:999px; overflow:hidden; border:1px solid var(--border); }
+.meta { margin-left:auto; color: var(--muted); font-size:12px; }
+
+/* Burbujas de chat */
+.chat { display:flex; flex-direction:column; gap:10px; }
+.msg { max-width: 70%; padding:10px 12px; border-radius:14px; border:1px solid var(--border); }
+.msg.me { margin-left:auto; background: rgba(122,162,247,.14); border-color: rgba(122,162,247,.3); }
+.msg.them { background: rgba(255,255,255,.02); }
+.msg .time { display:block; margin-top:6px; font-size:12px; color: var(--muted); }
+
+/* Chips por tipo de evento */
+.type-birthday { background: rgba(250, 204, 21, .12); border-color: rgba(250, 204, 21, .3); color:#ffe082; }
+.type-trip     { background: rgba(16, 185, 129, .12); border-color: rgba(16, 185, 129, .3); color:#a6e3c7; }
+.type-wedding  { background: rgba(236, 72, 153, .12); border-color: rgba(236, 72, 153, .3); color:#f5a6cf; }
+
+/* Formularios */
+.form { display:grid; gap:14px; max-width: 520px; }
+.form .actions { display:flex; gap:10px; }
+
+/* Hero landing */
+.hero { padding: clamp(32px, 6vw, 88px) 0; display:grid; gap:22px; }
+.hero .cta { display:flex; gap:12px; }
+
+/* Galería */
+.gallery { columns: 4 260px; column-gap: 14px; }
+.gallery .tile { break-inside: avoid; margin-bottom:14px; overflow:hidden; border-radius: 14px; border:1px solid var(--border); }
+.gallery .tile img { width:100%; display:block; }
+
+/* Chips de filtro por categoría */
+.chip {
+  border-radius: 20px;
+  padding: 6px 14px;
+  font-weight: 500;
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition: background .2s, color .2s, transform .1s;
+}
+.chip:hover {
+  transform: translateY(-2px);
+}
+
+/* Variantes */
+.chip.todos {
+  background: rgba(122,162,247,0.15);
+  color: #7aa2f7;
+  border-color: #7aa2f7;
+}
+.chip.todos:hover,
+.chip.todos.active {
+  background: #7aa2f7;
+  color: #fff;
+}
+
+.chip.favoritos {
+  background: rgba(255,215,0,0.15);
+  color: #e6c200;
+  border-color: #e6c200;
+}
+.chip.favoritos:hover,
+.chip.favoritos.active {
+  background: #e6c200;
+  color: #000;
+}
+
+.chip.videos {
+  background: rgba(34,197,94,0.15); /* verde */
+  color: #22c55e;
+  border-color: #22c55e;
+}
+.chip.videos:hover,
+.chip.videos.active {
+  background: #22c55e;
+  color: #fff;
+}
+
+.chip.albumnes {
+  background: rgba(168,85,247,0.15); /* morado */
+  color: #a855f7;
+  border-color: #a855f7;
+}
+.chip.albumnes:hover,
+.chip.albumnes.active {
+  background: #a855f7;
+  color: #fff;
+}
