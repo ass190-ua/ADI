@@ -93,3 +93,42 @@
   background: #a855f7;
   color: #fff;
 }
+
+/* Modal reset password */
+.modal {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.65);
+  justify-content: center;
+  align-items: center;
+  z-index: 50;
+}
+.modal:target {
+  display: flex;
+}
+.modal-dialog {
+  width: min(400px, 90%);
+}
+
+/* Modal reset password */
+.modal { display:none; position:fixed; inset:0; background:rgba(0,0,0,.65);
+  justify-content:center; align-items:center; z-index:50; }
+.modal:target { display:flex; }
+.modal-dialog { width:min(400px, 90%); }
+
+/* Toast genérico con :target */
+.toast { display:none; position:fixed; left:50%; bottom:24px; transform:translateX(-50%);
+  z-index:60; }
+.toast:target { display:block; }
+.toast .toast-body { background: var(--panel); color: var(--text);
+  border:1px solid var(--border); border-radius:12px; padding:12px 14px;
+  box-shadow:0 10px 30px rgba(0,0,0,.25); }
+.toast.success .toast-body { outline:2px solid rgba(66, 186, 150, .35); }
+.toast-close { margin-left:12px; }
+
+.actions .btn {
+  width: 100%;       /* que ocupe todo el ancho */
+  text-align: center; /* centra el texto dentro */
+  display: block;     /* asegura que se comporte como bloque */
+}

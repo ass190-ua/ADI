@@ -467,3 +467,430 @@
 .toast .toast-close:hover{ opacity:1; }
 .toast.success .toast-body{ border-color: rgba(122,162,247,.5); }
 :target.toast{ display:block; }
+
+/* ===== Chat WhatsApp-like ===== */
+
+/* Contenedor del timeline */
+.chat-timeline {
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  padding: 0; /* el card ya tiene borde/sombra; el contenido interno controla los paddings */
+  overflow: hidden;
+}
+
+/* Cabecera pegajosa con la fecha (tipo chip centrado) */
+.chat-sticky-header {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  display: grid;
+  place-items: center;
+  padding: 10px 0 4px;
+}
+.chat-sticky-header::after {
+  content: attr(aria-label) " " attr(role); /* fallback, no visible realmente */
+  display:none;
+}
+.chat-sticky-header::before {
+  content: attr(aria-label);
+  font: inherit;
+  font-size: 12px;
+  opacity: .9;
+  background: var(--surface-2, #0f172a);
+  border: 1px solid var(--border, rgba(255,255,255,.08));
+  box-shadow: 0 1px 6px rgba(0,0,0,.25);
+  padding: 6px 10px;
+  border-radius: 999px;
+}
+
+/* Área scrolleable de mensajes */
+.chat-scroll {
+  overflow: auto;
+  padding: 12px 12px 0;
+  scroll-behavior: smooth;
+}
+
+/* Lista de mensajes */
+.msgs {
+  display: grid;
+  gap: 8px;
+  list-style: none;
+  margin: 0;
+  padding: 0 4px 12px;
+}
+
+/* Mensajes in/out */
+.msg {
+  display: grid;
+  max-width: 100%;
+}
+.msg .bubble {
+  position: relative;
+  max-width: min(75ch, 72%);
+  padding: 10px 12px 18px;
+  border-radius: 16px;
+  line-height: 1.35;
+  box-shadow: 0 2px 10px rgba(0,0,0,.2);
+}
+.msg.in { justify-content: start; }
+.msg.in .bubble {
+  background: #1f2937;                  /* burbuja gris azulada */
+  color: #e5e7eb;
+  border-top-left-radius: 4px;
+}
+.msg.out { justify-content: end; }
+.msg.out .bubble {
+  background: #3456d0;                  /* tu primario oscuro */
+  color: white;
+  border-top-right-radius: 4px;
+}
+
+/* Colita de la burbuja */
+.msg.in .bubble::after,
+.msg.out .bubble::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  width: 12px; height: 12px;
+  background: inherit;
+}
+.msg.in .bubble::after  { left: -4px; border-bottom-left-radius: 12px; transform: translateY(2px) rotate(45deg); }
+.msg.out .bubble::after { right: -4px; border-bottom-right-radius: 12px; transform: translateY(2px) rotate(-45deg); }
+
+/* Meta: hora + checks */
+.bubble .meta {
+  position: absolute;
+  right: 8px; bottom: 4px;
+  display: inline-flex; gap: 6px; align-items: center;
+  font-size: 11px; opacity: .8;
+}
+.bubble .ticks { font-weight: 700; opacity: .7; }
+.bubble .ticks.read { color: #8ab4ff; opacity: 1; } /* “doble check azul” */
+
+/* Agrupación visual: reduce separación cuando hay mensajes consecutivos del mismo lado */
+.msg.in + .msg.in  .bubble,
+.msg.out + .msg.out .bubble { margin-top: -2px; }
+
+/* Divider tradicional (si lo usas) */
+.divider { text-align: center; margin: 14px 0; }
+.divider span {
+  font-size: 12px; opacity: .9;
+  background: var(--surface-2, #0f172a);
+  border: 1px solid var(--border, rgba(255,255,255,.08));
+  padding: 6px 10px; border-radius: 999px;
+}
+
+/* Composer fijo al fondo del card (estilo WhatsApp) */
+.chat-compose {
+  display: grid;
+  grid-template-columns: auto 1fr auto auto;
+  align-items: center;
+  gap: 8px;
+  padding: 10px;
+  border-top: 1px solid var(--border, rgba(255,255,255,.08));
+  background: var(--surface-1, #0b1220);
+}
+.chat-compose .input { margin: 0; }
+.chat-compose .input input {
+  height: 40px;
+  border-radius: 999px;
+  padding-inline: 14px;
+}
+.icon-btn {
+  min-width: 40px; height: 40px;
+  display: grid; place-items: center;
+  border-radius: 999px;
+  background: transparent;
+  border: 1px solid var(--border, rgba(255,255,255,.1));
+}
+.icon-btn[disabled] { opacity: .6; }
+.send-btn { height: 40px; border-radius: 999px; padding-inline: 14px; }
+
+/* Indicador “escribiendo…” con solo CSS */
+.typing .bubble { width: 72px; }
+.typing-dots {
+  display: inline-grid; grid-auto-flow: column; gap: 4px;
+  align-items: center;
+}
+.typing-dots i {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: currentColor; opacity: .5;
+  animation: dot 1.2s infinite ease-in-out;
+}
+.typing-dots i:nth-child(2){ animation-delay:.15s }
+.typing-dots i:nth-child(3){ animation-delay:.3s }
+@keyframes dot {
+  0%, 80%, 100% { transform: translateY(0); opacity:.5; }
+  40% { transform: translateY(-3px); opacity: 1; }
+}
+
+/* Dark polish (opcional, ajusta a tu paleta) */
+:root[data-theme="dark"] {
+  --surface-1: #0b1220;
+  --surface-2: #0f172a;
+  --border: rgba(255,255,255,.08);
+}
+
+/* ===== Router sin JS para chats (usa :target) ===== */
+.chat-thread { display: none; }
+.chat-thread:target { display: block; }     /* muestra el hilo activo */
+.chat-thread:target ~ .empty-chat { display: none; }  /* oculta el vacío si hay target */
+
+/* Layout del panel: que cada chat se vea como tarjeta completa */
+.chat-panel { padding: 0; }
+.chat-panel .chat-header { padding: 12px; border-bottom: 1px solid var(--border, rgba(255,255,255,.08)); }
+
+/* ===== Skin WhatsApp-like (reutilizable) ===== */
+.chat-timeline { display: grid; grid-template-rows: auto 1fr auto; }
+.chat-sticky-header { position: sticky; top: 0; z-index: 1; display: grid; place-items: center; padding: 10px 0 4px; }
+.chat-sticky-header::before {
+  content: attr(aria-label);
+  font-size: 12px; opacity: .9; background: var(--surface-2,#0f172a);
+  border: 1px solid var(--border, rgba(255,255,255,.08));
+  box-shadow: 0 1px 6px rgba(0,0,0,.25); padding: 6px 10px; border-radius: 999px;
+}
+.chat-scroll { overflow: auto; padding: 12px 12px 0; scroll-behavior: smooth; }
+.msgs { display: grid; gap: 8px; list-style: none; margin: 0; padding: 0 4px 12px; }
+.msg { display: grid; }
+.msg .bubble {
+  position: relative; max-width: min(75ch,72%); padding: 10px 12px 18px;
+  border-radius: 16px; line-height: 1.35; box-shadow: 0 2px 10px rgba(0,0,0,.2);
+}
+.msg.in  { justify-content: start; }
+.msg.out { justify-content: end; }
+.msg.in  .bubble { background: #1f2937; color: #e5e7eb; border-top-left-radius: 4px; }
+.msg.out .bubble { background: #3456d0; color: #fff;    border-top-right-radius: 4px; }
+.msg.in  .bubble::after, .msg.out .bubble::after {
+  content:""; position:absolute; bottom:0; width:12px; height:12px; background:inherit;
+}
+.msg.in  .bubble::after { left:-4px;  border-bottom-left-radius:12px;  transform:translateY(2px) rotate(45deg); }
+.msg.out .bubble::after { right:-4px; border-bottom-right-radius:12px; transform:translateY(2px) rotate(-45deg); }
+.bubble .meta { position:absolute; right:8px; bottom:4px; display:inline-flex; gap:6px; align-items:center; font-size:11px; opacity:.8; }
+.bubble .ticks { font-weight:700; opacity:.7; }
+.bubble .ticks.read { color:#8ab4ff; opacity:1; }
+.msg.in + .msg.in .bubble, .msg.out + .msg.out .bubble { margin-top:-2px; }
+
+/* Composer */
+.chat-compose {
+  display:grid; grid-template-columns:auto 1fr auto auto; align-items:center; gap:8px; padding:10px;
+  border-top:1px solid var(--border, rgba(255,255,255,.08)); background: var(--surface-1,#0b1220);
+}
+.chat-compose .input { margin:0; }
+.chat-compose .input input { height:40px; border-radius:999px; padding-inline:14px; }
+.icon-btn { min-width:40px; height:40px; display:grid; place-items:center; border-radius:999px;
+  background:transparent; border:1px solid var(--border, rgba(255,255,255,.1)); }
+.icon-btn[disabled] { opacity:.6; }
+.send-btn { height:40px; border-radius:999px; padding-inline:14px; }
+
+/* Dots "typing…" */
+.typing .bubble { width:72px; }
+.typing-dots { display:inline-grid; grid-auto-flow:column; gap:4px; align-items:center; }
+.typing-dots i { width:6px; height:6px; border-radius:50%; background: currentColor; opacity:.5; animation: dot 1.2s infinite ease-in-out; }
+.typing-dots i:nth-child(2){ animation-delay:.15s } .typing-dots i:nth-child(3){ animation-delay:.3s }
+@keyframes dot { 0%,80%,100%{ transform:translateY(0); opacity:.5; } 40%{ transform:translateY(-3px); opacity:1; } }
+
+/* Paleta base oscura (por si falta) */
+:root[data-theme="dark"]{ --surface-1:#0b1220; --surface-2:#0f172a; --border:rgba(255,255,255,.08); }
+
+/* ====== Layout de página sin scroll externo ====== */
+.page{ min-height:100svh; display:flex; flex-direction:column; }
+.app-header, .footer{ flex:0 0 auto; }
+.app-shell{ flex:1 1 auto; min-height:0; display:grid; grid-template-columns: 220px 1fr; }
+@media (max-width: 960px){
+  .app-shell{ grid-template-columns: 1fr; }
+}
+
+/* El main de cada página se vuelve columna: header de sección arriba + contenido el resto */
+.app-main.container{
+  display:flex; flex-direction:column; min-height:0;
+}
+
+/* El header de sección es altura auto; el grid ocupa el resto */
+.section-header{ flex:0 0 auto; margin-bottom:12px; }
+.chats-grid{
+  flex:1 1 auto; min-height:0;
+  display:grid; grid-template-columns: 360px 1fr; gap:16px;
+  align-items:stretch; /* fuerza alturas iguales */
+}
+@media (max-width: 1200px){ .chats-grid{ grid-template-columns: 300px 1fr; } }
+@media (max-width: 900px){  .chats-grid{ grid-template-columns: 1fr; } }
+
+/* Tarjetas de lista y chat ocupan el 100% y desplazan su propio contenido */
+.chats-list, .chat-panel{
+  height:100%; overflow:hidden;
+  display:flex; flex-direction:column; /* cabecera arriba, scroll dentro */
+}
+
+/* ====== Lista (columna izquierda) tipo WhatsApp ====== */
+.chats-list .input{ margin-bottom:10px; }
+.thread-list{ overflow:auto; padding-right:4px; }
+.thread{ display:grid; grid-template-columns: 40px 1fr auto; align-items:center; gap:10px;
+  padding:10px; border-radius:14px; text-decoration:none; color:inherit;
+}
+.thread:hover{ background: rgba(255,255,255,.04); }
+.thread .avatar{ width:40px; height:40px; overflow:hidden; border-radius:999px; }
+.thread .name{ font-weight:600; display:block; }
+.thread .preview{ display:block; opacity:.8; font-size:.9rem; }
+.thread .time{ opacity:.7; font-size:.75rem; }
+.thread .badge{ background:#ff4757; color:#fff; font-size:.7rem; min-width:18px; height:18px;
+  display:grid; place-items:center; border-radius:999px; margin-left:6px;
+}
+
+/* ====== Panel de conversación: header + timeline + composer ====== */
+.chat-panel{ padding:0; }
+.chat-panel .chat-header{
+  padding:12px; border-bottom:1px solid var(--border, rgba(255,255,255,.08));
+}
+
+/* Router sin JS: muestra solo el hilo apuntado por el hash */
+.chat-thread{ display:none; height:100%; overflow:hidden; }
+.chat-thread:target{ display:flex; flex-direction:column; min-height:0; }
+.chat-thread:target ~ .empty-chat{ display:none; }
+
+/* En móvil: si hay hilo abierto, oculta la lista (progressive enhancement con :has) */
+@supports selector(:has(*)){
+  @media (max-width: 900px){
+    .chats-grid:has(.chat-thread:target) .chats-list{ display:none; }
+  }
+}
+
+/* ====== Timeline estilo WhatsApp (reutiliza lo que ya pusimos) ====== */
+.chat-timeline{ display:grid; grid-template-rows:auto 1fr auto; min-height:0; }
+.chat-sticky-header{ position:sticky; top:0; z-index:1; display:grid; place-items:center; padding:10px 0 4px; }
+.chat-sticky-header::before{
+  content:attr(aria-label); font-size:12px; opacity:.9;
+  background:var(--surface-2,#0f172a); border:1px solid var(--border,rgba(255,255,255,.08));
+  padding:6px 10px; border-radius:999px; box-shadow:0 1px 6px rgba(0,0,0,.25);
+}
+.chat-scroll{ overflow:auto; padding:12px 12px 0; scroll-behavior:smooth; min-height:0; }
+
+.msgs{ list-style:none; margin:0; padding:0 4px 12px; display:grid; gap:8px; }
+.msg{ display:grid; }
+.msg .bubble{
+  position:relative; max-width:min(75ch,72%); padding:10px 12px 18px;
+  border-radius:16px; line-height:1.35; box-shadow:0 2px 10px rgba(0,0,0,.2);
+}
+.msg.in{ justify-content:start; }
+.msg.out{ justify-content:end; }
+.msg.in .bubble{ background:#1f2937; color:#e5e7eb; border-top-left-radius:4px; }
+.msg.out .bubble{ background:#3456d0; color:#fff; border-top-right-radius:4px; }
+
+/* colitas */
+.msg.in .bubble::after, .msg.out .bubble::after{
+  content:""; position:absolute; bottom:0; width:12px; height:12px; background:inherit;
+}
+.msg.in .bubble::after{ left:-4px;  border-bottom-left-radius:12px;  transform:translateY(2px) rotate(45deg); }
+.msg.out .bubble::after{ right:-4px; border-bottom-right-radius:12px; transform:translateY(2px) rotate(-45deg); }
+
+/* meta (hora, checks) */
+.bubble .meta{ position:absolute; right:8px; bottom:4px; display:inline-flex; gap:6px; align-items:center; font-size:11px; opacity:.8; }
+.bubble .ticks{ font-weight:700; opacity:.7; } .bubble .ticks.read{ color:#8ab4ff; opacity:1; }
+
+/* agrupar consecutivos (más WhatsApp) */
+.msg.in + .msg.in .bubble, .msg.out + .msg.out .bubble{ margin-top:-2px; }
+
+/* Composer fijo */
+.chat-compose{
+  display:grid; grid-template-columns:auto 1fr auto auto; align-items:center;
+  gap:8px; padding:10px; border-top:1px solid var(--border,rgba(255,255,255,.08));
+  background:var(--surface-1,#0b1220);
+}
+.chat-compose .input{ margin:0; }
+.chat-compose .input input{ height:40px; border-radius:999px; padding-inline:14px; }
+.icon-btn{
+  min-width:40px; height:40px; display:grid; place-items:center; border-radius:999px;
+  background:transparent; border:1px solid var(--border,rgba(255,255,255,.1));
+}
+.icon-btn[disabled]{ opacity:.6; }
+.send-btn{ height:40px; border-radius:999px; padding-inline:14px; }
+
+/* escribiendo… */
+.typing .bubble{ width:72px; }
+.typing-dots{ display:inline-grid; grid-auto-flow:column; gap:4px; align-items:center; }
+.typing-dots i{ width:6px; height:6px; border-radius:50%; background:currentColor; opacity:.5; animation:dot 1.2s infinite ease-in-out; }
+.typing-dots i:nth-child(2){ animation-delay:.15s } .typing-dots i:nth-child(3){ animation-delay:.3s }
+@keyframes dot{ 0%,80%,100%{ transform:translateY(0); opacity:.5 } 40%{ transform:translateY(-3px); opacity:1 } }
+
+/* Paleta base oscura (por si falta) */
+:root[data-theme="dark"]{ --surface-1:#0b1220; --surface-2:#0f172a; --border:rgba(255,255,255,.08); }
+
+/* ==== FIX 1: encadenar alturas y scroll correcto en el panel ==== */
+.chat-panel{
+  display:flex; flex-direction:column; padding:0; min-height:0; /* ocupa todo y deja crecer al hijo */
+}
+.chat-panel .chat-header{ flex:0 0 auto; }
+
+.chat-thread{                     /* cada conversación */
+  display:none; flex:1 1 auto; min-height:0; /* deja que el timeline ocupe el resto */
+}
+.chat-thread:target{ display:flex; flex-direction:column; }
+
+.chat-timeline{                   /* envoltorio del timeline */
+  display:flex; flex-direction:column; flex:1 1 auto; min-height:0;
+}
+.chat-sticky-header{ position:sticky; top:0; z-index:1; }
+
+.chat-scroll{                     /* zona scrolleable real */
+  flex:1 1 auto; min-height:0; overflow:auto;
+  padding:12px 12px 0;
+}
+.chat-compose{ flex:0 0 auto; }
+
+/* ==== FIX 2: limpiar estilos heredados en los mensajes ==== */
+.msgs{ list-style:none; margin:0; padding:0 4px 12px; display:grid; gap:8px; }
+.msgs > li{
+  background:transparent !important;
+  border:0 !important;
+  box-shadow:none !important;
+  padding:0 !important;
+  border-radius:0 !important;
+}
+
+/* asegurar que SOLO la burbuja tiene fondo */
+.msg .bubble{
+  position:relative;
+  display:inline-block;
+  max-width:min(75ch,72%);
+  padding:10px 12px 18px;
+  border-radius:16px;
+  line-height:1.35;
+  box-shadow:0 2px 10px rgba(0,0,0,.2);
+}
+.msg{ display:grid; }
+.msg.in{  justify-content:start; }
+.msg.out{ justify-content:end; }
+.msg.in  .bubble{ background:#1f2937; color:#e5e7eb; border-top-left-radius:4px; }
+.msg.out .bubble{ background:#3456d0; color:#fff;    border-top-right-radius:4px; }
+.msg.in  .bubble::after, .msg.out .bubble::after{
+  content:""; position:absolute; bottom:0; width:12px; height:12px; background:inherit;
+}
+.msg.in  .bubble::after{ left:-4px;  border-bottom-left-radius:12px;  transform:translateY(2px) rotate(45deg); }
+.msg.out .bubble::after{ right:-4px; border-bottom-right-radius:12px; transform:translateY(2px) rotate(-45deg); }
+
+.bubble .meta{ position:absolute; right:8px; bottom:4px; display:inline-flex; gap:6px; font-size:11px; opacity:.8; }
+.bubble .ticks{ font-weight:700; opacity:.7; } .bubble .ticks.read{ color:#8ab4ff; opacity:1; }
+
+.msg.in + .msg.in .bubble,
+.msg.out + .msg.out .bubble{ margin-top:-2px; }  /* agrupación WhatsApp */
+
+/* ==== FIX 3: alturas iguales lista/panel y sin scroll de página ==== */
+.page{ min-height:100svh; display:flex; flex-direction:column; }
+.app-header,.footer{ flex:0 0 auto; }
+.app-shell{ flex:1 1 auto; min-height:0; display:grid; grid-template-columns:220px 1fr; }
+.app-main.container{ display:flex; flex-direction:column; min-height:0; }
+.section-header{ flex:0 0 auto; margin-bottom:12px; }
+.chats-grid{
+  flex:1 1 auto; min-height:0;
+  display:grid; grid-template-columns:360px 1fr; gap:16px; align-items:stretch;
+}
+.chats-list, .chat-panel{
+  height:100%; overflow:hidden; display:flex; flex-direction:column;
+}
+@media (max-width:1200px){ .chats-grid{ grid-template-columns:300px 1fr; } }
+@media (max-width:900px){  .chats-grid{ grid-template-columns:1fr; } }
+/* oculta la lista en móvil cuando hay hilo abierto (si el navegador soporta :has) */
+@supports selector(:has(*)){
+  @media (max-width:900px){
+    .chats-grid:has(.chat-thread:target) .chats-list{ display:none; }
+  }
+}

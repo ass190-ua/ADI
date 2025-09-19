@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="es" data-theme="dark">
+<html lang="es" data-theme="dark" data-component="HomePage">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -9,154 +9,155 @@
   <link rel="stylesheet" href="css/components.css">
   <link rel="stylesheet" href="css/pages.css">
 </head>
-<body>
-  <div class="page home">
+<body data-part="body">
+  <div class="page home" data-component="MainLayout">
 
-    <!-- Header privado -->
-    <header class="app-header">
-      <div class="brand">
-        <a class="logo" href="home.html">
-          <img src="assets/img/logo_header.png" alt="Memories+">
+    <!-- Header privado con menú de usuario -->
+    <header class="app-header" data-component="AppHeader" data-variant="private">
+      <div class="brand" data-part="brand">
+        <a class="logo" href="home.html" data-part="logo-link">
+          <img src="assets/img/logo_header.png" alt="Memories+" data-part="logo-img">
           <span class="visually-hidden">Memories+</span>
         </a>
       </div>
 
       <!-- Toggle móvil para sidebar -->
-      <input type="checkbox" id="menu-toggle" class="menu-toggle" aria-label="Abrir menú">
-      <label for="menu-toggle" class="menu-btn" aria-hidden="true">☰</label>
+      <input type="checkbox" id="menu-toggle" class="menu-toggle" aria-label="Abrir menú" data-part="menu-toggle">
+      <label for="menu-toggle" class="menu-btn" aria-hidden="true" data-part="menu-btn">☰</label>
 
       <!-- Nav centrado (vacío, usamos la sidebar) -->
-      <nav class="app-nav" aria-label="Secciones"></nav>
+      <nav class="app-nav" aria-label="Secciones" data-part="nav"></nav>
 
-      <!-- Acciones de usuario (solo aquí) -->
-      <!-- Acciones de usuario: solo avatar con menú -->
-      <div class="user-actions">
-        <details class="user-menu">
-            <summary aria-label="Abrir menú de usuario">
-            <img class="avatar" src="assets/img/perfil.jpg" alt="Tu avatar">
-            </summary>
-            <nav class="menu" aria-label="Menú de usuario">
-            <a href="profile.html">👤 Perfil</a>
-            <a href="login.html">⏻ Cerrar sesión</a>
-            </nav>
+      <!-- Acciones de usuario: avatar con menú desplegable -->
+      <div class="user-actions" data-part="user-actions">
+        <details class="user-menu" data-component="UserMenu">
+          <summary aria-label="Abrir menú de usuario" data-part="summary">
+            <img class="avatar" src="assets/img/perfil.jpg" alt="Tu avatar" data-part="avatar">
+          </summary>
+          <nav class="menu" aria-label="Menú de usuario" data-part="menu">
+            <a href="profile.html" data-part="menu-item">👤 Perfil</a>
+            <a href="login.html" data-part="menu-item">⏻ Cerrar sesión</a>
+          </nav>
         </details>
       </div>
     </header>
 
-    <!-- App shell -->
-    <main class="app-shell">
-      <!-- Sidebar: solo navegación principal -->
-      <aside class="sidebar">
-        <nav class="sidebar-nav" aria-label="Principal">
-          <a href="home.html" aria-current="page">🏠 Inicio</a>
-          <a href="photos.html">🖼️ Fotos</a>
-          <a href="chats.html">💬 Chats</a>
-          <a href="events.html">🎉 Eventos</a>
+    <!-- App shell (sidebar + contenido principal) -->
+    <main class="app-shell" data-component="AppShell">
+      <aside class="sidebar" data-component="Sidebar">
+        <nav class="sidebar-nav" aria-label="Principal" data-component="SiteNav">
+          <a href="home.html" aria-current="page" data-part="nav-link">🏠 Inicio</a>
+          <a href="photos.html" data-part="nav-link">🖼️ Fotos</a>
+          <a href="chats.html" data-part="nav-link">💬 Chats</a>
+          <a href="events.html" data-part="nav-link">🎉 Eventos</a>
         </nav>
       </aside>
 
-      <!-- Contenido -->
-      <section class="app-main container" aria-labelledby="home-title">
+      <!-- Contenido principal -->
+      <section class="app-main container" aria-labelledby="home-title" data-component="HomeContent">
 
-        <!-- Hero compacto -->
-        <div class="card pad" style="margin-bottom:16px; overflow:hidden; position:relative;">
-          <div style="
-            position:absolute; inset:-20% -10% auto -10%;
+        <!-- Hero compacto con buscador y accesos rápidos -->
+        <div class="card pad" style="margin-bottom:16px; overflow:hidden; position:relative;" data-component="HeroCard">
+          <!-- Fondo decorativo -->
+          <div style="position:absolute; inset:-20% -10% auto -10%;
             height:220px; z-index:0;
             background:
               radial-gradient(600px 280px at 15% 40%, rgba(122,162,247,.18), transparent 70%),
               radial-gradient(600px 280px at 85% 20%, rgba(166,218,149,.14), transparent 70%);
-            filter: blur(2px);
-          "></div>
-          <div style="position:relative; z-index:1;">
-            <h1 id="home-title" class="h2" style="margin:0 0 6px;">¡Bienvenido a tu espacio!</h1>
-            <p class="p" style="margin:0 0 12px;">Organiza recuerdos, conversa con quien quieras y crea eventos únicos.</p>
+            filter: blur(2px);" data-part="background">
+          </div>
+
+          <!-- Contenido principal del hero -->
+          <div style="position:relative; z-index:1;" data-part="content">
+            <h1 id="home-title" class="h2" style="margin:0 0 6px;" data-part="title">¡Bienvenido a tu espacio!</h1>
+            <p class="p" style="margin:0 0 12px;" data-part="subtitle">
+              Organiza recuerdos, conversa con quien quieras y crea eventos únicos.
+            </p>
 
             <!-- Buscador -->
-            <form role="search" aria-label="Buscar" class="row" style="gap:10px; flex-wrap:wrap;">
-              <div class="input" style="flex:1; min-width:220px;">
+            <form role="search" aria-label="Buscar" class="row" style="gap:10px; flex-wrap:wrap;" data-component="SearchBar">
+              <div class="input" style="flex:1; min-width:220px;" data-part="field">
                 <label class="visually-hidden" for="q">Buscar</label>
-                <input id="q" type="search" placeholder="Buscar fotos, chats o eventos…">
+                <input id="q" type="search" placeholder="Buscar fotos, chats o eventos…" data-part="input">
               </div>
-              <button class="btn">Buscar</button>
+              <button class="btn" data-part="button" style="color: white;">Buscar</button>
             </form>
 
             <!-- Accesos rápidos -->
-            <div class="row" style="gap:10px; margin-top:12px; flex-wrap:wrap;">
-              <a class="chip" href="photos.html">📥 Subir fotos</a>
-              <a class="chip" href="chats.html">➕ Nuevo chat</a>
-              <a class="chip" href="event-create.html">🗓️ Crear evento</a>
+            <div class="row" style="gap:10px; margin-top:12px; flex-wrap:wrap;" data-component="QuickActions">
+              <a class="chip" href="photos.html" data-part="chip">📥 Subir fotos</a>
+              <a class="chip" href="chats.html" data-part="chip">➕ Nuevo chat</a>
+              <a class="chip" href="event-create.html" data-part="chip">🗓️ Crear evento</a>
             </div>
           </div>
         </div>
 
         <!-- Tarjetas principales -->
-        <div class="grid grid-cards" style="margin-top:12px;">
-          <a class="card link pad" href="photos.html" aria-label="Ir a Fotos y vídeos">
-            <div class="title">Tus fotos y vídeos</div>
-            <div class="p">Organiza por álbumes y momentos</div>
+        <div class="grid grid-cards" style="margin-top:12px;" data-component="MainCards">
+          <a class="card link pad" href="photos.html" aria-label="Ir a Fotos y vídeos" data-component="MainCard">
+            <div class="title" data-part="title">Tus fotos y vídeos</div>
+            <div class="p" data-part="desc">Organiza por álbumes y momentos</div>
           </a>
-          <a class="card link pad" href="chats.html" aria-label="Ir a Chats">
-            <div class="title">Chats</div>
-            <div class="p">Privados y grupales</div>
+          <a class="card link pad" href="chats.html" aria-label="Ir a Chats" data-component="MainCard">
+            <div class="title" data-part="title">Chats</div>
+            <div class="p" data-part="desc">Privados y grupales</div>
           </a>
-          <a class="card link pad" href="events.html" aria-label="Ir a Eventos">
-            <div class="title">Eventos</div>
-            <div class="p">Cumples, viajes, bodas… con mini-juegos</div>
+          <a class="card link pad" href="events.html" aria-label="Ir a Eventos" data-component="MainCard">
+            <div class="title" data-part="title">Eventos</div>
+            <div class="p" data-part="desc">Cumples, viajes, bodas… con mini-juegos</div>
           </a>
-          <a class="card link pad" href="profile.html" aria-label="Ir a tu Perfil">
-            <div class="title">Tu perfil</div>
-            <div class="p">Amigos, ajustes e idioma</div>
+          <a class="card link pad" href="profile.html" aria-label="Ir a tu Perfil" data-component="MainCard">
+            <div class="title" data-part="title">Tu perfil</div>
+            <div class="p" data-part="desc">Amigos, ajustes e idioma</div>
           </a>
         </div>
 
-        <!-- (Opcional) bloque secundario: últimos movimientos -->
-        <div class="card pad" style="margin-top:16px;">
-          <div class="title">Actividad reciente</div>
-          <div class="list">
-            <div class="list-item">
-              <div class="avatar"><img src="assets/img/perfil.jpg" alt="" /></div>
-              <div>
-                <div>Has subido 12 fotos a <strong>Verano 2025</strong></div>
-                <small class="p">hace 2 horas</small>
+        <!-- Actividad reciente -->
+        <div class="card pad" style="margin-top:16px;" data-component="RecentActivity">
+          <div class="title" data-part="title">Actividad reciente</div>
+          <div class="list" data-part="list">
+            <div class="list-item" data-component="ActivityItem">
+              <div class="avatar" data-part="avatar"><img src="assets/img/perfil.jpg" alt=""></div>
+              <div data-part="content">
+                <div data-part="text">Has subido 12 fotos a <strong>Verano 2025</strong></div>
+                <small class="p" data-part="time">hace 2 horas</small>
               </div>
-              <span class="meta">Fotos</span>
+              <span class="meta" data-part="meta">Fotos</span>
             </div>
-            <div class="list-item">
-              <div class="avatar"><img src="assets/img/perfil.jpg" alt="" /></div>
-              <div>
-                <div>Nueva conversación con <strong>Grupo Familia</strong></div>
-                <small class="p">ayer</small>
+            <div class="list-item" data-component="ActivityItem">
+              <div class="avatar" data-part="avatar"><img src="assets/img/perfil.jpg" alt=""></div>
+              <div data-part="content">
+                <div data-part="text">Nueva conversación con <strong>Grupo Familia</strong></div>
+                <small class="p" data-part="time">ayer</small>
               </div>
-              <span class="meta">Chats</span>
+              <span class="meta" data-part="meta">Chats</span>
             </div>
           </div>
         </div>
-
       </section>
     </main>
 
     <!-- Footer -->
-    <footer class="footer book-footer">
-      <div class="container">
-        <nav class="navline" aria-label="Enlaces del pie">
-          <a href="contact.html" class="footer-link" aria-current="page">Contacto</a>
-          <span class="sep">•</span>
-          <div class="social" aria-label="Redes sociales">
-            <a href="#" aria-label="Facebook" class="icon">
+    <footer class="footer book-footer" data-component="AppFooter">
+      <div class="container" data-part="container">
+        <nav class="navline" aria-label="Enlaces del pie" data-part="nav">
+          <a href="contact.html" class="footer-link" aria-current="page" data-part="link">Contacto</a>
+          <span class="sep" data-part="sep">•</span>
+          <div class="social" aria-label="Redes sociales" data-part="social">
+            <a href="#" aria-label="Facebook" class="icon" data-part="social-link">
               <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="currentColor" d="M22 12.06C22 6.48 17.52 2 11.94 2S2 6.48 2 12.06c0 5.01 3.66 9.17 8.44 9.94v-7.03H7.9v-2.9h2.54V9.41c0-2.5 1.49-3.88 3.77-3.88 1.09 0 2.24.2 2.24.2v2.46h-1.26c-1.24 0-1.63.77-1.63 1.56v1.87h2.78l-.44 2.9h-2.34V22c4.78-.77 8.44-4.93 8.44-9.94Z"/></svg>
             </a>
-            <a href="#" aria-label="X/Twitter" class="icon">
+            <a href="#" aria-label="X/Twitter" class="icon" data-part="social-link">
               <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="currentColor" d="M3 3h4.6l4.1 6.1L16.8 3H21l-7.3 9.4L21 21h-4.6l-4.5-6.7L7.2 21H3l7.7-9.9L3 3Z"/></svg>
             </a>
-            <a href="#" aria-label="Instagram" class="icon">
+            <a href="#" aria-label="Instagram" class="icon" data-part="social-link">
               <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="currentColor" d="M7 2h10a5 5 0 0 1 5 5v10a5 5 0 0 1-5 5H7a5 5 0 0 1-5-5V7a5 5 0 0 0 5-5Zm10 2H7a3 3 0 0 0-3 3v10a3 3 0 0 0 3 3h10a3 3 0 0 0 3-3V7a3 3 0 0 0-3-3Zm-5 3.8a5.2 5.2 0 1 1 0 10.4A5.2 5.2 0 0 1 12 7.8Zm0 2a3.2 3.2 0 1 0 0 6.4 3.2 3.2 0 0 0 0-6.4Zm4.8-.6a.9.9 0 1 1 0 1.8.9.9 0 0 1 0-1.8Z"/></svg>
             </a>
           </div>
-          <span class="sep">•</span>
-          <a href="legalpolitics.html" class="footer-link">Políticas legales</a>
+          <span class="sep" data-part="sep">•</span>
+          <a href="legalpolitics.html" class="footer-link" data-part="link">Políticas legales</a>
         </nav>
-        <div class="copy">
+        <div class="copy" data-part="copy">
           <small>© 2025 — <strong>Memories+</strong></small>
         </div>
       </div>

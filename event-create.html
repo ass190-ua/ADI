@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="es" data-theme="dark">
+<html lang="es" data-theme="dark" data-component="EventCreatePage">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -9,138 +9,143 @@
   <link rel="stylesheet" href="css/components.css">
   <link rel="stylesheet" href="css/pages.css">
 </head>
-<body>
-  <div class="page">
+<body data-part="body">
+  <div class="page" data-component="MainLayout">
 
-    <!-- Header -->
-    <header class="app-header">
-      <div class="brand">
-        <a class="logo" href="home.html">
-          <img src="assets/img/logo_header.png" alt="Memories+">
+    <!-- Header privado -->
+    <header class="app-header" data-component="AppHeader" data-variant="private">
+      <div class="brand" data-part="brand">
+        <a class="logo" href="home.html" data-part="logo-link">
+          <img src="assets/img/logo_header.png" alt="Memories+" data-part="logo-img">
           <span class="visually-hidden">Memories+</span>
         </a>
       </div>
-      <input type="checkbox" id="menu-toggle" class="menu-toggle" aria-label="Abrir menú">
-      <label for="menu-toggle" class="menu-btn">☰</label>
-      <nav class="app-nav"></nav>
-      <div class="user-actions">
-        <details class="user-menu">
-          <summary aria-label="Abrir menú de usuario">
-            <img class="avatar" src="assets/img/perfil.jpg" alt="Tu avatar">
+      <input type="checkbox" id="menu-toggle" class="menu-toggle" aria-label="Abrir menú" data-part="menu-toggle">
+      <label for="menu-toggle" class="menu-btn" data-part="menu-btn">☰</label>
+      <nav class="app-nav" data-part="nav" aria-label="Secciones"></nav>
+      <div class="user-actions" data-part="user-actions">
+        <details class="user-menu" data-component="UserMenu">
+          <summary aria-label="Abrir menú de usuario" data-part="summary">
+            <img class="avatar" src="assets/img/perfil.jpg" alt="Tu avatar" data-part="avatar">
           </summary>
-          <nav class="menu" aria-label="Menú de usuario">
-            <a href="profile.html">👤 Perfil</a>
-            <a href="login.html">⏻ Cerrar sesión</a>
+          <nav class="menu" aria-label="Menú de usuario" data-part="menu">
+            <a href="profile.html" data-part="menu-item">👤 Perfil</a>
+            <a href="login.html" data-part="menu-item">⏻ Cerrar sesión</a>
           </nav>
         </details>
       </div>
     </header>
 
     <!-- Shell -->
-    <main class="app-shell">
-      <aside class="sidebar">
-        <nav class="sidebar-nav" aria-label="Principal">
-          <a href="home.html">🏠 Inicio</a>
-          <a href="photos.html">🖼️ Fotos</a>
-          <a href="chats.html">💬 Chats</a>
-          <a href="events.html" aria-current="page">🎉 Eventos</a>
+    <main class="app-shell" data-component="AppShell">
+      <!-- Sidebar principal -->
+      <aside class="sidebar" data-component="Sidebar">
+        <nav class="sidebar-nav" aria-label="Principal" data-component="SiteNav">
+          <a href="home.html" data-part="nav-link">🏠 Inicio</a>
+          <a href="photos.html" data-part="nav-link">🖼️ Fotos</a>
+          <a href="chats.html" data-part="nav-link">💬 Chats</a>
+          <a href="events.html" aria-current="page" data-part="nav-link">🎉 Eventos</a>
         </nav>
       </aside>
 
-      <section class="app-main container">
-        <h1 class="h2" style="margin:0 0 10px;">Crear evento</h1>
+      <!-- Contenido principal: formulario creación de evento -->
+      <section class="app-main container" data-component="EventCreateContent">
+        <h1 class="h2" style="margin:0 0 10px;" data-part="title">Crear evento</h1>
 
-        <form class="card pad form" action="#created" method="get" autocomplete="on" novalidate>
-          <!-- Portada / Cover uploader -->
-          <figure class="cover-uploader card">
-            <img src="assets/img/p3.jpg" alt="Portada del evento (opcional)" />
-            <input id="cover-file" type="file" accept="image/*" aria-label="Subir portada">
-            <label for="cover-file" class="cover-badge" title="Subir portada" aria-label="Subir portada">📷 Subir portada</label>
+        <!-- Formulario (prototipo sin JS; submit a #created para mostrar toast) -->
+        <form class="card pad form" action="#created" method="get" autocomplete="on" novalidate
+              data-component="EventForm">
+
+          <!-- Portada -->
+          <figure class="cover-uploader card" data-component="CoverUploader">
+            <img src="assets/img/p3.jpg" alt="Portada del evento (opcional)" data-part="preview" />
+            <input id="cover-file" type="file" accept="image/*" aria-label="Subir portada" data-part="input">
+            <label for="cover-file" class="cover-badge" title="Subir portada" aria-label="Subir portada" data-part="button">📷 Subir portada</label>
           </figure>
 
-          <div class="grid grid-2" style="margin-top:12px;">
-            <div class="input">
-              <label for="e-title">Título del evento</label>
-              <input id="e-title" name="title" type="text" placeholder="Ej. Cumple de Alba" required>
+          <div class="grid grid-2" style="margin-top:12px;" data-part="grid">
+            <div class="input" data-part="field">
+              <label for="e-title" data-part="label">Título del evento</label>
+              <input id="e-title" name="title" type="text" placeholder="Ej. Cumple de Alba" required data-part="input">
             </div>
 
-            <div class="input">
-              <label for="e-privacy">Privacidad</label>
-              <select id="e-privacy" name="privacy">
+            <div class="input" data-part="field">
+              <label for="e-privacy" data-part="label">Privacidad</label>
+              <select id="e-privacy" name="privacy" data-part="select">
                 <option value="friends" selected>Solo amigos</option>
                 <option value="public">Público</option>
                 <option value="private">Privado</option>
               </select>
             </div>
 
-            <div class="input">
-              <label for="e-date">Fecha y hora</label>
-              <input id="e-date" name="datetime" type="datetime-local" required>
+            <div class="input" data-part="field">
+              <label for="e-date" data-part="label">Fecha y hora</label>
+              <input id="e-date" name="datetime" type="datetime-local" required data-part="input">
             </div>
 
-            <div class="input">
-              <label for="e-rsvp">Fecha límite RSVP (opcional)</label>
-              <input id="e-rsvp" name="rsvp_deadline" type="date">
+            <div class="input" data-part="field">
+              <label for="e-rsvp" data-part="label">Fecha límite RSVP (opcional)</label>
+              <input id="e-rsvp" name="rsvp_deadline" type="date" data-part="input">
             </div>
 
-            <div class="input">
-              <label for="e-location">Ubicación (o enlace si es online)</label>
-              <input id="e-location" name="location" type="text" placeholder="Parque Central / https://meet...">
+            <div class="input" data-part="field">
+              <label for="e-location" data-part="label">Ubicación (o enlace si es online)</label>
+              <input id="e-location" name="location" type="text" placeholder="Parque Central / https://meet..." data-part="input">
             </div>
 
-            <div class="input">
-              <label for="e-capacity">Aforo (opcional)</label>
-              <input id="e-capacity" name="capacity" type="number" min="1" placeholder="Ej. 20">
+            <div class="input" data-part="field">
+              <label for="e-capacity" data-part="label">Aforo (opcional)</label>
+              <input id="e-capacity" name="capacity" type="number" min="1" placeholder="Ej. 20" data-part="input">
             </div>
           </div>
 
-          <div class="input">
-            <label for="e-desc">Descripción</label>
-            <textarea id="e-desc" name="description" rows="6" placeholder="Cuéntales a los invitados qué habrá, dress code, qué traer…"></textarea>
+          <div class="input" data-part="field">
+            <label for="e-desc" data-part="label">Descripción</label>
+            <textarea id="e-desc" name="description" rows="6" placeholder="Cuéntales a los invitados qué habrá, dress code, qué traer…" data-part="textarea"></textarea>
           </div>
 
-          <!-- Etiquetas rápidas -->
-          <div class="input">
-            <label>Etiquetas</label>
-            <div class="row" style="gap:8px; flex-wrap:wrap;">
+          <!-- Etiquetas rápidas (decorativo) -->
+          <div class="input" data-part="field">
+            <label data-part="label">Etiquetas</label>
+            <div class="row" style="gap:8px; flex-wrap:wrap;" data-part="chips">
               <button class="chip todos" type="button">🎉 Fiesta</button>
               <button class="chip favoritos" type="button">🍰 Cumpleaños</button>
               <button class="chip videos" type="button">🌤️ Exterior</button>
               <button class="chip albumnes" type="button">👨‍👩‍👧 Familia</button>
             </div>
-            <small class="p" style="opacity:.75;">(Decorativo por ahora; podrás convertirlos en campos reales más adelante)</small>
+            <small class="p" style="opacity:.75;" data-part="hint">(Decorativo por ahora; podrás convertirlos en campos reales más adelante)</small>
           </div>
 
-          <!-- Invitados (decorativo UI) -->
-          <div class="input">
-            <label for="e-guests">Invitar (emails separados por comas)</label>
-            <input id="e-guests" name="guests" type="text" placeholder="alba@ejemplo.com, juan@ejemplo.com">
+          <!-- Invitados (decorativo) -->
+          <div class="input" data-part="field">
+            <label for="e-guests" data-part="label">Invitar (emails separados por comas)</label>
+            <input id="e-guests" name="guests" type="text" placeholder="alba@ejemplo.com, juan@ejemplo.com" data-part="input">
           </div>
 
           <!-- Acciones -->
-          <div class="actions" style="justify-content:flex-end; gap:8px; margin-top:8px;">
-            <a class="btn ghost" href="events.html">Cancelar</a>
-            <button class="btn" type="reset" style="color: white;">Limpiar</button>
-            <button class="btn" type="submit" formnovalidate style="color: white;">✅ Crear evento</button>
+          <div class="actions" style="justify-content:flex-end; gap:8px; margin-top:8px;" data-part="actions">
+            <a class="btn ghost" href="events.html" data-part="cancel">Cancelar</a>
+            <button class="btn" type="reset" style="color: white;" data-part="reset">Limpiar</button>
+            <button class="btn" type="submit" formnovalidate style="color: white;" data-part="submit">✅ Crear evento</button>
           </div>
         </form>
       </section>
     </main>
 
-    <!-- Toast de éxito -->
-    <div id="created" class="toast success">
-      <div class="toast-body">
-        <strong>¡Evento creado!</strong> Ya puedes verlo en la lista de eventos.
-        <a class="toast-close" href="events.html" aria-label="Ir a eventos">Ver eventos</a>
+    <!-- Toast de éxito con :target -->
+    <div id="created" class="toast success" data-component="Toast" data-state="success" aria-live="polite" aria-atomic="true">
+      <div class="toast-body" data-part="body">
+        <strong data-part="title">¡Evento creado!</strong> Ya puedes verlo en la lista de eventos.
+        <a class="toast-close" href="events.html" aria-label="Ir a eventos" data-part="close">Ver eventos</a>
       </div>
     </div>
 
     <!-- Footer -->
-    <footer class="footer book-footer">
-      <div class="container">
-        <nav class="navline" aria-label="Enlaces del pie">
-          <a href="contact.html" class="footer-link" aria-current="page">Contacto</a>
-          <span class="sep">•</span>
+    <footer class="footer book-footer" data-component="AppFooter">
+      <div class="container" data-part="container">
+        <nav class="navline" aria-label="Enlaces del pie" data-part="nav">
+          <a href="contact.html" class="footer-link" data-part="link">Contacto</a>
+          <span class="sep" data-part="sep">•</span>
           <div class="social" aria-label="Redes sociales">
             <a href="#" aria-label="Facebook" class="icon">
               <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="currentColor" d="M22 12.06C22 6.48 17.52 2 11.94 2S2 6.48 2 12.06c0 5.01 3.66 9.17 8.44 9.94v-7.03H7.9v-2.9h2.54V9.41c0-2.5 1.49-3.88 3.77-3.88 1.09 0 2.24.2 2.24.2v2.46h-1.26c-1.24 0-1.63.77-1.63 1.56v1.87h2.78l-.44 2.9h-2.34V22c4.78-.77 8.44-4.93 8.44-9.94Z"/></svg>
@@ -152,10 +157,10 @@
               <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="currentColor" d="M7 2h10a5 5 0 0 1 5 5v10a5 5 0 0 1-5 5H7a5 5 0 0 1-5-5V7a5 5 0 0 0 5-5Zm10 2H7a3 3 0 0 0-3 3v10a3 3 0 0 0 3 3h10a3 3 0 0 0 3-3V7a3 3 0 0 0-3-3Zm-5 3.8a5.2 5.2 0 1 1 0 10.4A5.2 5.2 0 0 1 12 7.8Zm0 2a3.2 3.2 0 1 0 0 6.4 3.2 3.2 0 0 0 0-6.4Zm4.8-.6a.9.9 0 1 1 0 1.8.9.9 0 0 1 0-1.8Z"/></svg>
             </a>
           </div>
-          <span class="sep">•</span>
-          <a href="legalpolitics.html" class="footer-link">Políticas legales</a>
+          <span class="sep" data-part="sep">•</span>
+          <a href="legalpolitics.html" class="footer-link" data-part="link">Políticas legales</a>
         </nav>
-        <div class="copy">
+        <div class="copy" data-part="copy">
           <small>© 2025 — <strong>Memories+</strong></small>
         </div>
       </div>

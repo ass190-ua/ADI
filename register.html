@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="es" data-theme="dark">
+<html lang="es" data-theme="dark" data-component="RegisterPage">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -9,86 +9,97 @@
   <link rel="stylesheet" href="css/components.css">
   <link rel="stylesheet" href="css/pages.css">
 </head>
-<body>
-  <div class="page">
+<body data-part="body">
+  <div class="page" data-component="MainLayout">
     <!-- Header público -->
-    <header class="header landing-header">
-      <div class="logo">
-        <a href="index.html"><img src="assets/img/logo_header.png" alt="Memories+"></a>
+    <header class="header landing-header" data-component="AppHeader" data-variant="public">
+      <div class="logo" data-part="logo">
+        <a href="index.html" data-part="home-link"><img src="assets/img/logo_header.png" alt="Memories+"></a>
       </div>
-      <nav class="row cta-header" aria-label="Acciones">
-        <a class="btn ghost login-btn" href="login.html">Iniciar sesión</a>
-        <a class="btn primary signup-btn" href="register.html" aria-current="page">Crear cuenta</a>
+      <nav class="row cta-header" aria-label="Acciones" data-part="cta">
+        <a class="btn ghost login-btn" href="login.html" data-part="login">Iniciar sesión</a>
+        <a class="btn primary signup-btn" href="register.html" aria-current="page" data-part="signup">Crear cuenta</a>
       </nav>
     </header>
 
-    <!-- Main centrado -->
-    <main class="container auth-page">
-      <section class="card pad" style="width:min(560px,92%);">
-        <h1 class="h2" style="margin:0 0 6px;">Crea tu cuenta</h1>
-        <p class="p" style="margin:0 0 14px;">Únete para empezar a guardar recuerdos.</p>
+    <!-- Main -->
+    <main class="container auth-page" data-component="AuthMain">
+      <section class="card pad" style="width:min(380px,92%);" data-component="AuthCard">
+        <h1 class="h2" style="margin:0 0 6px; text-align:center;" data-part="title">Crear cuenta</h1>
+        <p class="p" style="margin:0 0 16px; text-align:center; opacity:.9;" data-part="subtitle">
+          Únete para empezar a guardar recuerdos.
+        </p>
 
-        <form class="form" aria-label="Formulario de registro" onsubmit="event.preventDefault(); window.location.href='home.html';">
-          <div class="row" style="gap:14px;">
-            <div class="input" style="flex:1">
-              <label for="name">Nombre</label>
-              <input id="name" name="name" placeholder="Tu nombre" autocomplete="given-name" required>
-            </div>
-            <div class="input" style="flex:1">
-              <label for="surname">Apellidos</label>
-              <input id="surname" name="surname" placeholder="Tus apellidos" autocomplete="family-name" required>
-            </div>
+        <!-- Prototipo sin JS: simulamos registro navegando a home.html -->
+        <form class="form" aria-label="Formulario de registro"
+              action="home.html" method="get" novalidate
+              data-component="RegisterForm">
+
+          <!-- Nombre de usuario -->
+          <div class="input" data-part="field">
+            <label for="username" data-part="label">Nombre de usuario</label>
+            <input id="username" name="username" placeholder="p. ej., tu_usuario" type="text"
+                   autocomplete="username" required data-part="input">
+            <small class="p" data-part="hint">Con este usuario también podrás iniciar sesión.</small>
           </div>
 
-          <div class="input">
-            <label for="username">Nombre de usuario</label>
-            <input id="username" name="username" placeholder="p.ej. arturosoriano" autocomplete="username" required>
-            <small class="p">Con este usuario también podrás iniciar sesión.</small>
+          <!-- Correo -->
+          <div class="input" data-part="field">
+            <label for="email" data-part="label">Correo electrónico</label>
+            <input id="email" name="email" type="email" placeholder="p. ej., tu@correo.com"
+                   autocomplete="email" required data-part="input">
           </div>
 
-          <div class="input">
-            <label for="email">Correo electrónico</label>
-            <input id="email" name="email" type="email" placeholder="tú@correo.com" autocomplete="email" required>
+          <!-- Contraseña + Confirmación (sin toggle JS) -->
+          <div class="input" data-part="field">
+            <label for="pass1" data-part="label">Contraseña</label>
+            <input id="pass1" name="password" type="password" placeholder="••••••••"
+                   autocomplete="new-password" minlength="8" required data-part="input">
           </div>
 
-          <div class="row" style="gap:14px;">
-            <div class="input" style="flex:1; position:relative;">
-              <label for="pass1">Contraseña</label>
-              <input id="pass1" name="password" type="password" placeholder="••••••••" autocomplete="new-password" minlength="8" required>
-              <button type="button" class="btn" style="position:absolute; right:6px; bottom:6px; padding:6px 10px;"
-                aria-label="Mostrar u ocultar contraseña" onclick="togglePwd('pass1', this)">👁️</button>
-            </div>
-            <div class="input" style="flex:1; position:relative;">
-              <label for="pass2">Repetir contraseña</label>
-              <input id="pass2" name="password_confirm" type="password" placeholder="••••••••" autocomplete="new-password" minlength="8" required>
-              <button type="button" class="btn" style="position:absolute; right:6px; bottom:6px; padding:6px 10px;"
-                aria-label="Mostrar u ocultar contraseña" onclick="togglePwd('pass2', this)">👁️</button>
-            </div>
+          <div class="input" data-part="field">
+            <label for="pass2" data-part="label">Confirmar contraseña</label>
+            <input id="pass2" name="password_confirm" type="password" placeholder="••••••••"
+                   autocomplete="new-password" minlength="8" required data-part="input">
           </div>
 
-          <div class="actions">
-            <button class="btn" type="button" onclick="window.location.href='login.html'">Ya tengo cuenta</button>
-            <button class="btn primary" type="submit">Crear y continuar</button>
+          <!-- Acción principal -->
+          <div class="actions" data-part="actions" style="margin-top:12px;">
+            <button class="btn primary" type="submit" style="width:100%; text-align:center;" data-part="submit">
+              Registrarse
+            </button>
+          </div>
+
+          <!-- Enlace alternativo -->
+          <div class="p" style="margin-top:14px; text-align:center;" data-part="alt">
+            ¿Ya tienes cuenta?
+            <a class="link" href="login.html" data-part="login-link"><strong>Inicia sesión</strong></a>
           </div>
         </form>
       </section>
     </main>
 
     <!-- Footer -->
-    <footer class="footer book-footer">
-      <div class="container">
-        <nav class="navline" aria-label="Enlaces del pie">
-          <a href="contact.html" class="footer-link">Contacto</a>
-          <span class="sep">•</span>
-          <div class="social" aria-label="Redes sociales">
-            <a href="#" aria-label="Facebook" class="icon"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="currentColor" d="M22 12.06C22 6.48 17.52 2 11.94 2S2 6.48 2 12.06c0 5.01 3.66 9.17 8.44 9.94v-7.03H7.9v-2.9h2.54V9.41c0-2.5 1.49-3.88 3.77-3.88 1.09 0 2.24.2 2.24.2v2.46h-1.26c-1.24 0-1.63.77-1.63 1.56v1.87h2.78l-.44 2.9h-2.34V22c4.78-.77 8.44-4.93 8.44-9.94Z"/></svg></a>
-            <a href="#" aria-label="X/Twitter" class="icon"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="currentColor" d="M3 3h4.6l4.1 6.1L16.8 3H21l-7.3 9.4L21 21h-4.6l-4.5-6.7L7.2 21H3l7.7-9.9L3 3Z"/></svg></a>
-            <a href="#" aria-label="Instagram" class="icon"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="currentColor" d="M7 2h10a5 5 0 0 1 5 5v10a5 5 0 0 1-5 5H7a5 5 0 0 1-5-5V7a5 5 0 0 0 5-5Zm10 2H7a3 3 0 0 0-3 3v10a3 3 0 0 0 3 3h10a3 3 0 0 0 3-3V7a3 3 0 0 0-3-3Zm-5 3.8a5.2 5.2 0 1 1 0 10.4A5.2 5.2 0 0 1 12 7.8Zm0 2a3.2 3.2 0 1 0 0 6.4 3.2 3.2 0 0 0 0-6.4Zm4.8-.6a.9.9 0 1 1 0 1.8.9.9 0 0 1 0-1.8Z"/></svg></a>
+    <footer class="footer book-footer" data-component="AppFooter">
+      <div class="container" data-part="container">
+        <nav class="navline" aria-label="Enlaces del pie" data-part="nav">
+          <a href="contact.html" class="footer-link" data-part="link">Contacto</a>
+          <span class="sep" data-part="sep">•</span>
+          <div class="social" aria-label="Redes sociales" data-part="social">
+            <a href="#" aria-label="Facebook" class="icon" data-part="social-link">
+              <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="currentColor" d="M22 12.06C22 6.48 17.52 2 11.94 2S2 6.48 2 12.06c0 5.01 3.66 9.17 8.44 9.94v-7.03H7.9v-2.9h2.54V9.41c0-2.5 1.49-3.88 3.77-3.88 1.09 0 2.24.2 2.24.2v2.46h-1.26c-1.24 0-1.63.77-1.63 1.56v1.87h2.78l-.44 2.9h-2.34V22c4.78-.77 8.44-4.93 8.44-9.94Z"/></svg>
+            </a>
+            <a href="#" aria-label="X/Twitter" class="icon" data-part="social-link">
+              <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="currentColor" d="M3 3h4.6l4.1 6.1L16.8 3H21l-7.3 9.4L21 21h-4.6l-4.5-6.7L7.2 21H3l7.7-9.9L3 3Z"/></svg>
+            </a>
+            <a href="#" aria-label="Instagram" class="icon" data-part="social-link">
+              <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="currentColor" d="M7 2h10a5 5 0 0 1 5 5v10a5 5 0 0 1-5 5H7a5 5 0 0 1-5-5V7a5 5 0 0 0 5-5Zm10 2H7a3 3 0 0 0-3 3v10a3 3 0 0 0 3 3h10a3 3 0 0 0 3-3V7a3 3 0 0 0-3-3Zm-5 3.8a5.2 5.2 0 1 1 0 10.4A5.2 5.2 0 0 1 12 7.8Zm0 2a3.2 3.2 0 1 0 0 6.4 3.2 3.2 0 0 0 0-6.4Zm4.8-.6a.9.9 0 1 1 0 1.8.9.9 0 0 1 0-1.8Z"/></svg>
+            </a>
           </div>
-          <span class="sep">•</span>
-          <a href="legalpolitics.html" class="footer-link">Políticas legales</a>
+          <span class="sep" data-part="sep">•</span>
+          <a href="legalpolitics.html" class="footer-link" data-part="link">Políticas legales</a>
         </nav>
-        <div class="copy"><small>© 2025 — <strong>Memories+</strong></small></div>
+        <div class="copy" data-part="copy"><small>© 2025 — <strong>Memories+</strong></small></div>
       </div>
     </footer>
   </div>
