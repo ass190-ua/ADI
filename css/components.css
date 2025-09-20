@@ -104,22 +104,22 @@
   transform: translateY(-2px); 
 }
 .chip.todos{ 
-  background: rgba(122,162,247,0.15); 
-  color:#7aa2f7; 
-  border-color:#7aa2f7; 
+  background: rgba(59,130,246,0.2); 
+  color:#a2c4ff; 
+  border-color:#3b82f6; 
 }
 .chip.todos:hover, .chip.todos.active{ 
-  background:#7aa2f7; 
+  background:#3b82f6; 
   color:#fff; 
 }
 .chip.favoritos{ 
-  background: rgba(255,215,0,0.15); 
-  color:#e6c200; 
-  border-color:#e6c200; 
+  background: rgba(234,179,8,0.15); 
+  color:#facc15; 
+  border-color:#eab308; 
 }
 .chip.favoritos:hover, .chip.favoritos.active{ 
-  background:#e6c200; 
-  color:#000; 
+  background:#eab308; 
+  color:#0b1220; 
 }
 .chip.videos{ 
   background: rgba(34,197,94,0.15); 
@@ -138,6 +138,37 @@
 .chip.albumnes:hover, .chip.albumnes.active{ 
   background:#a855f7; 
   color:#fff; 
+}
+
+/* ---------- Chips de acciones del chat ---------- */
+.chip.search{ 
+  background: rgba(59,130,246,0.15); 
+  color:#3b82f6; 
+  border-color:#3b82f6; 
+}
+.chip.search:hover, .chip.search.active{ 
+  background:#3b82f6; 
+  color:#fff; 
+}
+
+.chip.mute{ 
+  background: rgba(245,158,11,0.15); 
+  color:#f59e0b; 
+  border-color:#f59e0b; 
+}
+.chip.mute:hover, .chip.mute.active{ 
+  background:#f59e0b; 
+  color:#fff; 
+}
+
+.chip.archive{ 
+  background: rgba(148,163,184,0.15); 
+  color:#94a3b8; 
+  border-color:#94a3b8; 
+}
+.chip.archive:hover, .chip.archive.active{ 
+  background:#94a3b8; 
+  color:#0b1220; 
 }
 
 /* ---------- Modal genérico (con :target) ---------- */

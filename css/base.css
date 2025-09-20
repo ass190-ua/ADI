@@ -10,8 +10,10 @@ html, body{
 }
 body{ 
   margin: 0; 
-  font-family: system-ui, -apple-system, Segoe UI, Roboto, Inter, Arial, sans-serif; 
-  line-height: 1.5; 
+  font-family: system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, Helvetica Neue, Arial;
+  line-height: 1.45;
+  color: var(--text);
+  background: var(--bg);
 }
 img{ 
   max-width: 100%; 
@@ -28,6 +30,9 @@ a{
   --primary:#7aa2f7; --accent:#a6da95; --error:#ef6b73; --warning:#f7c94b; --border:#232836;
   --card-radius:16px; --pad:16px; --gap:16px; --shadow:0 6px 18px rgba(0,0,0,.25);
   --header-h:80px;
+  --footer-h: 150px;       
+  --page-vgap: 24px;      
+  --chat-viewport: calc(100dvh - var(--header-h) - var(--footer-h) - var(--page-vgap));
 }
 [data-theme="light"]{
   --bg:#ffffff; --panel:#f7f7fa; --text:#1f2328; --muted:#667085;
@@ -45,10 +50,10 @@ body {
   margin-inline: auto;
 }
 .card{
-  background: var(--panel);
+  background:var(--panel);
   border:1px solid var(--border);
-  border-radius: var(--card-radius);
-  box-shadow: var(--shadow);
+  border-radius:var(--card-radius);
+  box-shadow:var(--shadow);
 }
 .card.pad{
   padding: var(--pad);
@@ -124,9 +129,9 @@ body {
 }
 
 /* ---------- Grids y helpers ---------- */
-.row{ 
-  display:flex; 
-  gap: var(--gap); 
+.row{display:flex;
+  gap:10px;
+  align-items:center;
 }
 .grid{ 
   display:grid; 
@@ -158,11 +163,12 @@ body {
   outline-offset:2px; 
   border-radius:8px; 
 }
-.visually-hidden{ 
-  position:absolute!important; 
-  height:1px; 
-  width:1px; 
-  overflow:hidden; 
-  clip:rect(1px,1px,1px,1px); 
-  white-space:nowrap; 
+.visually-hidden{
+  position:absolute!important;
+  clip:rect(0 0 0 0)!important;
+  width:1px!important;
+  height:1px!important;
+  margin:-1px!important;
+  overflow:hidden!important;
+  border:0!important;
 }
