@@ -64,15 +64,17 @@
           </div>
         </div>
 
-        <!-- Toolbar (buscar / subir / ordenar / seleccionar) -->
+        <!-- Toolbar (buscar / subir / ordenar / seleccionar / eliminar) -->
         <div class="row" style="gap:10px; margin-top:10px; flex-wrap:wrap;" data-component="Toolbar">
           <div class="input" style="flex:1; min-width:220px;" data-part="search">
             <label class="visually-hidden" for="q">Buscar en galería</label>
-            <input id="q" type="search" placeholder="Buscar por nombre, álbum o etiqueta…">
+            <input id="q" type="search" placeholder="Buscar por nombre, álbum o etiqueta… 🔍">
           </div>
           <button class="btn" style="color: white;" data-part="upload">⬆️ Subir</button>
           <button class="btn ghost" style="color: white;" data-part="sort">↕ Ordenar</button>
           <button class="btn ghost" style="color: white;" data-part="select">✅ Seleccionar</button>
+          <button class="btn ghost" type="button" style="color: white;" data-part="manage">⚙️ Gestionar fotos</button>
+          <button class="btn ghost" style="color: white;" data-part="delete">🗑️ Eliminar</button>
         </div>
 
         <!-- Galería (masonry con .gallery del CSS) -->
