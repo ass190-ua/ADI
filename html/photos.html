@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="es" data-theme="dark" data-component="PhotosPage">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Fotos · Memories+</title>
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/layout.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/pages.css">
+</head>
+<body data-part="body">
+  <div class="page" data-component="MainLayout">
+
+    <!-- Header privado (igual que Home) -->
+    <header class="app-header" data-component="AppHeader" data-variant="private">
+      <div class="brand" data-part="brand">
+        <a class="logo" href="home.html" data-part="logo-link">
+          <img src="assets/img/logo_header.png" alt="Memories+" data-part="logo-img">
+          <span class="visually-hidden">Memories+</span>
+        </a>
+      </div>
+
+      <!-- Toggle móvil para sidebar -->
+      <input type="checkbox" id="menu-toggle" class="menu-toggle" aria-label="Abrir menú" data-part="menu-toggle">
+      <label for="menu-toggle" class="menu-btn" aria-hidden="true" data-part="menu-btn">☰</label>
+
+      <!-- Nav centrado (vacío; la navegación vive en la sidebar) -->
+      <nav class="app-nav" aria-label="Secciones" data-part="nav"></nav>
+
+      <!-- Menú de usuario (solo avatar) -->
+      <div class="user-actions" data-part="user-actions">
+        <details class="user-menu" data-component="UserMenu">
+          <summary aria-label="Abrir menú de usuario" data-part="summary">
+            <img class="avatar" src="assets/img/perfil.jpg" alt="Tu avatar" data-part="avatar">
+          </summary>
+          <nav class="menu" aria-label="Menú de usuario" data-part="menu">
+            <a href="profile.html" data-part="menu-item">👤 Perfil</a>
+            <a href="login.html" data-part="menu-item">⏻ Cerrar sesión</a>
+          </nav>
+        </details>
+      </div>
+    </header>
+
+    <!-- App shell: sidebar + contenido -->
+    <main class="app-shell" data-component="AppShell">
+      <aside class="sidebar" data-component="Sidebar">
+        <nav class="sidebar-nav" aria-label="Principal" data-component="SiteNav">
+          <a href="home.html" data-part="nav-link">🏠 Inicio</a>
+          <a href="photos.html" aria-current="page" data-part="nav-link">🖼️ Fotos</a>
+          <a href="chats.html" data-part="nav-link">💬 Chats</a>
+          <a href="events.html" data-part="nav-link">🎉 Eventos</a>
+        </nav>
+      </aside>
+
+      <section class="app-main container" data-component="PhotosContent">
+        <!-- Título + filtros rápidos -->
+        <div class="row" style="justify-content:space-between; align-items:center;" data-component="FilterBar">
+          <h1 class="h2" style="margin:0;" data-part="title">Tu galería</h1>
+          <div class="row" style="gap:8px; flex-wrap:wrap;" data-part="chips">
+            <button class="chip todos active" type="button" data-part="chip">Todos</button>
+            <button class="chip favoritos" type="button" data-part="chip">Favoritos</button>
+            <button class="chip videos" type="button" data-part="chip">Vídeos</button>
+            <button class="chip albumnes" type="button" data-part="chip">Álbumes</button>
+          </div>
+        </div>
+
+        <!-- Toolbar (buscar / subir / ordenar / seleccionar / eliminar) -->
+        <div class="row" style="gap:10px; margin-top:10px; flex-wrap:wrap;" data-component="Toolbar">
+          <div class="input" style="flex:1; min-width:220px;" data-part="search">
+            <label class="visually-hidden" for="q">Buscar en galería</label>
+            <input id="q" type="search" placeholder="Buscar por nombre, álbum o etiqueta… 🔍">
+          </div>
+          <button class="btn" style="color: white;" data-part="upload">⬆️ Subir</button>
+          <button class="btn ghost" style="color: white;" data-part="sort">↕ Ordenar</button>
+          <button class="btn ghost" style="color: white;" data-part="select">✅ Seleccionar</button>
+          <button class="btn ghost" type="button" style="color: white;" data-part="manage">⚙️ Gestionar fotos</button>
+          <button class="btn ghost" style="color: white;" data-part="delete">🗑️ Eliminar</button>
+        </div>
+
+        <!-- Galería (masonry con .gallery del CSS) -->
+        <section class="gallery" style="margin-top:16px;" data-component="PhotoGrid">
+          <figure class="tile card media" data-component="PhotoCard">
+            <img src="assets/img/p1.jpg" alt="Foto 1" loading="lazy" data-part="image">
+          </figure>
+          <figure class="tile card media" data-component="PhotoCard">
+            <img src="assets/img/p2.jpg" alt="Foto 2" loading="lazy" data-part="image">
+          </figure>
+          <figure class="tile card media" data-component="PhotoCard">
+            <img src="assets/img/p3.jpg" alt="Foto 3" loading="lazy" data-part="image">
+          </figure>
+          <figure class="tile card media" data-component="PhotoCard">
+            <img src="assets/img/p4.jpg" alt="Foto 4" loading="lazy" data-part="image">
+          </figure>
+        </section>
+      </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer book-footer" data-component="AppFooter">
+      <div class="container" data-part="container">
+        <nav class="navline" aria-label="Enlaces del pie" data-part="nav">
+          <a href="contact.html" class="footer-link" data-part="link">Contacto</a>
+          <span class="sep" data-part="sep">•</span>
+          <div class="social" aria-label="Redes sociales">
+            <a href="#" aria-label="Facebook" class="icon">
+              <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="currentColor" d="M22 12.06C22 6.48 17.52 2 11.94 2S2 6.48 2 12.06c0 5.01 3.66 9.17 8.44 9.94v-7.03H7.9v-2.9h2.54V9.41c0-2.5 1.49-3.88 3.77-3.88 1.09 0 2.24.2 2.24.2v2.46h-1.26c-1.24 0-1.63.77-1.63 1.56v1.87h2.78l-.44 2.9h-2.34V22c4.78-.77 8.44-4.93 8.44-9.94Z"/></svg>
+            </a>
+            <a href="#" aria-label="X/Twitter" class="icon">
+              <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="currentColor" d="M3 3h4.6l4.1 6.1L16.8 3H21l-7.3 9.4L21 21h-4.6l-4.5-6.7L7.2 21H3l7.7-9.9L3 3Z"/></svg>
+            </a>
+            <a href="#" aria-label="Instagram" class="icon">
+              <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="currentColor" d="M7 2h10a5 5 0 0 1 5 5v10a5 5 0 0 1-5 5H7a5 5 0 0 1-5-5V7a5 5 0 0 0 5-5Zm10 2H7a3 3 0 0 0-3 3v10a3 3 0 0 0 3 3h10a3 3 0 0 0 3-3V7a3 3 0 0 0-3-3Zm-5 3.8a5.2 5.2 0 1 1 0 10.4A5.2 5.2 0 0 1 12 7.8Zm0 2a3.2 3.2 0 1 0 0 6.4 3.2 3.2 0 0 0 0-6.4Zm4.8-.6a.9.9 0 1 1 0 1.8.9.9 0 0 1 0-1.8Z"/></svg>
+            </a>
+          </div>
+          <span class="sep" data-part="sep">•</span>
+          <a href="legalpolitics.html" class="footer-link" data-part="link">Políticas legales</a>
+        </nav>
+        <div class="copy" data-part="copy">
+          <small>© 2025 — <strong>Memories+</strong></small>
+        </div>
+      </div>
+    </footer>
+  </div>
+</body>
+</html>
