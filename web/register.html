@@ -32,7 +32,7 @@
 
         <!-- Prototipo sin JS: simulamos registro navegando a home.html -->
         <form class="form" aria-label="Formulario de registro"
-              action="home.html" method="get" novalidate
+              action="#" method="post"
               data-component="RegisterForm">
 
           <!-- Nombre de usuario -->
@@ -103,5 +103,76 @@
       </div>
     </footer>
   </div>
+
+  <script type="module">
+    import { registerUser, login, logout, isLoggedIn } from "./assets/js/services/auth_service.js";
+
+    // Si ya hay sesión, opcionalmente redirige:
+    if (isLoggedIn()) {
+      // Si prefieres, comenta la siguiente línea para permitir registrar estando logueado
+      // location.href = "home.html";
+    }
+
+    // Para evitar conflictos, limpia sesión previa silenciosamente
+    logout();
+
+    const form = document.querySelector('[data-component="RegisterForm"]');
+    const username = document.querySelector('#username');
+    const email = document.querySelector('#email');
+    const pass1 = document.querySelector('#pass1');
+    const pass2 = document.querySelector('#pass2');
+    const submitBtn = form.querySelector('[data-part="submit"]');
+
+    const errorEl = document.createElement('p');
+    errorEl.className = 'p';
+    errorEl.style.marginTop = '8px';
+    errorEl.style.textAlign = 'center';
+    errorEl.style.color = 'var(--danger, #ff6b6b)';
+    errorEl.hidden = true;
+    errorEl.setAttribute('role', 'alert');
+    form.append(errorEl);
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const u = username.value.trim();
+      const mail = email.value.trim();
+      const p1 = pass1.value;
+      const p2 = pass2.value;
+
+      if (p1 !== p2) {
+        errorEl.textContent = "Las contraseñas no coinciden.";
+        errorEl.hidden = false;
+        return;
+      }
+      if (p1.length < 8) {
+        errorEl.textContent = "La contraseña debe tener al menos 8 caracteres.";
+        errorEl.hidden = false;
+        return;
+      }
+
+      submitBtn.disabled = true;
+      const prevText = submitBtn.textContent;
+      submitBtn.textContent = "Creando cuenta…";
+      errorEl.hidden = true;
+
+      try {
+        await registerUser({ username: u, email: mail, password: p1, passwordConfirm: p2 });
+        await login(mail, p1);              // login automático
+        location.href = "home.html";        // o "events.html"
+      } catch (err) {
+        console.error(err);
+        let msg = "Error al crear la cuenta.";
+        const data = err?.response?.data;
+        if (data?.email) msg = "Ese correo ya está registrado.";
+        else if (data?.username) msg = "Ese nombre de usuario ya está en uso.";
+        errorEl.textContent = msg;
+        errorEl.hidden = false;
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.textContent = prevText;
+      }
+    });
+  </script>
 </body>
 </html>

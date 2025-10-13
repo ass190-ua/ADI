@@ -149,5 +149,210 @@
       </div>
     </footer>
   </div>
+
+  <script type="module">
+    import { requireAuth, logoutAndGo } from "./assets/js/services/auth_service.js";
+    import { getEvent, updateEvent, deleteEvent, fileUrl } from "./assets/js/services/events_services.js";
+
+    // ────────────────────────────────────────────────────────────────────────────
+    // 1) Proteger página + logout real
+    // ────────────────────────────────────────────────────────────────────────────
+    requireAuth("login.html");
+    const logoutLink = [...document.querySelectorAll('[data-part="menu-item"]')]
+      .find(a => a.textContent.includes("Cerrar sesión"));
+    if (logoutLink) {
+      logoutLink.addEventListener("click", (e) => {
+        e.preventDefault();
+        logoutAndGo("login.html");
+      });
+    }
+
+    // ────────────────────────────────────────────────────────────────────────────
+    // 2) Utilidades
+    // ────────────────────────────────────────────────────────────────────────────
+    const params = new URLSearchParams(location.search);
+    const id = params.get("id");
+    if (!id) { location.href = "events.html"; throw new Error("Falta id"); }
+
+    const $ = (sel, root=document) => root.querySelector(sel);
+    const fmtDate = (iso) => iso
+      ? new Date(iso).toLocaleString("es-ES", { dateStyle: "medium", timeStyle: "short" })
+      : "";
+
+    // Elementos existentes en tu maquetación
+    const hero     = $('[data-component="EventHero"]');
+    const heroImg  = $('[data-component="EventHero"] [data-part="image"]');
+    const heroTitle= $('[data-component="EventHero"] [data-part="title"]');
+    const heroMeta = $('[data-component="EventHero"] [data-part="meta"]');
+    const bodyDesc = $('[data-component="EventInfo"] [data-part="desc"]');
+
+    // ────────────────────────────────────────────────────────────────────────────
+    // 3) Inserta Controles (Editar/Borrar) + Formulario de edición
+    // ────────────────────────────────────────────────────────────────────────────
+    // Barra de acciones
+    const actionsBar = document.createElement('div');
+    actionsBar.className = 'row';
+    actionsBar.style.cssText = 'gap:8px; margin:10px 0 0;';
+    actionsBar.innerHTML = `
+      <button id="evt-edit" class="btn">✏️ Editar</button>
+      <button id="evt-delete" class="btn ghost">🗑️ Borrar</button>
+    `;
+    hero.after(actionsBar);
+
+    // Formulario (oculto por defecto)
+    const form = document.createElement('form');
+    form.className = 'form card pad';
+    form.style.display = 'none';
+    form.enctype = 'multipart/form-data';
+    form.innerHTML = `
+      <div class="title" style="margin-bottom:8px;">Editar evento</div>
+      <div class="grid" style="gap:10px;">
+        <div class="input">
+          <label for="etitle">Título</label>
+          <input id="etitle" name="title" required>
+        </div>
+        <div class="input">
+          <label for="edate">Fecha</label>
+          <input id="edate" name="date" type="datetime-local">
+        </div>
+        <div class="input">
+          <label for="elocation">Ubicación</label>
+          <input id="elocation" name="location">
+        </div>
+        <div class="input" style="grid-column:1 / -1;">
+          <label for="edescription">Descripción</label>
+          <textarea id="edescription" name="description" rows="5"></textarea>
+        </div>
+        <div class="input" style="grid-column:1 / -1;">
+          <label for="ecover">Nueva portada (opcional)</label>
+          <input id="ecover" name="cover" type="file" accept="image/*">
+        </div>
+      </div>
+      <div class="row" style="gap:8px; margin-top:10px;">
+        <button class="btn primary" type="submit">Guardar cambios</button>
+        <button class="btn ghost" type="button" id="evt-cancel">Cancelar</button>
+      </div>
+      <p class="p" id="evt-msg" style="margin-top:8px;"></p>
+    `;
+    // Lo insertamos antes del bloque "Descripción" para mantener la jerarquía visual
+    const infoCard = $('[data-component="EventInfo"]');
+    infoCard.prepend(form);
+
+    const btnEdit   = $('#evt-edit', actionsBar);
+    const btnDelete = $('#evt-delete', actionsBar);
+    const btnCancel = $('#evt-cancel', form);
+    const msgEl     = $('#evt-msg', form);
+
+    // ────────────────────────────────────────────────────────────────────────────
+    // 4) Carga + Render del evento
+    // ────────────────────────────────────────────────────────────────────────────
+    let current;
+
+    function fillDetail(rec) {
+      if (rec.cover) {
+        heroImg.src = fileUrl(rec, rec.cover);
+        heroImg.alt = rec.title || "Portada del evento";
+      } else {
+        heroImg.src = "assets/img/p2.jpg";
+        heroImg.alt = "Portada del evento";
+      }
+      heroTitle.textContent = rec.title || "Evento";
+      const when  = fmtDate(rec.date);
+      const where = rec.location ? ` — ${rec.location}` : "";
+      heroMeta.textContent = (when || "Sin fecha") + where;
+      bodyDesc.innerHTML   = rec.description || "Sin descripción.";
+    }
+
+    function fillForm(rec) {
+      $('#etitle', form).value      = rec.title || '';
+      $('#elocation', form).value   = rec.location || '';
+      $('#edescription', form).value= rec.description || '';
+      // datetime-local necesita local time sin TZ: convertimos de ISO a "YYYY-MM-DDTHH:MM"
+      if (rec.date) {
+        const d = new Date(rec.date);
+        const localISO = new Date(d.getTime() - d.getTimezoneOffset()*60000).toISOString().slice(0,16);
+        $('#edate', form).value = localISO;
+      } else {
+        $('#edate', form).value = '';
+      }
+    }
+
+    async function load() {
+      current = await getEvent(id);
+      fillDetail(current);
+      fillForm(current);
+    }
+
+    // ────────────────────────────────────────────────────────────────────────────
+    // 5) Interacciones: Editar / Cancelar / Guardar / Borrar
+    // ────────────────────────────────────────────────────────────────────────────
+    btnEdit.addEventListener('click', () => {
+      form.style.display = form.style.display === 'none' ? '' : 'none';
+      msgEl.textContent = '';
+    });
+
+    btnCancel.addEventListener('click', () => {
+      form.style.display = 'none';
+      msgEl.textContent = '';
+      fillForm(current); // restaurar valores
+    });
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      msgEl.textContent = 'Guardando...';
+      const coverFile = $('#ecover', form).files[0];
+
+      try {
+        if (coverFile) {
+          // Si hay nueva portada, usamos FormData (multipart)
+          const fd = new FormData();
+          fd.append('title', $('#etitle', form).value.trim());
+          const d = $('#edate', form).value;
+          if (d) fd.append('date', new Date(d).toISOString());
+          fd.append('location', $('#elocation', form).value.trim());
+          fd.append('description', $('#edescription', form).value.trim());
+          fd.append('cover', coverFile, coverFile.name);
+
+          current = await updateEvent(id, fd);
+        } else {
+          // Sin portada nueva, objeto normal
+          const payload = {
+            title: $('#etitle', form).value.trim(),
+            location: $('#elocation', form).value.trim(),
+            description: $('#edescription', form).value.trim(),
+          };
+          const d = $('#edate', form).value;
+          if (d) payload.date = new Date(d).toISOString();
+
+          current = await updateEvent(id, payload);
+        }
+
+        fillDetail(current);
+        fillForm(current);
+        msgEl.textContent = 'Cambios guardados ✔';
+        setTimeout(() => { form.style.display = 'none'; msgEl.textContent = ''; }, 800);
+      } catch (err) {
+        console.error(err);
+        msgEl.textContent = 'Error al guardar los cambios ❌';
+      }
+    });
+
+    btnDelete.addEventListener('click', async () => {
+      if (!confirm('¿Seguro que quieres borrar este evento?')) return;
+      try {
+        await deleteEvent(id);
+        // Tras borrar, vuelve al listado
+        location.href = 'events.html';
+      } catch (err) {
+        console.error(err);
+        alert('No se pudo borrar el evento.');
+      }
+    });
+
+    // ────────────────────────────────────────────────────────────────────────────
+    // 6) GO!
+    // ────────────────────────────────────────────────────────────────────────────
+    await load();
+  </script>
 </body>
 </html>

@@ -185,5 +185,210 @@
       </div>
     </footer>
   </div>
+
+  <script type="module">
+    import { requireAuth, logoutAndGo } from "./assets/js/services/auth_service.js";
+    import { listEvents, fileUrl } from "./assets/js/services/events_services.js";
+
+    // ─────────────────────────────────────────────────────────────
+    // 1) Protección + logout real
+    // ─────────────────────────────────────────────────────────────
+    requireAuth("login.html");
+    const logoutLink = [...document.querySelectorAll('[data-part="menu-item"]')]
+      .find(a => a.textContent.includes("Cerrar sesión"));
+    if (logoutLink) {
+      logoutLink.addEventListener("click", (e) => {
+        e.preventDefault();
+        logoutAndGo("login.html");
+      });
+    }
+
+    // ─────────────────────────────────────────────────────────────
+    // 2) Elementos de la UI
+    // ─────────────────────────────────────────────────────────────
+    const grid       = document.querySelector(".events-grid");
+    const searchInput= document.querySelector("#q");
+    const chipHoy    = document.querySelector('.chip.todos');
+    const chipSemana = document.querySelector('.chip.favoritos');
+    const chipProx   = document.querySelector('.chip.videos');
+    const chipPasados= document.querySelector('.chip.albumnes');
+    const sortBtn    = document.querySelector('[data-part="sort"]');
+
+    // Crea paginador si no existe
+    let pager = document.querySelector('#events-pager');
+    if (!pager) {
+      pager = document.createElement('div');
+      pager.id = 'events-pager';
+      pager.className = 'row';
+      pager.style.cssText = 'gap:8px; justify-content:center; margin:12px 0;';
+      grid.after(pager);
+    }
+
+    // Estado de la vista
+    const state = {
+      page: 1,
+      perPage: 8,
+      q: "",
+      // filtro temporal: 'all' | 'today' | 'week' | 'upcoming' | 'past'
+      when: 'all',
+      // orden: '-date' (desc) o 'date' (asc); fallback a created si no hay fecha
+      sort: '-date,-created'
+    };
+
+    // ─────────────────────────────────────────────────────────────
+    // 3) Helpers de tiempo / filtros
+    // ─────────────────────────────────────────────────────────────
+    const iso = (d) => new Date(d).toISOString();
+    const now = new Date();
+
+    function buildWhenFilter() {
+      const nowISO = iso(now);
+      const weekTo = new Date(now); weekTo.setDate(weekTo.getDate() + 7);
+      const weekISO = iso(weekTo);
+
+      switch (state.when) {
+        case 'today': {
+          const start = new Date(now); start.setHours(0,0,0,0);
+          const end   = new Date(now); end.setHours(23,59,59,999);
+          const startISO = iso(start);
+          const endISO   = iso(end);
+          return `(date >= "${startISO}" && date <= "${endISO}")`;
+        }
+        case 'week':
+          return `(date >= "${nowISO}" && date < "${weekISO}")`;
+        case 'upcoming':
+          return `(date >= "${nowISO}")`;
+        case 'past':
+          return `(date < "${nowISO}")`;
+        default:
+          return ""; // sin filtro temporal
+      }
+    }
+
+    function buildSearchFilter() {
+      if (!state.q) return "";
+      const q = state.q.replace(/"/g, '\\"');
+      // title/description por texto (contains, sin case)
+      return `(title ~ "${q}" || description ~ "${q}" || location ~ "${q}")`;
+    }
+
+    function composeFilter() {
+      const parts = [buildWhenFilter(), buildSearchFilter()].filter(Boolean);
+      if (!parts.length) return "";
+      return parts.join(" && ");
+    }
+
+    // ─────────────────────────────────────────────────────────────
+    // 4) Render
+    // ─────────────────────────────────────────────────────────────
+    const fmtDate = (isoStr) =>
+      isoStr ? new Date(isoStr).toLocaleString("es-ES", { dateStyle: "medium", timeStyle: "short" }) : "Sin fecha";
+
+    function renderCard(rec) {
+      const img = rec.cover
+        ? `<img src="${fileUrl(rec, rec.cover)}" alt="${rec.title}" loading="lazy" data-part="image">`
+        : `<img src="assets/img/p1.jpg" alt="Evento" loading="lazy" data-part="image">`;
+      const date = fmtDate(rec.date);
+      return `
+        <article class="card event-card" data-component="EventCard">
+          <a href="event.html?id=${rec.id}" class="event-cover" aria-label="Ver evento: ${rec.title}" data-part="cover">
+            ${img}
+          </a>
+          <div class="pad" data-part="body">
+            <div class="row" style="justify-content:space-between; align-items:center;" data-part="header">
+              <h2 class="h4" style="margin:0;" data-part="name">
+                <a class="link" href="event.html?id=${rec.id}">${rec.title ?? ''}</a>
+              </h2>
+              <span class="badge soft" data-part="date">${date}</span>
+            </div>
+            <p class="p" style="opacity:.9; margin:6px 0 8px;" data-part="subtitle">${rec.location ?? ""}</p>
+          </div>
+        </article>
+      `;
+    }
+
+    function renderPager(totalPages) {
+      pager.innerHTML = `
+        <button class="btn" ${state.page <= 1 ? "disabled" : ""} data-act="prev">‹</button>
+        <span class="p">Página ${state.page} / ${totalPages || 1}</span>
+        <button class="btn" ${state.page >= (totalPages || 1) ? "disabled" : ""} data-act="next">›</button>
+      `;
+    }
+
+    pager.addEventListener('click', (e) => {
+      const act = e.target?.dataset?.act;
+      if (act === 'prev' && state.page > 1) { state.page--; load(); }
+      if (act === 'next') { state.page++; load(); }
+    });
+
+    // ─────────────────────────────────────────────────────────────
+    // 5) Carga de datos
+    // ─────────────────────────────────────────────────────────────
+    async function load() {
+      grid.innerHTML = `<p class="p">Cargando eventos…</p>`;
+      try {
+        const filter = composeFilter();
+        const res = await listEvents({ page: state.page, perPage: state.perPage, sort: state.sort, filter });
+        if (!res.items.length) {
+          grid.innerHTML = `<p class="p">No hay eventos que coincidan.</p>`;
+        } else {
+          grid.innerHTML = res.items.map(renderCard).join("");
+        }
+        renderPager(res.totalPages || 1);
+      } catch (e) {
+        console.error(e);
+        grid.innerHTML = `<p class="p">Error al cargar eventos.</p>`;
+        renderPager(1);
+      }
+    }
+
+    // ─────────────────────────────────────────────────────────────
+    // 6) Búsqueda (con debounce)
+    // ─────────────────────────────────────────────────────────────
+    function debounce(fn, ms=300) {
+      let t; return (...args) => { clearTimeout(t); t = setTimeout(() => fn(...args), ms); };
+    }
+    if (searchInput) {
+      const onSearch = debounce((e) => {
+        state.q = e.target.value.trim();
+        state.page = 1;
+        load();
+      }, 300);
+      searchInput.addEventListener('input', onSearch);
+    }
+
+    // ─────────────────────────────────────────────────────────────
+    // 7) Chips de filtro temporal
+    // ─────────────────────────────────────────────────────────────
+    function setActiveChip(activeEl) {
+      [chipHoy, chipSemana, chipProx, chipPasados].forEach(el => el?.classList.remove('active'));
+      activeEl?.classList.add('active');
+    }
+
+    chipHoy?.addEventListener('click', () => { state.when = 'today';   state.page = 1; setActiveChip(chipHoy);   load(); });
+    chipSemana?.addEventListener('click', () => { state.when = 'week'; state.page = 1; setActiveChip(chipSemana); load(); });
+    chipProx?.addEventListener('click', () => { state.when = 'upcoming'; state.page = 1; setActiveChip(chipProx); load(); });
+    chipPasados?.addEventListener('click', () => { state.when = 'past'; state.page = 1; setActiveChip(chipPasados); load(); });
+
+    // Por defecto marcamos "Próximos" al entrar (o deja 'all' si prefieres)
+    // setActiveChip(chipProx); state.when = 'upcoming';
+
+    // ─────────────────────────────────────────────────────────────
+    // 8) Ordenar
+    // ─────────────────────────────────────────────────────────────
+    sortBtn?.addEventListener('click', () => {
+      state.sort = state.sort.startsWith('-date') ? 'date,created' : '-date,-created';
+      sortBtn.textContent = state.sort.startsWith('-') ? '↕ Ordenar (recientes)' : '↕ Ordenar (antiguos)';
+      state.page = 1;
+      load();
+    });
+    // etiqueta inicial
+    if (sortBtn) sortBtn.textContent = '↕ Ordenar (recientes)';
+
+    // ─────────────────────────────────────────────────────────────
+    // 9) GO!
+    // ─────────────────────────────────────────────────────────────
+    load();
+  </script>
 </body>
 </html>

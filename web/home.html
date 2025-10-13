@@ -163,5 +163,32 @@
       </div>
     </footer>
   </div>
+
+  <script type="module">
+    import { requireAuth, currentUser, logoutAndGo } from "./assets/js/services/auth_service.js";
+    import { pb } from "./assets/js/pb.js";
+
+    // 1) Protección: solo usuarios logueados
+    requireAuth("login.html");
+
+    // 2) Rellenar avatar / nombre si lo necesitas
+    const user = currentUser();
+    const avatarImg = document.querySelector('[data-part="avatar"]');
+    if (user?.avatar && avatarImg) {
+      // users es colección auth; pb.files.getUrl funciona igual
+      avatarImg.src = pb.files.getUrl(user, user.avatar, { token: pb.authStore.token, thumb: "100x100" });
+      avatarImg.alt = user?.name || user?.username || "Tu avatar";
+    }
+
+    // 3) Logout real: el enlace actual apunta a login.html pero no borra la sesión
+    const logoutLink = [...document.querySelectorAll('[data-part="menu-item"]')]
+      .find(a => a.textContent.includes("Cerrar sesión"));
+    if (logoutLink) {
+      logoutLink.addEventListener('click', (e) => {
+        e.preventDefault();
+        logoutAndGo("login.html");
+      });
+    }
+  </script>
 </body>
 </html>

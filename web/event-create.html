@@ -166,5 +166,32 @@
       </div>
     </footer>
   </div>
+
+  <script type="module">
+    import { requireAuth } from "./assets/js/services/auth_service.js";
+    import { createEvent } from "./assets/js/services/events_services.js";
+
+    requireAuth("login.html");
+
+    const form = document.querySelector("form");
+    const msg = document.createElement("p");
+    msg.className = "p";
+    form.after(msg);
+
+    form.addEventListener("submit", async e => {
+      e.preventDefault();
+      const fd = new FormData(form);
+      const date = fd.get("date");
+      if (date) fd.set("date", new Date(date).toISOString());
+      try {
+        const rec = await createEvent(fd);
+        msg.textContent = "Evento creado correctamente ✅";
+        setTimeout(() => (window.location.href = `event.html?id=${rec.id}`), 1000);
+      } catch (err) {
+        console.error(err);
+        msg.textContent = "Error al crear el evento ❌";
+      }
+    });
+  </script>
 </body>
 </html>

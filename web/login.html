@@ -32,7 +32,7 @@
 
         <!-- Prototipo sin JS: simulamos login navegando con GET a home.html -->
         <form class="form" aria-label="Formulario de acceso"
-              action="home.html" method="get" novalidate
+              action="#" method="post"
               data-component="AuthForm">
 
           <!-- ID de acceso (correo o usuario) -->
@@ -119,5 +119,54 @@
       </div>
     </footer>
   </div>
+
+  <script type="module">
+    import { login, isLoggedIn } from "./assets/js/services/auth_service.js";
+
+    // Redirige si ya hay sesión activa
+    if (isLoggedIn && isLoggedIn()) {
+      window.location.href = "home.html"; // o "events.html" si prefieres
+    }
+
+    const form = document.querySelector('[data-component="AuthForm"]');
+    const emailInput = document.querySelector('#loginId');
+    const passInput  = document.querySelector('#loginPass');
+    const submitBtn  = form.querySelector('button[type="submit"]');
+
+    // Mensaje de error accesible (sin romper tu layout)
+    const errorEl = document.createElement('p');
+    errorEl.className = 'p';
+    errorEl.style.marginTop = '8px';
+    errorEl.style.textAlign = 'center';
+    errorEl.style.color = 'var(--danger, #ff6b6b)';
+    errorEl.hidden = true;
+    errorEl.setAttribute('role', 'alert');
+    form.append(errorEl);
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const email = emailInput.value.trim();
+      const password = passInput.value;
+
+      // UI bloqueo ligero
+      submitBtn.disabled = true;
+      const prevText = submitBtn.textContent;
+      submitBtn.textContent = "Entrando…";
+      errorEl.hidden = true;
+
+      try {
+        await login(email, password);
+        window.location.href = "home.html";
+      } catch (err) {
+        console.error(err);
+        errorEl.textContent = "Correo o contraseña incorrectos.";
+        errorEl.hidden = false;
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.textContent = prevText;
+      }
+    });
+  </script>
 </body>
 </html>
