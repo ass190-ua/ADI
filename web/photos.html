@@ -7,11 +7,29 @@
   <link rel="stylesheet" href="css/layout.css">
   <link rel="stylesheet" href="css/components.css">
   <link rel="stylesheet" href="css/pages.css">
+  <style>
+    /* pequeño estilo para las iniciales del avatar */
+    .avatar-initials{
+      width:36px;height:36px;border-radius:999px;
+      display:inline-grid;place-items:center;
+      background:#334155;color:#e5e7eb;font-weight:700;font-size:.9rem;
+    }
+    .photo-card .cover{ position:relative; }
+    .photo-card .fav{
+      position:absolute; right:8px; top:8px;
+      background:rgba(0,0,0,.5); border:1px solid rgba(255,255,255,.2);
+      border-radius:8px; padding:.15rem .4rem; color:#ffd24d;
+    }
+    .photo-card .sel{
+      position:absolute; left:8px; top:8px;
+      width:18px; height:18px;
+    }
+  </style>
 </head>
 <body data-part="body">
   <div class="page" data-component="MainLayout">
 
-    <!-- Header privado (igual que Home) -->
+    <!-- Header -->
     <header class="app-header" data-component="AppHeader" data-variant="private">
       <div class="brand" data-part="brand">
         <a class="logo" href="home.html" data-part="logo-link">
@@ -20,18 +38,14 @@
         </a>
       </div>
 
-      <!-- Toggle móvil para sidebar -->
       <input type="checkbox" id="menu-toggle" class="menu-toggle" aria-label="Abrir menú" data-part="menu-toggle">
       <label for="menu-toggle" class="menu-btn" aria-hidden="true" data-part="menu-btn">☰</label>
-
-      <!-- Nav centrado (vacío; la navegación vive en la sidebar) -->
       <nav class="app-nav" aria-label="Secciones" data-part="nav"></nav>
 
-      <!-- Menú de usuario (solo avatar) -->
       <div class="user-actions" data-part="user-actions">
         <details class="user-menu" data-component="UserMenu">
           <summary aria-label="Abrir menú de usuario" data-part="summary">
-            <img class="avatar" src="assets/img/perfil.jpg" alt="Tu avatar" data-part="avatar">
+            <img class="avatar" src="" alt="Tu avatar" data-part="avatar" style="display:none;">
           </summary>
           <nav class="menu" aria-label="Menú de usuario" data-part="menu">
             <a href="profile.html" data-part="menu-item">👤 Perfil</a>
@@ -41,7 +55,7 @@
       </div>
     </header>
 
-    <!-- App shell: sidebar + contenido -->
+    <!-- Shell -->
     <main class="app-shell" data-component="AppShell">
       <aside class="sidebar" data-component="Sidebar">
         <nav class="sidebar-nav" aria-label="Principal" data-component="SiteNav">
@@ -53,45 +67,35 @@
       </aside>
 
       <section class="app-main container" data-component="PhotosContent">
-        <!-- Título + filtros rápidos -->
-        <div class="row" style="justify-content:space-between; align-items:center;" data-component="FilterBar">
-          <h1 class="h2" style="margin:0;" data-part="title">Tu galería</h1>
-          <div class="row" style="gap:8px; flex-wrap:wrap;" data-part="chips">
-            <button class="chip todos active" type="button" data-part="chip">Todos</button>
-            <button class="chip favoritos" type="button" data-part="chip">Favoritos</button>
-            <button class="chip videos" type="button" data-part="chip">Vídeos</button>
-            <button class="chip albumnes" type="button" data-part="chip">Álbumes</button>
+        <!-- Título + chips -->
+        <div class="row" style="justify-content:space-between; align-items:center; gap:10px; flex-wrap:wrap;">
+          <h1 class="h2" style="margin:0;">Tu galería</h1>
+          <div class="row" style="gap:8px; flex-wrap:wrap;">
+            <button class="chip todos active" type="button">Todos</button>
+            <button class="chip favoritos" type="button" disabled>Favoritos</button>
+            <button class="chip videos" type="button" disabled>Vídeos</button>
+            <button class="chip albumnes" type="button" disabled>Álbumes</button>
           </div>
         </div>
 
-        <!-- Toolbar (buscar / subir / ordenar / seleccionar / eliminar) -->
-        <div class="row" style="gap:10px; margin-top:10px; flex-wrap:wrap;" data-component="Toolbar">
-          <div class="input" style="flex:1; min-width:220px;" data-part="search">
+        <!-- Toolbar -->
+        <div class="row" style="gap:10px; margin-top:10px; flex-wrap:wrap;">
+          <div class="input" style="flex:1; min-width:220px;">
             <label class="visually-hidden" for="q">Buscar en galería</label>
-            <input id="q" type="search" placeholder="Buscar por nombre, álbum o etiqueta… 🔍">
+            <input id="q" type="search" placeholder="Buscar por título, lugar o etiqueta… 🔍">
           </div>
           <button class="btn" style="color: white;" data-part="upload">⬆️ Subir</button>
-          <button class="btn ghost" style="color: white;" data-part="sort">↕ Ordenar</button>
+          <button class="btn ghost" style="color: white;" data-part="sort">↕ Ordenar (recientes)</button>
           <button class="btn ghost" style="color: white;" data-part="select">✅ Seleccionar</button>
-          <button class="btn ghost" type="button" style="color: white;" data-part="manage">⚙️ Gestionar fotos</button>
-          <button class="btn ghost" style="color: white;" data-part="delete">🗑️ Eliminar</button>
+          <button class="btn ghost" style="color: white;" data-part="delete" disabled>🗑️ Eliminar</button>
+
+          <!-- input de subida (oculto) -->
+          <input id="photo-file" type="file" accept="image/*" multiple style="display:none;">
         </div>
 
-        <!-- Galería (masonry con .gallery del CSS) -->
-        <section class="gallery" style="margin-top:16px;" data-component="PhotoGrid">
-          <figure class="tile card media" data-component="PhotoCard">
-            <img src="assets/img/p1.jpg" alt="Foto 1" loading="lazy" data-part="image">
-          </figure>
-          <figure class="tile card media" data-component="PhotoCard">
-            <img src="assets/img/p2.jpg" alt="Foto 2" loading="lazy" data-part="image">
-          </figure>
-          <figure class="tile card media" data-component="PhotoCard">
-            <img src="assets/img/p3.jpg" alt="Foto 3" loading="lazy" data-part="image">
-          </figure>
-          <figure class="tile card media" data-component="PhotoCard">
-            <img src="assets/img/p4.jpg" alt="Foto 4" loading="lazy" data-part="image">
-          </figure>
-        </section>
+        <!-- Galería dinámica -->
+        <section class="gallery" style="margin-top:16px;" data-component="PhotoGrid" aria-live="polite"></section>
+        <p id="photos-msg" class="p" style="margin-top:8px;"></p>
       </section>
     </main>
 
@@ -121,5 +125,158 @@
       </div>
     </footer>
   </div>
+
+  <script type="module">
+    import { requireAuth, currentUser, logoutAndGo } from "./assets/js/services/auth_service.js";
+    import { pb } from "./assets/js/pb.js";
+    import {
+      listPhotos, searchPhotos, uploadPhoto,
+      deletePhoto, toggleFavorite, fileUrl
+    } from "./assets/js/services/photos_services.js";
+
+    // Auth + logout real
+    requireAuth("login.html");
+    const logoutLink = [...document.querySelectorAll('[data-part="menu-item"]')].find(a => a.textContent.includes("Cerrar sesión"));
+    logoutLink?.addEventListener("click", e => { e.preventDefault(); logoutAndGo("login.html"); });
+
+    // Avatar real o iniciales
+    const user = currentUser();
+    const headerImg = document.querySelector('[data-part="avatar"]');
+    const headerSummary = document.querySelector('[data-part="summary"]');
+    if (user?.avatar) {
+      headerImg.src = pb.files.getUrl(user, user.avatar, { token: pb.authStore.token, thumb: "100x100" });
+      headerImg.alt = user?.username || "Tu avatar";
+      headerImg.style.display = "block";
+    } else {
+      headerImg.style.display = "none";
+      const div = document.createElement("div");
+      div.className = "avatar-initials";
+      div.textContent = (user?.name || user?.username || "?").split(/\s+/).map(w => w[0]).slice(0,2).join("").toUpperCase();
+      headerSummary.appendChild(div);
+    }
+
+    // Refs UI
+    const grid    = document.querySelector('[data-component="PhotoGrid"]') || document.querySelector('.gallery');
+    const qInput  = document.querySelector('#q');
+    const sortBtn = document.querySelector('[data-part="sort"]');
+    const uploadBtn = document.querySelector('[data-part="upload"]');
+    const fileInput = document.querySelector('#photo-file');
+    const selectBtn = document.querySelector('[data-part="select"]');
+    const deleteBtn = document.querySelector('[data-part="delete"]');
+    const msg = document.querySelector('#photos-msg');
+
+    const state = { page:1, perPage:24, sort:"-created", q:"", selecting:false, selected:new Set(), totalPages:1 };
+
+    // Helpers
+    function card(rec){
+      // ⚠️ campo de fichero en PB: "file"
+      const src = rec.file ? fileUrl(rec, rec.file, "600x0") : "";
+      const fav = rec.favorite ? "★" : "☆";
+      const checked = state.selected.has(rec.id) ? "checked" : "";
+      return `
+        <article class="photo-card card" data-id="${rec.id}">
+          <div class="cover">
+            <img src="${src}" alt="${rec.title || 'Foto'}" loading="lazy">
+            ${state.selecting ? `<input class="sel" type="checkbox" ${checked}/>` : ""}
+            <button class="fav" title="Favorito">${fav}</button>
+          </div>
+          ${rec.title ? `<div class="pad"><div class="p">${rec.title}</div></div>` : ""}
+        </article>
+      `;
+    }
+
+    function bindCardEvents(){
+      grid.querySelectorAll('.photo-card').forEach(el=>{
+        const id = el.dataset.id;
+
+        el.querySelector('.sel')?.addEventListener('change', e=>{
+          if(e.target.checked) state.selected.add(id); else state.selected.delete(id);
+          updateBulkButtons();
+        });
+
+        el.querySelector('.fav')?.addEventListener('click', async (e)=>{
+          const btn = e.currentTarget;
+          btn.disabled = true;
+          try{
+            const isFav = btn.textContent === "★";   // estado actual en UI
+            const rec = await toggleFavorite(id, isFav);
+            btn.textContent = rec.favorite ? "★" : "☆";
+          }catch(err){ console.error(err); }
+          finally{ btn.disabled = false; }
+        });
+      });
+    }
+
+    function updateBulkButtons(){ deleteBtn.disabled = state.selected.size===0; }
+
+    async function load(){
+      if(!grid) return;
+      msg.textContent = "";
+      grid.innerHTML = `<p class="p">Cargando…</p>`;
+      try{
+        const opts = { page:state.page, perPage:state.perPage, sort:state.sort };
+        const res = state.q
+          ? await searchPhotos(state.q, opts)   // q + opts
+          : await listPhotos(opts);             // solo opts
+
+        state.totalPages = res.totalPages || 1;
+        if(!res.items.length){
+          grid.innerHTML = `<p class="p">No hay fotos para mostrar.</p>`;
+          return;
+        }
+        grid.innerHTML = res.items.map(card).join("");
+        bindCardEvents();
+        updateBulkButtons();
+        sortBtn.textContent = state.sort.startsWith('-') ? '↕ Ordenar (recientes)' : '↕ Ordenar (antiguas)';
+      }catch(err){
+        console.error(err);
+        grid.innerHTML = `<p class="p" style="color:#ef4444">No se pudieron cargar las fotos.</p>`;
+        if(String(err).includes("403") || String(err).includes("Unauthorized")){
+          msg.textContent = "Comprueba que estás logueado con el mismo usuario que creó las fotos.";
+        }
+      }
+    }
+
+    // Buscar (debounce)
+    function debounce(fn, ms=300){ let t; return (...a)=>{ clearTimeout(t); t=setTimeout(()=>fn(...a), ms); }; }
+    qInput?.addEventListener('input', debounce(e=>{ state.q = e.target.value.trim(); state.page=1; load(); }, 300));
+
+    // Ordenar
+    sortBtn?.addEventListener('click', ()=>{
+      state.sort = state.sort.startsWith('-') ? 'created' : '-created';
+      state.page = 1; load();
+    });
+
+    // Subir
+    uploadBtn?.addEventListener('click', ()=> fileInput?.click());
+    fileInput?.addEventListener('change', async ()=>{
+      const files = [...(fileInput.files||[])];
+      for(const f of files){
+        try{ await uploadPhoto({ file:f }); }
+        catch(err){ console.error("Falló subida", f.name, err); }
+      }
+      fileInput.value = "";
+      load();
+    });
+
+    // Selección / borrado
+    selectBtn?.addEventListener('click', ()=>{
+      state.selecting = !state.selecting;
+      state.selected.clear();
+      selectBtn.classList.toggle('active', state.selecting);
+      load();
+    });
+
+    deleteBtn?.addEventListener('click', async ()=>{
+      if(!state.selected.size) return;
+      if(!confirm(`¿Borrar ${state.selected.size} foto(s)?`)) return;
+      for(const id of state.selected){
+        try{ await deletePhoto(id); }catch(err){ console.error(err); }
+      }
+      state.selected.clear(); load();
+    });
+
+    load();
+  </script>
 </body>
 </html>

@@ -26,7 +26,7 @@
       <div class="user-actions" data-part="user-actions">
         <details class="user-menu" data-component="UserMenu">
           <summary aria-label="Abrir menú de usuario" data-part="summary">
-            <img class="avatar" src="assets/img/perfil.jpg" alt="Tu avatar" data-part="avatar">
+            <img class="avatar" src="" alt="Tu avatar" data-part="avatar" style="display:none;">
           </summary>
           <nav class="menu" aria-label="Menú de usuario" data-part="menu">
             <a href="profile.html" data-part="menu-item">👤 Perfil</a>
@@ -52,10 +52,10 @@
       <section class="app-main container" data-component="EventDetail" aria-labelledby="event-title">
         <!-- Hero del evento -->
         <figure class="event-hero card" data-component="EventHero">
-          <img src="assets/img/p2.jpg" alt="Portada del evento Cumple de Cristina" data-part="image" />
+          <img data-part="image" alt="Portada del evento" />
           <figcaption class="pad" data-part="caption">
-            <h1 class="h2" id="event-title" style="margin:0;" data-part="title">Cumple de Cristina</h1>
-            <p class="p" style="margin:.25rem 0 0; opacity:.9;" data-part="meta">Vie · 21:00 — Casa de Cristina (Alicante)</p>
+            <h1 class="h2" id="event-title" style="margin:0;" data-part="title">Evento</h1>
+            <p class="p" style="margin:.25rem 0 0; opacity:.9;" data-part="meta">—</p>
           </figcaption>
         </figure>
 
@@ -64,19 +64,17 @@
           <!-- Columna principal -->
           <article class="card pad" data-component="EventInfo">
             <div class="title" data-part="block-title">Descripción</div>
-            <p class="p" data-part="desc">¡Ven a celebrar el cumple de Cristina! Habrá música, tarta y juegos. Dress code: colores. Si quieres, trae algo para compartir.</p>
+            <p class="p" data-part="desc">—</p>
 
             <div class="title" style="margin-top:12px;" data-part="block-title">Agenda</div>
             <ul class="p" style="margin:6px 0 0 16px;" data-part="agenda">
-              <li>21:00 — Bienvenida</li>
-              <li>21:30 — Brindis y fotos</li>
-              <li>22:30 — Juegos y sorpresas</li>
+              <li>Sin agenda</li>
             </ul>
 
             <div class="title" style="margin-top:12px;" data-part="block-title">Organizador</div>
             <div class="row" style="align-items:center; gap:10px;" data-part="organizer">
-              <span class="avatar" style="width:36px; height:36px;"><img src="assets/img/perfil.jpg" alt="" /></span>
-              <span>Cristina · <span class="p" style="opacity:.8;">@cristina</span></span>
+              <span class="avatar" style="width:36px; height:36px;"><img alt="" /></span>
+              <span data-part="organizer-name">—</span>
             </div>
           </article>
 
@@ -85,24 +83,18 @@
             <div class="title" data-part="block-title">Asistencia</div>
             <p class="p" style="margin-top:6px;" data-part="rsvp-copy">Confirma si vas a asistir.</p>
             <div class="row" style="gap:8px; flex-wrap:wrap;" data-part="rsvp-actions">
-              <!-- Navegan a #rsvp-ok / #rsvp-no para disparar los toasts -->
               <a class="btn" href="#rsvp-ok" data-part="rsvp-yes">✅ Asistiré</a>
               <a class="btn ghost" href="#rsvp-no" data-part="rsvp-no">❌ No podré</a>
             </div>
 
-            <div class="title" style="margin-top:12px;" data-part="block-title">Asistentes (ejemplo)</div>
+            <div class="title" style="margin-top:12px;" data-part="block-title">Asistentes</div>
             <div class="row" style="gap:8px; flex-wrap:wrap;" data-part="attendees">
-              <span class="avatar"><img src="assets/img/perfil.jpg" alt=""></span>
-              <span class="avatar"><img src="assets/img/perfil.jpg" alt=""></span>
-              <span class="avatar"><img src="assets/img/perfil.jpg" alt=""></span>
-              <span class="avatar"><img src="assets/img/perfil.jpg" alt=""></span>
+              <!-- Se rellenará dinámicamente si existe info -->
             </div>
 
             <div class="title" style="margin-top:12px;" data-part="block-title">Etiquetas</div>
             <div class="row" style="gap:6px; flex-wrap:wrap;" data-part="tags">
-              <span class="chip">🎉 Fiesta</span>
-              <span class="chip">🎂 Cumpleaños</span>
-              <span class="chip">👯 Amigos</span>
+              <!-- Se rellenará dinámicamente si existe info -->
             </div>
           </aside>
         </div>
@@ -151,45 +143,80 @@
   </div>
 
   <script type="module">
-    import { requireAuth, logoutAndGo } from "./assets/js/services/auth_service.js";
+    import { requireAuth, logoutAndGo, currentUser } from "./assets/js/services/auth_service.js";
+    import { pb } from "./assets/js/pb.js";
     import { getEvent, updateEvent, deleteEvent, fileUrl } from "./assets/js/services/events_services.js";
 
-    // ────────────────────────────────────────────────────────────────────────────
-    // 1) Proteger página + logout real
-    // ────────────────────────────────────────────────────────────────────────────
-    requireAuth("login.html");
-    const logoutLink = [...document.querySelectorAll('[data-part="menu-item"]')]
-      .find(a => a.textContent.includes("Cerrar sesión"));
-    if (logoutLink) {
-      logoutLink.addEventListener("click", (e) => {
-        e.preventDefault();
-        logoutAndGo("login.html");
-      });
+    // Helper: pinta avatar real o iniciales dentro de un contenedor
+    function mountAvatarOrInitials({ container, imgEl, nameOrUser, fileUrl }) {
+      if (!container) return;
+      container.querySelector('.avatar-initials')?.remove();
+      if (fileUrl) {
+        if (imgEl) {
+          imgEl.src = fileUrl;
+          imgEl.alt = nameOrUser || "avatar";
+          imgEl.style.display = "block";
+        }
+      } else {
+        if (imgEl) imgEl.style.display = "none";
+        const initials = (nameOrUser||"?").toString().trim().split(/\s+/).map(w=>w[0]).slice(0,2).join("").toUpperCase();
+        const div = document.createElement('div');
+        div.className = 'avatar-initials';
+        div.textContent = initials;
+        container.appendChild(div);
+      }
     }
 
-    // ────────────────────────────────────────────────────────────────────────────
+    // 1) Proteger + logout
+    requireAuth("login.html");
+    const logoutLink = [...document.querySelectorAll('[data-part="menu-item"]')].find(a => a.textContent.includes("Cerrar sesión"));
+    if (logoutLink) logoutLink.addEventListener("click", (e) => { e.preventDefault(); logoutAndGo("login.html"); });
+
+    // 1.1) Header: avatar real o iniciales
+    const me = currentUser();
+    const headerWrap = document.querySelector('[data-component="UserMenu"] [data-part="summary"]');
+    const headerImg  = document.querySelector('[data-component="UserMenu"] [data-part="avatar"]');
+    const meUrl = me?.avatar ? pb.files.getUrl(me, me.avatar, { token: pb.authStore.token, thumb: "100x100" }) : null;
+    mountAvatarOrInitials({
+      container: headerWrap,
+      imgEl: headerImg,
+      nameOrUser: me?.name || me?.username,
+      fileUrl: meUrl
+    });
+
     // 2) Utilidades
-    // ────────────────────────────────────────────────────────────────────────────
     const params = new URLSearchParams(location.search);
     const id = params.get("id");
     if (!id) { location.href = "events.html"; throw new Error("Falta id"); }
 
     const $ = (sel, root=document) => root.querySelector(sel);
-    const fmtDate = (iso) => iso
-      ? new Date(iso).toLocaleString("es-ES", { dateStyle: "medium", timeStyle: "short" })
-      : "";
+    const fmtDate = (iso) => iso ? new Date(iso).toLocaleString("es-ES", { dateStyle: "medium", timeStyle: "short" }) : "Sin fecha";
+    const show = (el, on=true) => { if (el) el.style.display = on ? "" : "none"; };
 
-    // Elementos existentes en tu maquetación
+    // Refs
     const hero     = $('[data-component="EventHero"]');
     const heroImg  = $('[data-component="EventHero"] [data-part="image"]');
     const heroTitle= $('[data-component="EventHero"] [data-part="title"]');
     const heroMeta = $('[data-component="EventHero"] [data-part="meta"]');
     const bodyDesc = $('[data-component="EventInfo"] [data-part="desc"]');
+    const orgBlock = $('[data-part="organizer"]');
+    const orgName  = $('[data-part="organizer-name"]', orgBlock);
+    const orgImg   = $('img', orgBlock); // el <img> dentro del span.avatar
+    const attendeesWrap = $('[data-part="attendees"]');
+    const tagsWrap      = $('[data-part="tags"]');
 
-    // ────────────────────────────────────────────────────────────────────────────
-    // 3) Inserta Controles (Editar/Borrar) + Formulario de edición
-    // ────────────────────────────────────────────────────────────────────────────
-    // Barra de acciones
+    // Placeholder inline (sin assets locales)
+    const FALLBACK_SVG = `data:image/svg+xml;utf8,` + encodeURIComponent(`
+      <svg xmlns='http://www.w3.org/2000/svg' width='1200' height='600'>
+        <defs><linearGradient id='g' x1='0' y1='0' x2='1' y2='1'>
+          <stop offset='0%' stop-color='#222'/><stop offset='100%' stop-color='#333'/>
+        </linearGradient></defs>
+        <rect width='100%' height='100%' fill='url(#g)'/>
+        <text x='50%' y='50%' dominant-baseline='middle' text-anchor='middle'
+              fill='#aaa' font-family='system-ui,Arial' font-size='36'>Sin portada</text>
+      </svg>`);
+
+    // 3) Acciones: editar / borrar (UI)
     const actionsBar = document.createElement('div');
     actionsBar.className = 'row';
     actionsBar.style.cssText = 'gap:8px; margin:10px 0 0;';
@@ -199,7 +226,6 @@
     `;
     hero.after(actionsBar);
 
-    // Formulario (oculto por defecto)
     const form = document.createElement('form');
     form.className = 'form card pad';
     form.style.display = 'none';
@@ -207,26 +233,11 @@
     form.innerHTML = `
       <div class="title" style="margin-bottom:8px;">Editar evento</div>
       <div class="grid" style="gap:10px;">
-        <div class="input">
-          <label for="etitle">Título</label>
-          <input id="etitle" name="title" required>
-        </div>
-        <div class="input">
-          <label for="edate">Fecha</label>
-          <input id="edate" name="date" type="datetime-local">
-        </div>
-        <div class="input">
-          <label for="elocation">Ubicación</label>
-          <input id="elocation" name="location">
-        </div>
-        <div class="input" style="grid-column:1 / -1;">
-          <label for="edescription">Descripción</label>
-          <textarea id="edescription" name="description" rows="5"></textarea>
-        </div>
-        <div class="input" style="grid-column:1 / -1;">
-          <label for="ecover">Nueva portada (opcional)</label>
-          <input id="ecover" name="cover" type="file" accept="image/*">
-        </div>
+        <div class="input"><label for="etitle">Título</label><input id="etitle" name="title" required></div>
+        <div class="input"><label for="edate">Fecha</label><input id="edate" name="date" type="datetime-local"></div>
+        <div class="input"><label for="elocation">Ubicación</label><input id="elocation" name="location"></div>
+        <div class="input" style="grid-column:1/-1;"><label for="edescription">Descripción</label><textarea id="edescription" name="description" rows="5"></textarea></div>
+        <div class="input" style="grid-column:1/-1;"><label for="ecover">Nueva portada (opcional)</label><input id="ecover" name="cover" type="file" accept="image/*"></div>
       </div>
       <div class="row" style="gap:8px; margin-top:10px;">
         <button class="btn primary" type="submit">Guardar cambios</button>
@@ -234,7 +245,6 @@
       </div>
       <p class="p" id="evt-msg" style="margin-top:8px;"></p>
     `;
-    // Lo insertamos antes del bloque "Descripción" para mantener la jerarquía visual
     const infoCard = $('[data-component="EventInfo"]');
     infoCard.prepend(form);
 
@@ -243,59 +253,81 @@
     const btnCancel = $('#evt-cancel', form);
     const msgEl     = $('#evt-msg', form);
 
-    // ────────────────────────────────────────────────────────────────────────────
-    // 4) Carga + Render del evento
-    // ────────────────────────────────────────────────────────────────────────────
+    // 4) Carga + render
     let current;
 
+    function paintOrganizer(userModel) {
+      if (!userModel) { show(orgBlock, false); return; }
+      const nameOrUser = userModel.name || userModel.username || userModel.email || "Usuario";
+      const url = userModel.avatar
+        ? pb.files.getUrl(userModel, userModel.avatar, { token: pb.authStore.token, thumb: "100x100" })
+        : null;
+
+      mountAvatarOrInitials({
+        container: orgBlock.querySelector('.avatar'),
+        imgEl: orgImg,
+        nameOrUser,
+        fileUrl: url
+      });
+      orgName.textContent = nameOrUser;
+      show(orgBlock, true);
+    }
+
     function fillDetail(rec) {
-      if (rec.cover) {
-        heroImg.src = fileUrl(rec, rec.cover);
-        heroImg.alt = rec.title || "Portada del evento";
-      } else {
-        heroImg.src = "assets/img/p2.jpg";
-        heroImg.alt = "Portada del evento";
-      }
+      // Hero image (thumb 800x600 si existe)
+      heroImg.src = rec.cover ? fileUrl(rec, rec.cover, '800x600') : FALLBACK_SVG;
+      heroImg.alt = rec.title || "Portada del evento";
+
+      // Título + meta
       heroTitle.textContent = rec.title || "Evento";
       const when  = fmtDate(rec.date);
       const where = rec.location ? ` — ${rec.location}` : "";
       heroMeta.textContent = (when || "Sin fecha") + where;
-      bodyDesc.innerHTML   = rec.description || "Sin descripción.";
+
+      // Descripción
+      bodyDesc.innerHTML = rec.description || "Sin descripción.";
+
+      // Organizador: si expandes 'user' úsalo; si aún no tienes relación, usa el usuario logueado
+      const owner = rec.expand?.user || me;
+      paintOrganizer(owner);
+
+      // Etiquetas / asistentes (si los tienes en el modelo)
+      if (Array.isArray(rec.tags) && rec.tags.length) {
+        tagsWrap.innerHTML = rec.tags.map(t => `<span class="chip">${t}</span>`).join('');
+        show(tagsWrap.parentElement, true);
+      } else {
+        show(tagsWrap.parentElement, false);
+      }
+      if (Array.isArray(rec.attendees) && rec.attendees.length) {
+        attendeesWrap.innerHTML = rec.attendees.map(n => `<span class="avatar"><img alt=""></span>`).join('');
+        show(attendeesWrap.parentElement, true);
+      } else {
+        show(attendeesWrap.parentElement, false);
+      }
     }
 
     function fillForm(rec) {
-      $('#etitle', form).value      = rec.title || '';
-      $('#elocation', form).value   = rec.location || '';
-      $('#edescription', form).value= rec.description || '';
-      // datetime-local necesita local time sin TZ: convertimos de ISO a "YYYY-MM-DDTHH:MM"
+      $('#etitle', form).value       = rec.title || '';
+      $('#elocation', form).value    = rec.location || '';
+      $('#edescription', form).value = rec.description || '';
       if (rec.date) {
         const d = new Date(rec.date);
-        const localISO = new Date(d.getTime() - d.getTimezoneOffset()*60000).toISOString().slice(0,16);
-        $('#edate', form).value = localISO;
+        const local = new Date(d.getTime() - d.getTimezoneOffset()*60000).toISOString().slice(0,16);
+        $('#edate', form).value = local;
       } else {
         $('#edate', form).value = '';
       }
     }
 
     async function load() {
-      current = await getEvent(id);
+      current = await getEvent(id, { expand: "user" }); // si no hay relación, no pasa nada
       fillDetail(current);
       fillForm(current);
     }
 
-    // ────────────────────────────────────────────────────────────────────────────
-    // 5) Interacciones: Editar / Cancelar / Guardar / Borrar
-    // ────────────────────────────────────────────────────────────────────────────
-    btnEdit.addEventListener('click', () => {
-      form.style.display = form.style.display === 'none' ? '' : 'none';
-      msgEl.textContent = '';
-    });
-
-    btnCancel.addEventListener('click', () => {
-      form.style.display = 'none';
-      msgEl.textContent = '';
-      fillForm(current); // restaurar valores
-    });
+    // 5) Interacciones
+    btnEdit.addEventListener('click', () => { form.style.display = form.style.display === 'none' ? '' : 'none'; msgEl.textContent = ''; });
+    btnCancel.addEventListener('click', () => { form.style.display = 'none'; msgEl.textContent = ''; fillForm(current); });
 
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
@@ -304,7 +336,6 @@
 
       try {
         if (coverFile) {
-          // Si hay nueva portada, usamos FormData (multipart)
           const fd = new FormData();
           fd.append('title', $('#etitle', form).value.trim());
           const d = $('#edate', form).value;
@@ -312,10 +343,8 @@
           fd.append('location', $('#elocation', form).value.trim());
           fd.append('description', $('#edescription', form).value.trim());
           fd.append('cover', coverFile, coverFile.name);
-
           current = await updateEvent(id, fd);
         } else {
-          // Sin portada nueva, objeto normal
           const payload = {
             title: $('#etitle', form).value.trim(),
             location: $('#elocation', form).value.trim(),
@@ -323,7 +352,6 @@
           };
           const d = $('#edate', form).value;
           if (d) payload.date = new Date(d).toISOString();
-
           current = await updateEvent(id, payload);
         }
 
@@ -341,7 +369,6 @@
       if (!confirm('¿Seguro que quieres borrar este evento?')) return;
       try {
         await deleteEvent(id);
-        // Tras borrar, vuelve al listado
         location.href = 'events.html';
       } catch (err) {
         console.error(err);
@@ -349,9 +376,7 @@
       }
     });
 
-    // ────────────────────────────────────────────────────────────────────────────
     // 6) GO!
-    // ────────────────────────────────────────────────────────────────────────────
     await load();
   </script>
 </body>

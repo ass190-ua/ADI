@@ -24,3 +24,13 @@ export async function deleteEvent(id) {
 export function fileUrl(record, file, opts={}) {
   return pb.files.getUrl(record, file, { token: pb.authStore.token, ...opts });
 }
+// Devuelve los últimos N eventos del usuario actual
+export async function listMyRecentEvents(limit = 5) {
+  const me = pb.authStore.model;
+  if (!me) return { items: [] };
+  return pb.collection("events").getList(1, limit, {
+    filter: `user = "${me.id}"`,
+    sort: "-updated,-created"
+  });
+}
+

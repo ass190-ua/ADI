@@ -30,7 +30,7 @@
       <div class="user-actions" data-part="user-actions">
         <details class="user-menu" data-component="UserMenu">
           <summary aria-label="Abrir menú de usuario" data-part="summary">
-            <img class="avatar" src="assets/img/perfil.jpg" alt="Tu avatar" data-part="avatar">
+            <img class="avatar" src="" alt="Tu avatar" data-part="avatar" style="display:none;">
           </summary>
           <nav class="menu" aria-label="Menú de usuario" data-part="menu">
             <a href="profile.html" aria-current="page" data-part="menu-item">👤 Perfil</a>
@@ -77,29 +77,28 @@
         <!-- Grid de ajustes -->
         <div class="grid grid-2" style="margin-top:16px;" data-component="SettingsGrid">
           <!-- Datos básicos -->
-          <form class="card pad form" autocomplete="on" data-component="ProfileForm" aria-labelledby="basic-title">
-            <div class="title" id="basic-title" data-part="title">Datos básicos</div>
+            <form class="card pad form" autocomplete="on" data-component="ProfileForm" aria-labelledby="basic-title">
+              <div class="title" id="basic-title" data-part="title">Datos básicos</div>
 
-            <div class="input" data-part="field">
-              <label data-part="label">Nombre</label>
-              <input type="text" name="name" placeholder="Tu nombre" value="Arturo Soriano" data-part="input">
-            </div>
+              <div class="input" data-part="field">
+                <label data-part="label">Nombre</label>
+                <input type="text" name="name" placeholder="Tu nombre" data-part="input">
+              </div>
 
-            <div class="input" data-part="field">
-              <label data-part="label">Usuario</label>
-              <input type="text" name="username" placeholder="@usuario" value="@arturosoriano" data-part="input">
-            </div>
+              <div class="input" data-part="field">
+                <label data-part="label">Usuario</label>
+                <input type="text" name="username" placeholder="@usuario" data-part="input">
+              </div>
 
-            <div class="input" data-part="field">
-              <label data-part="label">Email</label>
-              <input type="email" name="email" placeholder="tucorreo@ejemplo.com" value="arturo@ejemplo.com" data-part="input">
-            </div>
+              <div class="input" data-part="field">
+                <label data-part="label">Email</label>
+                <input type="email" name="email" placeholder="tucorreo@ejemplo.com" data-part="input">
+              </div>
 
-            <div class="actions" style="justify-content:flex-end;" data-part="actions">
-              <button class="btn" style="color: white;" data-part="save">Guardar cambios</button>
-            </div>
-          </form>
-
+              <div class="actions" style="justify-content:flex-end;" data-part="actions">
+                <button class="btn" style="color: white;" data-part="save">Guardar cambios</button>
+              </div>
+            </form>
           <!-- Preferencias -->
           <form class="card pad form" data-component="PreferencesForm" aria-labelledby="prefs-title">
             <div class="title" id="prefs-title" data-part="title">Preferencias</div>
@@ -197,5 +196,215 @@
       </div>
     </footer>
   </div>
+
+  <script type="module">
+    import { requireAuth, logoutAndGo } from "./assets/js/services/auth_service.js";
+    import { me, refreshMe, updateMe, deleteMe, userAvatarUrl } from "./assets/js/services/users_services.js";
+
+    // 1) Protección + logout real
+    requireAuth("login.html");
+    const logoutLink = [...document.querySelectorAll('[data-part="menu-item"]')]
+      .find(a => a.textContent.includes("Cerrar sesión"));
+    logoutLink?.addEventListener("click", (e) => { e.preventDefault(); logoutAndGo("login.html"); });
+
+    // 2) Helpers
+    const $  = (sel, root=document) => root.querySelector(sel);
+    const $$ = (sel, root=document) => [...root.querySelectorAll(sel)];
+
+    function initialsFrom(text, len=2) {
+      const t = (text || "U").toString().trim();
+      if (!t) return "U";
+      const parts = t.split(/\s+/);
+      const pick  = (parts.length > 1 ? (parts[0][0] + parts[parts.length-1][0]) : parts[0].slice(0, len));
+      return pick.toUpperCase();
+    }
+
+    function renderInitialsBox(el, text, size="36px") {
+      if (!el) return;
+      let box = el.querySelector(".avatar-initials");
+      if (!box) {
+        box = document.createElement("div");
+        box.className = "avatar-initials";
+        Object.assign(box.style, {
+          width: size, height: size, display: "inline-flex",
+          alignItems: "center", justifyContent: "center",
+          borderRadius: "9999px", background: "#334155", color: "#fff",
+          fontFamily: "system-ui, Arial", fontWeight: 700,
+          fontSize: size === "80px" ? "28px" : "12px"
+        });
+        el.appendChild(box);
+      }
+      box.textContent = initialsFrom(text);
+      box.style.display = "inline-flex";
+      return box;
+    }
+
+    function setAvatar(imgEl, containerForInitials, user, size="36px", thumb="100x100") {
+      const url = userAvatarUrl(user, thumb);
+      if (url && imgEl) {
+        imgEl.src = url;
+        imgEl.alt = user?.username || user?.name || "Avatar";
+        imgEl.style.display = "";
+        // oculta iniciales si hubiera
+        containerForInitials?.querySelector(".avatar-initials")?.remove();
+      } else {
+        if (imgEl) imgEl.style.display = "none";
+        renderInitialsBox(containerForInitials, user?.name || user?.username || user?.email, size);
+      }
+    }
+
+    // 3) Refs UI
+    // Header
+    const headerSummary = $('[data-part="summary"]');
+    const headerImg     = $('[data-part="avatar"]');
+
+    // Perfil (cabecera)
+    const avatarWrap  = $('[data-part="avatar-wrap"]');
+    const profileImg  = $('[data-part="avatar-img"]');
+    const avatarInput = $('#avatar-file');
+    const titleEl     = $('#profile-title');
+
+    // Form básicos
+    const formBasic = $('[data-component="ProfileForm"]');
+    const inName    = formBasic?.elements.name;
+    const inUser    = formBasic?.elements.username;
+    const inEmail   = formBasic?.elements.email;
+    const btnBasic  = formBasic?.querySelector('[data-part="save"]');
+
+    // Form seguridad
+    const formSec   = $('[data-component="SecurityForm"]');
+    const inOld     = formSec?.elements.current_password;
+    const inNew     = formSec?.elements.new_password;
+    const inRep     = formSec?.elements.confirm_password;
+    const btnSec    = formSec?.querySelector('[data-part="save"]');
+
+    // Mensajes
+    const msgBasic = document.createElement("p"); msgBasic.className = "p";
+    const msgSec   = document.createElement("p"); msgSec.className   = "p";
+    formBasic?.appendChild(msgBasic);
+    formSec?.appendChild(msgSec);
+
+    // 4) Carga de datos
+    let user = me(); // rápido desde authStore
+
+    async function hydrate() {
+      user = await refreshMe(); // asegura valores actualizados desde PB
+      // Header avatar
+      setAvatar(headerImg, headerSummary, user, "28px", "100x100");
+      // Título + avatar grande
+      if (titleEl) titleEl.textContent = user?.name || (user?.username ? `@${user.username}` : "Tu perfil");
+      setAvatar(profileImg, avatarWrap, user, "80px", "100x100");
+      // Inputs
+      if (inName)  inName.value  = user?.name     ?? "";
+      if (inUser)  inUser.value  = user?.username ?? "";
+      if (inEmail) inEmail.value = user?.email    ?? "";
+    }
+
+    await hydrate();
+
+    // 5) Preview avatar local
+    const MAX_MB = 10;
+    avatarInput?.addEventListener("change", () => {
+      const f = avatarInput.files?.[0];
+      if (!f) return;
+      if (f.size > MAX_MB * 1024 * 1024) {
+        alert(`La imagen supera ${MAX_MB}MB`);
+        avatarInput.value = "";
+        return;
+      }
+      const url = URL.createObjectURL(f);
+      if (profileImg) {
+        profileImg.src = url;
+        profileImg.style.display = "";
+      }
+      avatarWrap?.querySelector(".avatar-initials")?.remove();
+      profileImg?.addEventListener("load", () => URL.revokeObjectURL(url), { once: true });
+    });
+
+    // 6) Guardar “Datos básicos”
+    formBasic?.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      msgBasic.textContent = "";
+
+      // Validaciones ligeras
+      const name = inName?.value?.trim() || "";
+      const username = inUser?.value?.trim() || "";
+      const email = inEmail?.value?.trim() || "";
+      if (username.includes(" ")) return (msgBasic.textContent = "El usuario no puede tener espacios.");
+      if (email && !email.includes("@")) return (msgBasic.textContent = "Email no válido.");
+
+      const fd = new FormData();
+      if (name)     fd.append("name", name);
+      if (username) fd.append("username", username);
+      if (email)    fd.append("email", email);
+      const file = avatarInput?.files?.[0];
+      if (file) fd.append("avatar", file, file.name);
+
+      btnBasic.disabled = true;
+      const prev = btnBasic.textContent;
+      btnBasic.textContent = "Guardando…";
+
+      try {
+        const updated = await updateMe(fd); // usa capa de servicios
+        await hydrate();
+        msgBasic.textContent = "Cambios guardados ✔";
+        avatarInput.value = "";
+      } catch (err) {
+        console.error(err);
+        msgBasic.textContent = err?.message || "No se pudo guardar.";
+      } finally {
+        btnBasic.disabled = false;
+        btnBasic.textContent = prev;
+      }
+    });
+
+    // 7) Cambiar contraseña
+    formSec?.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      msgSec.textContent = "";
+
+      const oldP = inOld?.value || "";
+      const newP = inNew?.value || "";
+      const repP = inRep?.value || "";
+      if (!oldP || !newP || !repP) return (msgSec.textContent = "Rellena todos los campos.");
+      if (newP.length < 8)        return (msgSec.textContent = "Mínimo 8 caracteres.");
+      if (newP !== repP)          return (msgSec.textContent = "La confirmación no coincide.");
+
+      btnSec.disabled = true;
+      const prev = btnSec.textContent;
+      btnSec.textContent = "Actualizando…";
+
+      try {
+        await updateMe({ oldPassword: oldP, password: newP, passwordConfirm: repP });
+        inOld.value = ""; inNew.value = ""; inRep.value = "";
+        msgSec.textContent = "Contraseña actualizada ✔";
+      } catch (err) {
+        console.error(err);
+        msgSec.textContent = err?.message || "No se pudo cambiar la contraseña.";
+      } finally {
+        btnSec.disabled = false;
+        btnSec.textContent = prev;
+      }
+    });
+
+    // 8) Zona de peligro
+    const btnDeactivate = $('[data-part="deactivate"]');
+    const btnDelete     = $('[data-part="delete"]');
+
+    btnDeactivate?.addEventListener("click", () => {
+      if (confirm("Esto cerrará tu sesión. ¿Continuar?")) logoutAndGo("login.html");
+    });
+
+    btnDelete?.addEventListener("click", async () => {
+      if (!confirm("¿Seguro que quieres ELIMINAR tu cuenta? Es irreversible.")) return;
+      try {
+        await deleteMe(); // borra y limpia authStore
+        location.href = "register.html";
+      } catch (err) {
+        console.error(err);
+        alert(err?.message || "No se pudo eliminar la cuenta.");
+      }
+    });
+  </script>
 </body>
 </html>

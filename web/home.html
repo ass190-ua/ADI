@@ -32,7 +32,7 @@
       <div class="user-actions" data-part="user-actions">
         <details class="user-menu" data-component="UserMenu">
           <summary aria-label="Abrir menú de usuario" data-part="summary">
-            <img class="avatar" src="assets/img/perfil.jpg" alt="Tu avatar" data-part="avatar">
+            <img class="avatar" src="" alt="Tu avatar" data-part="avatar" style="display:none;">
           </summary>
           <nav class="menu" aria-label="Menú de usuario" data-part="menu">
             <a href="profile.html" data-part="menu-item">👤 Perfil</a>
@@ -113,27 +113,10 @@
         </div>
 
         <!-- Actividad reciente -->
-        <div class="card pad" style="margin-top:16px;" data-component="RecentActivity">
-          <div class="title" data-part="title">Actividad reciente</div>
-          <div class="list" data-part="list">
-            <div class="list-item" data-component="ActivityItem">
-              <div class="avatar" data-part="avatar"><img src="assets/img/perfil.jpg" alt=""></div>
-              <div data-part="content">
-                <div data-part="text">Has subido 12 fotos a <strong>Verano 2025</strong></div>
-                <small class="p" data-part="time">hace 2 horas</small>
-              </div>
-              <span class="meta" data-part="meta">Fotos</span>
-            </div>
-            <div class="list-item" data-component="ActivityItem">
-              <div class="avatar" data-part="avatar"><img src="assets/img/perfil.jpg" alt=""></div>
-              <div data-part="content">
-                <div data-part="text">Nueva conversación con <strong>Grupo Familia</strong></div>
-                <small class="p" data-part="time">ayer</small>
-              </div>
-              <span class="meta" data-part="meta">Chats</span>
-            </div>
-          </div>
-        </div>
+        <section class="card pad" data-component="RecentActivity" style="margin-top:16px; display:none;">
+          <div class="title">Actividad reciente</div>
+          <div class="list" data-part="list"></div>
+        </section>
       </section>
     </main>
 
@@ -167,20 +150,51 @@
   <script type="module">
     import { requireAuth, currentUser, logoutAndGo } from "./assets/js/services/auth_service.js";
     import { pb } from "./assets/js/pb.js";
+    import { listEvents, fileUrl } from "./assets/js/services/events_services.js";
 
-    // 1) Protección: solo usuarios logueados
+    // 1) Solo usuarios logueados
     requireAuth("login.html");
 
-    // 2) Rellenar avatar / nombre si lo necesitas
+    // 2) Avatar real o iniciales (con guardas)
     const user = currentUser();
     const avatarImg = document.querySelector('[data-part="avatar"]');
-    if (user?.avatar && avatarImg) {
-      // users es colección auth; pb.files.getUrl funciona igual
-      avatarImg.src = pb.files.getUrl(user, user.avatar, { token: pb.authStore.token, thumb: "100x100" });
-      avatarImg.alt = user?.name || user?.username || "Tu avatar";
+    const summaryEl = document.querySelector('[data-part="summary"]');
+
+    // Estilo mínimo por si no lo tienes ya en tu CSS
+    const style = document.createElement('style');
+    style.textContent = `
+      .avatar-initials {
+        display:grid; place-items:center;
+        width:36px; height:36px; border-radius:999px;
+        background:#334155; color:#e5e7eb; font-weight:600; font-size:14px;
+      }
+    `;
+    document.head.appendChild(style);
+
+    if (user && avatarImg && summaryEl) {
+      if (user.avatar) {
+        avatarImg.src = pb.files.getUrl(user, user.avatar, { token: pb.authStore.token, thumb: "100x100" });
+        avatarImg.alt = user?.username || "Tu avatar";
+        avatarImg.style.display = "block";
+      } else {
+        const initials = (user.name || user.username || "?")
+          .split(/\s+/).map(w => w[0]).slice(0, 2).join("").toUpperCase();
+        avatarImg.style.display = "none";
+        const initialsCircle = document.createElement("div");
+        initialsCircle.textContent = initials;
+        initialsCircle.className = "avatar-initials";
+        summaryEl.appendChild(initialsCircle);
+      }
     }
 
-    // 3) Logout real: el enlace actual apunta a login.html pero no borra la sesión
+    // 3) Saludo personalizado
+    const heroTitle = document.querySelector('[data-component="HeroCard"] [data-part="title"]');
+    if (heroTitle && user) {
+      const name = user?.name || user?.username || "";
+      heroTitle.textContent = name ? `¡Hola, ${name}!` : "¡Bienvenido a tu espacio!";
+    }
+
+    // 4) Logout real
     const logoutLink = [...document.querySelectorAll('[data-part="menu-item"]')]
       .find(a => a.textContent.includes("Cerrar sesión"));
     if (logoutLink) {
@@ -189,6 +203,72 @@
         logoutAndGo("login.html");
       });
     }
+
+    // 5) Actividad reciente (últimos 5 eventos del usuario)
+    const activityCard = document.querySelector('[data-component="RecentActivity"]');
+    const activityList = activityCard?.querySelector('[data-part="list"]');
+
+    function timeAgo(d) {
+      const rtf = new Intl.RelativeTimeFormat('es', { numeric: 'auto' });
+      const diffSec = Math.floor((Date.now() - new Date(d).getTime()) / 1000);
+      const map = [
+        ['year',  60*60*24*365],
+        ['month', 60*60*24*30],
+        ['week',  60*60*24*7],
+        ['day',   60*60*24],
+        ['hour',  60*60],
+        ['minute',60],
+        ['second',1],
+      ];
+      for (const [unit, sec] of map) {
+        const val = Math.floor(diffSec / sec);
+        if (Math.abs(val) >= 1) return rtf.format(-val, unit);
+      }
+      return rtf.format(0, 'second');
+    }
+
+    function activityItem(rec) {
+      const hasAvatar = !!user?.avatar;
+      const avatar = hasAvatar
+        ? pb.files.getUrl(user, user.avatar, { token: pb.authStore.token, thumb: "100x100" })
+        : "assets/img/perfil.jpg";
+
+      const meta = rec.location || "Eventos";
+      const isCreated = rec.updated === rec.created;
+      const verb = isCreated ? "creado" : "actualizado";
+      const when = timeAgo(rec.updated || rec.created || Date.now());
+      const title = rec.title || "Evento";
+
+      return `
+        <div class="list-item" data-component="ActivityItem">
+          <div class="avatar" data-part="avatar"><img src="${avatar}" alt=""></div>
+          <div data-part="content">
+            <div data-part="text">Has ${verb} <strong>${title}</strong>${rec.location ? ` — ${rec.location}` : ""}</div>
+            <small class="p" data-part="time">${when}</small>
+          </div>
+          <span class="meta" data-part="meta">${meta}</span>
+        </div>
+      `;
+    }
+
+    async function loadActivity() {
+      if (!user || !activityCard || !activityList) return;
+      try {
+        // Si tus reglas filtran por user, esto ya es "mis eventos"
+        const res = await listEvents({ page: 1, perPage: 5, sort: "-updated" });
+        if (!res.items.length) {
+          activityCard.style.display = "none";
+          return;
+        }
+        activityList.innerHTML = res.items.map(activityItem).join("");
+        activityCard.style.display = "";
+      } catch (e) {
+        console.error(e);
+        activityCard.style.display = "none";
+      }
+    }
+
+    loadActivity();
   </script>
 </body>
 </html>

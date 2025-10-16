@@ -1,8 +1,7 @@
-/// main.pb.js
 onRecordCreateRequest((e) => {
-  // Si no es superusuario, forzamos el owner del registro al usuario autenticado
-  if (!e.hasSuperuserAuth()) {
-    e.record.set("user", e.auth?.id || "");
-  }
+  if (e.collection?.name !== "events") return;
+  if (e.hasSuperuserAuth()) return;   // admin puede fijarlo a mano si quiere
+  if (!e.auth) throw new Error("Auth requerida");
+  e.record.set("user", e.auth.id);    // asigna el dueño
   e.next();
 }, "events");

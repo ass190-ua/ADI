@@ -29,7 +29,7 @@
       <div class="user-actions" data-part="user-actions">
         <details class="user-menu" data-component="UserMenu">
           <summary aria-label="Abrir menú de usuario" data-part="summary">
-            <img class="avatar" src="assets/img/perfil.jpg" alt="Tu avatar" data-part="avatar">
+            <img class="avatar" src="" alt="Tu avatar" data-part="avatar" style="display:none;">
           </summary>
           <nav class="menu" aria-label="Menú de usuario" data-part="menu">
             <a href="profile.html" data-part="menu-item">👤 Perfil</a>
@@ -76,85 +76,9 @@
           <button class="btn ghost" type="button" style="color: white;" data-part="delete">🗑️ Eliminar</button>
         </div>
 
-        <!-- Grid de eventos -->
+        <!-- Grid de eventos (dinámica) -->
         <section class="events-grid" data-component="EventsGrid" aria-label="Listado de eventos">
-          <!-- Tarjeta de evento -->
-          <article class="card event-card" data-component="EventCard">
-            <a href="event.html?eid=pique-primavera" class="event-cover" aria-label="Ver evento: Picnic de primavera" data-part="cover">
-              <img src="assets/img/p4.jpg" alt="" loading="lazy" data-part="image">
-            </a>
-            <div class="pad" data-part="body">
-              <div class="row" style="justify-content:space-between; align-items:center;" data-part="header">
-                <h2 class="h4" style="margin:0;" data-part="name">
-                  <a class="link" href="event.html?eid=pique-primavera">Picnic de primavera</a>
-                </h2>
-                <span class="badge soft" data-part="date">Hoy · 18:30</span>
-              </div>
-              <p class="p" style="opacity:.9; margin:6px 0 8px;" data-part="subtitle">Parque Central · Trae algo para compartir</p>
-              <div class="row" style="gap:6px; flex-wrap:wrap;" data-part="tags">
-                <span class="chip">🍓 Comida</span>
-                <span class="chip">👨‍👩‍👧 Familia</span>
-                <span class="chip">🌤️ Exterior</span>
-              </div>
-            </div>
-          </article>
-
-          <article class="card event-card" data-component="EventCard">
-            <a href="event.html?eid=cumple-cristina" class="event-cover" aria-label="Ver evento: Cumple Cristina" data-part="cover">
-              <img src="assets/img/p2.jpg" alt="" loading="lazy" data-part="image">
-            </a>
-            <div class="pad" data-part="body">
-              <div class="row" style="justify-content:space-between; align-items:center;" data-part="header">
-                <h2 class="h4" style="margin:0;" data-part="name">
-                  <a class="link" href="event.html?eid=cumple-cristina">Cumple Cristina</a>
-                </h2>
-                <span class="badge soft" data-part="date">Vie · 21:00</span>
-              </div>
-              <p class="p" style="opacity:.9; margin:6px 0 8px;" data-part="subtitle">Casa de Cristina · Dress code: colores</p>
-              <div class="row" style="gap:6px; flex-wrap:wrap;" data-part="tags">
-                <span class="chip">🎉 Fiesta</span>
-                <span class="chip">🎂 Cumpleaños</span>
-              </div>
-            </div>
-          </article>
-
-          <article class="card event-card" data-component="EventCard">
-            <a href="event.html?eid=viaje-tenerife" class="event-cover" aria-label="Ver evento: Viaje a Tenerife" data-part="cover">
-              <img src="assets/img/p3.jpg" alt="" loading="lazy" data-part="image">
-            </a>
-            <div class="pad" data-part="body">
-              <div class="row" style="justify-content:space-between; align-items:center;" data-part="header">
-                <h2 class="h4" style="margin:0;" data-part="name">
-                  <a class="link" href="event.html?eid=viaje-tenerife">Viaje a Tenerife</a>
-                </h2>
-                <span class="badge soft" data-part="date">Jul · 12–16</span>
-              </div>
-              <p class="p" style="opacity:.9; margin:6px 0 8px;" data-part="subtitle">Tenerife · Plan abierto, ideas bienvenidas</p>
-              <div class="row" style="gap:6px; flex-wrap:wrap;" data-part="tags">
-                <span class="chip">✈️ Viaje</span>
-                <span class="chip">📷 Fotos</span>
-              </div>
-            </div>
-          </article>
-
-          <article class="card event-card" data-component="EventCard">
-            <a href="event.html?eid=escape-room" class="event-cover" aria-label="Ver evento: Escape room" data-part="cover">
-              <img src="assets/img/p1.jpg" alt="" loading="lazy" data-part="image">
-            </a>
-            <div class="pad" data-part="body">
-              <div class="row" style="justify-content:space-between; align-items:center;" data-part="header">
-                <h2 class="h4" style="margin:0;" data-part="name">
-                  <a class="link" href="event.html?eid=escape-room">Escape room</a>
-                </h2>
-                <span class="badge soft" data-part="date">Ago · 05</span>
-              </div>
-              <p class="p" style="opacity:.9; margin:6px 0 8px;" data-part="subtitle">Centro · Equipo de 4–6 personas</p>
-              <div class="row" style="gap:6px; flex-wrap:wrap;" data-part="tags">
-                <span class="chip">🧩 Juegos</span>
-                <span class="chip">🕵️ Retos</span>
-              </div>
-            </div>
-          </article>
+          <!-- Se rellena por JS -->
         </section>
       </section>
     </main>
@@ -187,13 +111,46 @@
   </div>
 
   <script type="module">
-    import { requireAuth, logoutAndGo } from "./assets/js/services/auth_service.js";
+    // 🔁 IMPORTS: añade currentUser y pb
+    import { requireAuth, logoutAndGo, currentUser } from "./assets/js/services/auth_service.js";
+    import { pb } from "./assets/js/pb.js";
     import { listEvents, fileUrl } from "./assets/js/services/events_services.js";
 
-    // ─────────────────────────────────────────────────────────────
-    // 1) Protección + logout real
-    // ─────────────────────────────────────────────────────────────
+    // 🧩 Helper para pintar avatar o iniciales
+    function mountAvatarOrInitials({ container, imgEl, nameOrUser, fileUrl }) {
+      if (!container) return;
+      container.querySelector('.avatar-initials')?.remove();
+      if (fileUrl) {
+        if (imgEl) {
+          imgEl.src = fileUrl;
+          imgEl.alt = nameOrUser || "avatar";
+          imgEl.style.display = "block";
+        }
+      } else {
+        if (imgEl) imgEl.style.display = "none";
+        const initials = (nameOrUser||"?").toString().trim().split(/\s+/).map(w=>w[0]).slice(0,2).join("").toUpperCase();
+        const div = document.createElement('div');
+        div.className = 'avatar-initials';
+        div.textContent = initials;
+        container.appendChild(div);
+      }
+    }
+
+    // 0) Protección + logout real
     requireAuth("login.html");
+    // Header: avatar real o iniciales
+    const me = currentUser();
+    const headerWrap = document.querySelector('[data-component="UserMenu"] [data-part="summary"]');
+    const headerImg  = document.querySelector('[data-component="UserMenu"] [data-part="avatar"]');
+    const meUrl = me?.avatar ? pb.files.getUrl(me, me.avatar, { token: pb.authStore.token, thumb: "100x100" }) : null;
+
+    mountAvatarOrInitials({
+      container: headerWrap,
+      imgEl: headerImg,
+      nameOrUser: me?.name || me?.username,
+      fileUrl: meUrl
+    });
+
     const logoutLink = [...document.querySelectorAll('[data-part="menu-item"]')]
       .find(a => a.textContent.includes("Cerrar sesión"));
     if (logoutLink) {
@@ -203,18 +160,16 @@
       });
     }
 
-    // ─────────────────────────────────────────────────────────────
-    // 2) Elementos de la UI
-    // ─────────────────────────────────────────────────────────────
-    const grid       = document.querySelector(".events-grid");
-    const searchInput= document.querySelector("#q");
-    const chipHoy    = document.querySelector('.chip.todos');
-    const chipSemana = document.querySelector('.chip.favoritos');
-    const chipProx   = document.querySelector('.chip.videos');
-    const chipPasados= document.querySelector('.chip.albumnes');
-    const sortBtn    = document.querySelector('[data-part="sort"]');
+    // 1) Elementos de la UI
+    const grid        = document.querySelector(".events-grid");
+    const searchInput = document.querySelector("#q");
+    const chipHoy     = document.querySelector('.chip.todos');      // Hoy
+    const chipSemana  = document.querySelector('.chip.favoritos');  // Semana
+    const chipProx    = document.querySelector('.chip.videos');     // Próximos
+    const chipPasados = document.querySelector('.chip.albumnes');   // Pasados
+    const sortBtn     = document.querySelector('[data-part="sort"]');
 
-    // Crea paginador si no existe
+    // Paginador (si no existe, crearlo)
     let pager = document.querySelector('#events-pager');
     if (!pager) {
       pager = document.createElement('div');
@@ -224,170 +179,187 @@
       grid.after(pager);
     }
 
-    // Estado de la vista
+    // 2) Estado (sincronizado con URL)
+    const url = new URL(location.href);
+    const getParam = (k, def='') => url.searchParams.get(k) ?? def;
+
     const state = {
-      page: 1,
+      page:    Number(getParam('page', '1')) || 1,
       perPage: 8,
-      q: "",
-      // filtro temporal: 'all' | 'today' | 'week' | 'upcoming' | 'past'
-      when: 'all',
-      // orden: '-date' (desc) o 'date' (asc); fallback a created si no hay fecha
-      sort: '-date,-created'
+      q:       getParam('q', ''),
+      when:    getParam('when', 'upcoming'), // 'all' | 'today' | 'week' | 'upcoming' | 'past'
+      sort:    getParam('sort', '-date,-created'),
+      totalPages: 1
     };
 
-    // ─────────────────────────────────────────────────────────────
-    // 3) Helpers de tiempo / filtros
-    // ─────────────────────────────────────────────────────────────
-    const iso = (d) => new Date(d).toISOString();
-    const now = new Date();
+    if (searchInput) searchInput.value = state.q || '';
+    function setActiveChipFromState() {
+      [chipHoy, chipSemana, chipProx, chipPasados].forEach(el => el?.classList.remove('active'));
+      const map = { today: chipHoy, week: chipSemana, upcoming: chipProx, past: chipPasados };
+      (map[state.when] ?? null)?.classList.add('active');
+    }
+    setActiveChipFromState();
+    if (sortBtn) sortBtn.textContent = state.sort.startsWith('-') ? '↕ Ordenar (recientes)' : '↕ Ordenar (antiguos)';
+
+    function syncUrl() {
+      const u = new URL(location.href);
+      const set = (k,v) => { v ? u.searchParams.set(k, v) : u.searchParams.delete(k); };
+      set('page', String(state.page));
+      set('q', state.q);
+      set('when', state.when);
+      set('sort', state.sort);
+      history.replaceState(null, '', u.toString());
+    }
+
+    // 3) Filtros de tiempo (zona horaria → ISO)
+    const toISO = (d) => new Date(d).toISOString();
+    function dayBoundsLocal(d = new Date()) {
+      const start = new Date(d); start.setHours(0,0,0,0);
+      const end   = new Date(d); end.setHours(23,59,59,999);
+      return { startISO: toISO(start), endISO: toISO(end) };
+    }
 
     function buildWhenFilter() {
-      const nowISO = iso(now);
-      const weekTo = new Date(now); weekTo.setDate(weekTo.getDate() + 7);
-      const weekISO = iso(weekTo);
-
+      const now = new Date();
+      const nowISO = toISO(now);
       switch (state.when) {
         case 'today': {
-          const start = new Date(now); start.setHours(0,0,0,0);
-          const end   = new Date(now); end.setHours(23,59,59,999);
-          const startISO = iso(start);
-          const endISO   = iso(end);
+          const { startISO, endISO } = dayBoundsLocal(now);
           return `(date >= "${startISO}" && date <= "${endISO}")`;
         }
-        case 'week':
+        case 'week': {
+          const weekTo = new Date(now); weekTo.setDate(weekTo.getDate() + 7);
+          const weekISO = toISO(weekTo);
           return `(date >= "${nowISO}" && date < "${weekISO}")`;
-        case 'upcoming':
-          return `(date >= "${nowISO}")`;
-        case 'past':
-          return `(date < "${nowISO}")`;
-        default:
-          return ""; // sin filtro temporal
+        }
+        case 'upcoming': return `(date >= "${nowISO}")`;
+        case 'past':     return `(date < "${nowISO}")`;
+        default:         return "";
       }
     }
 
     function buildSearchFilter() {
       if (!state.q) return "";
       const q = state.q.replace(/"/g, '\\"');
-      // title/description por texto (contains, sin case)
       return `(title ~ "${q}" || description ~ "${q}" || location ~ "${q}")`;
     }
 
     function composeFilter() {
       const parts = [buildWhenFilter(), buildSearchFilter()].filter(Boolean);
-      if (!parts.length) return "";
-      return parts.join(" && ");
+      return parts.length ? parts.join(" && ") : "";
     }
 
-    // ─────────────────────────────────────────────────────────────
     // 4) Render
-    // ─────────────────────────────────────────────────────────────
     const fmtDate = (isoStr) =>
       isoStr ? new Date(isoStr).toLocaleString("es-ES", { dateStyle: "medium", timeStyle: "short" }) : "Sin fecha";
 
+    // Placeholder inline (sin assets locales)
+    const FALLBACK_SVG = `data:image/svg+xml;utf8,` + encodeURIComponent(`
+      <svg xmlns='http://www.w3.org/2000/svg' width='600' height='400'>
+        <rect width='100%' height='100%' fill='#222'/>
+        <text x='50%' y='50%' dominant-baseline='middle' text-anchor='middle'
+              fill='#999' font-family='system-ui,Arial' font-size='24'>
+          Sin portada
+        </text>
+      </svg>`);
+
     function renderCard(rec) {
-      const img = rec.cover
-        ? `<img src="${fileUrl(rec, rec.cover)}" alt="${rec.title}" loading="lazy" data-part="image">`
-        : `<img src="assets/img/p1.jpg" alt="Evento" loading="lazy" data-part="image">`;
-      const date = fmtDate(rec.date);
+      const cover = rec.cover ? fileUrl(rec, rec.cover, '300x200') : FALLBACK_SVG;
+      const title = rec.title || "Evento";
+      const date  = fmtDate(rec.date);
+      const location = rec.location || "";
+
       return `
         <article class="card event-card" data-component="EventCard">
-          <a href="event.html?id=${rec.id}" class="event-cover" aria-label="Ver evento: ${rec.title}" data-part="cover">
-            ${img}
+          <a href="event.html?id=${rec.id}" class="event-cover" aria-label="Ver evento: ${title}" data-part="cover">
+            <img src="${cover}" alt="${title}" loading="lazy" data-part="image">
           </a>
           <div class="pad" data-part="body">
             <div class="row" style="justify-content:space-between; align-items:center;" data-part="header">
               <h2 class="h4" style="margin:0;" data-part="name">
-                <a class="link" href="event.html?id=${rec.id}">${rec.title ?? ''}</a>
+                <a class="link" href="event.html?id=${rec.id}">${title}</a>
               </h2>
               <span class="badge soft" data-part="date">${date}</span>
             </div>
-            <p class="p" style="opacity:.9; margin:6px 0 8px;" data-part="subtitle">${rec.location ?? ""}</p>
+            <p class="p" style="opacity:.9; margin:6px 0 8px;" data-part="subtitle">${location}</p>
           </div>
         </article>
       `;
     }
 
-    function renderPager(totalPages) {
+    function renderPager() {
       pager.innerHTML = `
         <button class="btn" ${state.page <= 1 ? "disabled" : ""} data-act="prev">‹</button>
-        <span class="p">Página ${state.page} / ${totalPages || 1}</span>
-        <button class="btn" ${state.page >= (totalPages || 1) ? "disabled" : ""} data-act="next">›</button>
+        <span class="p">Página ${state.page} / ${state.totalPages || 1}</span>
+        <button class="btn" ${state.page >= (state.totalPages || 1) ? "disabled" : ""} data-act="next">›</button>
       `;
     }
 
     pager.addEventListener('click', (e) => {
       const act = e.target?.dataset?.act;
-      if (act === 'prev' && state.page > 1) { state.page--; load(); }
-      if (act === 'next') { state.page++; load(); }
+      if (act === 'prev' && state.page > 1) { state.page--; syncUrl(); load(); }
+      if (act === 'next' && state.page < state.totalPages) { state.page++; syncUrl(); load(); }
     });
 
-    // ─────────────────────────────────────────────────────────────
     // 5) Carga de datos
-    // ─────────────────────────────────────────────────────────────
     async function load() {
       grid.innerHTML = `<p class="p">Cargando eventos…</p>`;
       try {
-        const filter = composeFilter();
-        const res = await listEvents({ page: state.page, perPage: state.perPage, sort: state.sort, filter });
+        const res = await listEvents({
+          page: state.page,
+          perPage: state.perPage,
+          sort: state.sort,
+          filter: composeFilter()
+        });
+
+        state.totalPages = res.totalPages || 1;
+
         if (!res.items.length) {
-          grid.innerHTML = `<p class="p">No hay eventos que coincidan.</p>`;
+          grid.innerHTML = `<p class="p">No hay eventos que coincidan${state.q ? ` para “${state.q}”` : ""}.</p>`;
         } else {
           grid.innerHTML = res.items.map(renderCard).join("");
         }
-        renderPager(res.totalPages || 1);
+        renderPager();
       } catch (e) {
         console.error(e);
-        grid.innerHTML = `<p class="p">Error al cargar eventos.</p>`;
-        renderPager(1);
+        grid.innerHTML = `<p class="p" style="color:#e00">Error al cargar eventos.</p>`;
+        state.totalPages = 1;
+        renderPager();
       }
     }
 
-    // ─────────────────────────────────────────────────────────────
-    // 6) Búsqueda (con debounce)
-    // ─────────────────────────────────────────────────────────────
-    function debounce(fn, ms=300) {
-      let t; return (...args) => { clearTimeout(t); t = setTimeout(() => fn(...args), ms); };
-    }
+    // 6) Búsqueda (debounce) + chips + ordenar
+    function debounce(fn, ms=300) { let t; return (...args) => { clearTimeout(t); t = setTimeout(() => fn(...args), ms); }; }
+
     if (searchInput) {
       const onSearch = debounce((e) => {
         state.q = e.target.value.trim();
         state.page = 1;
+        syncUrl();
         load();
       }, 300);
       searchInput.addEventListener('input', onSearch);
     }
 
-    // ─────────────────────────────────────────────────────────────
-    // 7) Chips de filtro temporal
-    // ─────────────────────────────────────────────────────────────
     function setActiveChip(activeEl) {
       [chipHoy, chipSemana, chipProx, chipPasados].forEach(el => el?.classList.remove('active'));
       activeEl?.classList.add('active');
     }
+    chipHoy?.addEventListener('click', () => { state.when = 'today';   state.page = 1; setActiveChip(chipHoy);   syncUrl(); load(); });
+    chipSemana?.addEventListener('click', () => { state.when = 'week';  state.page = 1; setActiveChip(chipSemana); syncUrl(); load(); });
+    chipProx?.addEventListener('click', () => { state.when = 'upcoming'; state.page = 1; setActiveChip(chipProx); syncUrl(); load(); });
+    chipPasados?.addEventListener('click', () => { state.when = 'past'; state.page = 1; setActiveChip(chipPasados); syncUrl(); load(); });
 
-    chipHoy?.addEventListener('click', () => { state.when = 'today';   state.page = 1; setActiveChip(chipHoy);   load(); });
-    chipSemana?.addEventListener('click', () => { state.when = 'week'; state.page = 1; setActiveChip(chipSemana); load(); });
-    chipProx?.addEventListener('click', () => { state.when = 'upcoming'; state.page = 1; setActiveChip(chipProx); load(); });
-    chipPasados?.addEventListener('click', () => { state.when = 'past'; state.page = 1; setActiveChip(chipPasados); load(); });
-
-    // Por defecto marcamos "Próximos" al entrar (o deja 'all' si prefieres)
-    // setActiveChip(chipProx); state.when = 'upcoming';
-
-    // ─────────────────────────────────────────────────────────────
-    // 8) Ordenar
-    // ─────────────────────────────────────────────────────────────
     sortBtn?.addEventListener('click', () => {
       state.sort = state.sort.startsWith('-date') ? 'date,created' : '-date,-created';
       sortBtn.textContent = state.sort.startsWith('-') ? '↕ Ordenar (recientes)' : '↕ Ordenar (antiguos)';
       state.page = 1;
+      syncUrl();
       load();
     });
-    // etiqueta inicial
-    if (sortBtn) sortBtn.textContent = '↕ Ordenar (recientes)';
 
-    // ─────────────────────────────────────────────────────────────
-    // 9) GO!
-    // ─────────────────────────────────────────────────────────────
+    // 7) GO!
+    syncUrl();
     load();
   </script>
 </body>

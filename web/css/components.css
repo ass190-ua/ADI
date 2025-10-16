@@ -30,6 +30,25 @@
   margin-left:auto; color: var(--muted); font-size:12px; 
 }
 
+/* ---------- Avatar con iniciales (para usuarios sin foto) ---------- */
+.avatar-initials {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #4f6df5, #89a2ff);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  box-shadow: 0 0 4px rgba(0,0,0,0.2);
+  cursor: pointer;
+}
+
+.avatar-lg .avatar-initials { width: 80px; height: 80px; font-size: 1.2rem; }
+
 /* ---------- Formularios ---------- */
 .form{ 
   display:grid; 

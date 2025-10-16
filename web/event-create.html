@@ -26,7 +26,7 @@
       <div class="user-actions" data-part="user-actions">
         <details class="user-menu" data-component="UserMenu">
           <summary aria-label="Abrir menú de usuario" data-part="summary">
-            <img class="avatar" src="assets/img/perfil.jpg" alt="Tu avatar" data-part="avatar">
+            <img class="avatar" src="" alt="Tu avatar" data-part="avatar" style="display:none;">
           </summary>
           <nav class="menu" aria-label="Menú de usuario" data-part="menu">
             <a href="profile.html" data-part="menu-item">👤 Perfil</a>
@@ -52,14 +52,12 @@
       <section class="app-main container" data-component="EventCreateContent">
         <h1 class="h2" style="margin:0 0 10px;" data-part="title">Crear evento</h1>
 
-        <!-- Formulario (prototipo sin JS; submit a #created para mostrar toast) -->
-        <form class="card pad form" action="#created" method="get" autocomplete="on" novalidate
-              data-component="EventForm">
-
+        <!-- Formulario real (JS) -->
+        <form class="card pad form" autocomplete="on" novalidate data-component="EventForm" enctype="multipart/form-data">
           <!-- Portada -->
           <figure class="cover-uploader card" data-component="CoverUploader">
-            <img src="assets/img/p3.jpg" alt="Portada del evento (opcional)" data-part="preview" />
-            <input id="cover-file" type="file" accept="image/*" aria-label="Subir portada" data-part="input">
+            <img alt="Portada del evento (opcional)" data-part="preview" />
+            <input id="cover-file" name="cover" type="file" accept="image/*" aria-label="Subir portada" data-part="input">
             <label for="cover-file" class="cover-badge" title="Subir portada" aria-label="Subir portada" data-part="button">📷 Subir portada</label>
           </figure>
 
@@ -69,6 +67,7 @@
               <input id="e-title" name="title" type="text" placeholder="Ej. Cumple de Alba" required data-part="input">
             </div>
 
+            <!-- (Opcional) Privacidad — NO se envía a PB si tu schema no lo tiene -->
             <div class="input" data-part="field">
               <label for="e-privacy" data-part="label">Privacidad</label>
               <select id="e-privacy" name="privacy" data-part="select">
@@ -80,9 +79,11 @@
 
             <div class="input" data-part="field">
               <label for="e-date" data-part="label">Fecha y hora</label>
-              <input id="e-date" name="datetime" type="datetime-local" required data-part="input">
+              <!-- name="date" para que cuadre con tu colección -->
+              <input id="e-date" name="date" type="datetime-local" required data-part="input">
             </div>
 
+            <!-- (Opcional) RSVP límite — NO se envía a PB si tu schema no lo tiene -->
             <div class="input" data-part="field">
               <label for="e-rsvp" data-part="label">Fecha límite RSVP (opcional)</label>
               <input id="e-rsvp" name="rsvp_deadline" type="date" data-part="input">
@@ -93,6 +94,7 @@
               <input id="e-location" name="location" type="text" placeholder="Parque Central / https://meet..." data-part="input">
             </div>
 
+            <!-- (Opcional) Aforo — NO se envía a PB si tu schema no lo tiene -->
             <div class="input" data-part="field">
               <label for="e-capacity" data-part="label">Aforo (opcional)</label>
               <input id="e-capacity" name="capacity" type="number" min="1" placeholder="Ej. 20" data-part="input">
@@ -108,12 +110,12 @@
           <div class="input" data-part="field">
             <label data-part="label">Etiquetas</label>
             <div class="row" style="gap:8px; flex-wrap:wrap;" data-part="chips">
-              <button class="chip todos" type="button">🎉 Fiesta</button>
-              <button class="chip favoritos" type="button">🍰 Cumpleaños</button>
-              <button class="chip videos" type="button">🌤️ Exterior</button>
-              <button class="chip albumnes" type="button">👨‍👩‍👧 Familia</button>
+              <button class="chip todos" type="button" data-tag="Fiesta">🎉 Fiesta</button>
+              <button class="chip favoritos" type="button" data-tag="Cumpleaños">🍰 Cumpleaños</button>
+              <button class="chip videos" type="button" data-tag="Exterior">🌤️ Exterior</button>
+              <button class="chip albumnes" type="button" data-tag="Familia">👨‍👩‍👧 Familia</button>
             </div>
-            <small class="p" style="opacity:.75;" data-part="hint">(Decorativo por ahora; podrás convertirlos en campos reales más adelante)</small>
+            <small class="p" style="opacity:.75;" data-part="hint">(Decorativo por ahora; si quieres, lo convertimos a campo real de tipo array)</small>
           </div>
 
           <!-- Invitados (decorativo) -->
@@ -126,19 +128,13 @@
           <div class="actions" style="justify-content:flex-end; gap:8px; margin-top:8px;" data-part="actions">
             <a class="btn ghost" href="events.html" data-part="cancel">Cancelar</a>
             <button class="btn" type="reset" style="color: white;" data-part="reset">Limpiar</button>
-            <button class="btn" type="submit" formnovalidate style="color: white;" data-part="submit">✅ Crear evento</button>
+            <button class="btn" type="submit" style="color: white;" data-part="submit">✅ Crear evento</button>
           </div>
         </form>
+
+        <p id="create-msg" class="p" style="margin-top:8px;"></p>
       </section>
     </main>
-
-    <!-- Toast de éxito con :target -->
-    <div id="created" class="toast success" data-component="Toast" data-state="success" aria-live="polite" aria-atomic="true">
-      <div class="toast-body" data-part="body">
-        <strong data-part="title">¡Evento creado!</strong> Ya puedes verlo en la lista de eventos.
-        <a class="toast-close" href="events.html" aria-label="Ir a eventos" data-part="close">Ver eventos</a>
-      </div>
-    </div>
 
     <!-- Footer -->
     <footer class="footer book-footer" data-component="AppFooter">
@@ -168,28 +164,120 @@
   </div>
 
   <script type="module">
-    import { requireAuth } from "./assets/js/services/auth_service.js";
+    import { requireAuth, logoutAndGo, currentUser } from "./assets/js/services/auth_service.js";
+    import { pb } from "./assets/js/pb.js";
     import { createEvent } from "./assets/js/services/events_services.js";
 
+    // Protección + logout
     requireAuth("login.html");
+    const logoutLink = [...document.querySelectorAll('[data-part="menu-item"]')]
+      .find(a => a.textContent.includes("Cerrar sesión"));
+    if (logoutLink) logoutLink.addEventListener("click", (e) => { e.preventDefault(); logoutAndGo("login.html"); });
 
-    const form = document.querySelector("form");
-    const msg = document.createElement("p");
-    msg.className = "p";
-    form.after(msg);
+    // ---- Header: avatar real o iniciales ----
+    function mountAvatarOrInitials({ container, imgEl, nameOrUser, fileUrl }) {
+      if (!container) return;
+      container.querySelector('.avatar-initials')?.remove();
+      if (fileUrl) {
+        if (imgEl) {
+          imgEl.src = fileUrl;
+          imgEl.alt = nameOrUser || "avatar";
+          imgEl.style.display = "block";
+        }
+      } else {
+        if (imgEl) imgEl.style.display = "none";
+        const initials = (nameOrUser||"?").toString().trim().split(/\s+/).map(w=>w[0]).slice(0,2).join("").toUpperCase();
+        const div = document.createElement('div');
+        div.className = 'avatar-initials';
+        div.textContent = initials;
+        container.appendChild(div);
+      }
+    }
+    const me = currentUser();
+    const headerWrap = document.querySelector('[data-component="UserMenu"] [data-part="summary"]');
+    const headerImg  = document.querySelector('[data-component="UserMenu"] [data-part="avatar"]');
+    const meUrl = me?.avatar ? pb.files.getUrl(me, me.avatar, { token: pb.authStore.token, thumb: "100x100" }) : null;
+    mountAvatarOrInitials({
+      container: headerWrap,
+      imgEl: headerImg,
+      nameOrUser: me?.name || me?.username,
+      fileUrl: meUrl
+    });
 
-    form.addEventListener("submit", async e => {
+    // ---- Formulario crear evento ----
+    const form          = document.querySelector('form[data-component="EventForm"]');
+    const msg           = document.getElementById('create-msg');
+    const submitBtn     = form.querySelector('[data-part="submit"]');
+    const coverInput    = document.getElementById('cover-file');
+    const coverPreview  = document.querySelector('[data-component="CoverUploader"] [data-part="preview"]');
+
+    const FALLBACK_SVG = `data:image/svg+xml;utf8,` + encodeURIComponent(`
+      <svg xmlns='http://www.w3.org/2000/svg' width='600' height='400'>
+        <rect width='100%' height='100%' fill='#222'/>
+        <text x='50%' y='50%' dominant-baseline='middle' text-anchor='middle'
+              fill='#999' font-family='system-ui,Arial' font-size='24'>Portada (opcional)</text>
+      </svg>`);
+    coverPreview.src = FALLBACK_SVG;
+
+    // Preview portada
+    coverInput.addEventListener('change', () => {
+      const f = coverInput.files?.[0];
+      if (!f) { coverPreview.src = FALLBACK_SVG; return; }
+      const MAX_MB = 10;
+      if (f.size > MAX_MB * 1024 * 1024) {
+        coverInput.value = '';
+        coverPreview.src = FALLBACK_SVG;
+        alert(`La portada supera ${MAX_MB}MB`);
+        return;
+      }
+      const url = URL.createObjectURL(f);
+      coverPreview.src = url;
+      coverPreview.onload = () => URL.revokeObjectURL(url);
+    });
+
+    // datetime-local -> ISO
+    function toISOorNull(localValue) {
+      if (!localValue) return null;
+      const d = new Date(localValue);
+      return isNaN(d.getTime()) ? null : d.toISOString();
+    }
+
+    form.addEventListener("submit", async (e) => {
       e.preventDefault();
-      const fd = new FormData(form);
-      const date = fd.get("date");
-      if (date) fd.set("date", new Date(date).toISOString());
+      msg.textContent = "";
+      submitBtn.disabled = true;
+      submitBtn.textContent = "Creando…";
+
+      // Solo campos de tu colección
+      const title       = document.getElementById('e-title').value.trim();
+      const dateLocal   = document.getElementById('e-date').value;
+      const location    = document.getElementById('e-location').value.trim();
+      const description = document.getElementById('e-desc').value.trim();
+      const coverFile   = coverInput.files?.[0];
+
+      if (!title)   { msg.textContent = "El título es obligatorio.";   submitBtn.disabled = false; submitBtn.textContent = "✅ Crear evento"; return; }
+      if (!dateLocal){msg.textContent = "La fecha/hora es obligatoria.";submitBtn.disabled = false; submitBtn.textContent = "✅ Crear evento"; return; }
+
+      const dateISO = toISOorNull(dateLocal);
+      if (!dateISO) { msg.textContent = "Fecha/hora inválida."; submitBtn.disabled = false; submitBtn.textContent = "✅ Crear evento"; return; }
+
+      const fd = new FormData();
+      fd.append('title', title);
+      fd.append('date', dateISO);
+      if (location)    fd.append('location', location);
+      if (description) fd.append('description', description);
+      if (coverFile)   fd.append('cover', coverFile, coverFile.name);
+
       try {
         const rec = await createEvent(fd);
         msg.textContent = "Evento creado correctamente ✅";
-        setTimeout(() => (window.location.href = `event.html?id=${rec.id}`), 1000);
+        setTimeout(() => (window.location.href = `event.html?id=${rec.id}`), 600);
       } catch (err) {
         console.error(err);
         msg.textContent = "Error al crear el evento ❌";
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.textContent = "✅ Crear evento";
       }
     });
   </script>
