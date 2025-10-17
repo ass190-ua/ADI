@@ -72,7 +72,7 @@
           <h1 class="h2" style="margin:0;">Tu galería</h1>
           <div class="row" style="gap:8px; flex-wrap:wrap;">
             <button class="chip todos active" type="button">Todos</button>
-            <button class="chip favoritos" type="button" disabled>Favoritos</button>
+            <button class="chip favoritos" type="button">Favoritos</button> 
             <button class="chip videos" type="button" disabled>Vídeos</button>
             <button class="chip albumnes" type="button" disabled>Álbumes</button>
           </div>
@@ -130,16 +130,17 @@
     import { requireAuth, currentUser, logoutAndGo } from "./assets/js/services/auth_service.js";
     import { pb } from "./assets/js/pb.js";
     import {
-      listPhotos, searchPhotos, uploadPhoto,
+      listPhotos,
+      uploadPhoto,
       deletePhoto, toggleFavorite, fileUrl
     } from "./assets/js/services/photos_services.js";
 
-    // Auth + logout real
+    // Auth + logout
     requireAuth("login.html");
     const logoutLink = [...document.querySelectorAll('[data-part="menu-item"]')].find(a => a.textContent.includes("Cerrar sesión"));
     logoutLink?.addEventListener("click", e => { e.preventDefault(); logoutAndGo("login.html"); });
 
-    // Avatar real o iniciales
+    // Avatar
     const user = currentUser();
     const headerImg = document.querySelector('[data-part="avatar"]');
     const headerSummary = document.querySelector('[data-part="summary"]');
@@ -156,22 +157,23 @@
     }
 
     // Refs UI
-    const grid    = document.querySelector('[data-component="PhotoGrid"]') || document.querySelector('.gallery');
-    const qInput  = document.querySelector('#q');
+    const grid = document.querySelector('[data-component="PhotoGrid"]');
+    const qInput = document.querySelector('#q');
     const sortBtn = document.querySelector('[data-part="sort"]');
     const uploadBtn = document.querySelector('[data-part="upload"]');
     const fileInput = document.querySelector('#photo-file');
     const selectBtn = document.querySelector('[data-part="select"]');
     const deleteBtn = document.querySelector('[data-part="delete"]');
     const msg = document.querySelector('#photos-msg');
+    const filterChips = document.querySelectorAll('.chip');
 
-    const state = { page:1, perPage:24, sort:"-created", q:"", selecting:false, selected:new Set(), totalPages:1 };
+    // Estado
+    const state = { page: 1, perPage: 24, sort: "-created", q: "", selecting: false, selected: new Set(), filter: "" };
 
-    // Helpers
-    function card(rec){
-      // ⚠️ campo de fichero en PB: "file"
-      const src = rec.file ? fileUrl(rec, rec.file, "600x0") : "";
-      const fav = rec.favorite ? "★" : "☆";
+    // --- RENDERIZADO Y EVENTOS DE LAS TARJETAS ---
+    function card(rec) {
+      const src = rec.field ? fileUrl(rec, rec.field, "600x0") : "";
+      const fav = rec.favourite ? "★" : "☆";
       const checked = state.selected.has(rec.id) ? "checked" : "";
       return `
         <article class="photo-card card" data-id="${rec.id}">
@@ -181,102 +183,120 @@
             <button class="fav" title="Favorito">${fav}</button>
           </div>
           ${rec.title ? `<div class="pad"><div class="p">${rec.title}</div></div>` : ""}
-        </article>
-      `;
+        </article>`;
     }
 
-    function bindCardEvents(){
-      grid.querySelectorAll('.photo-card').forEach(el=>{
+    function bindCardEvents() {
+      grid.querySelectorAll('.photo-card').forEach(el => {
         const id = el.dataset.id;
-
-        el.querySelector('.sel')?.addEventListener('change', e=>{
-          if(e.target.checked) state.selected.add(id); else state.selected.delete(id);
+        el.querySelector('.sel')?.addEventListener('change', e => {
+          if (e.target.checked) state.selected.add(id); else state.selected.delete(id);
           updateBulkButtons();
         });
-
-        el.querySelector('.fav')?.addEventListener('click', async (e)=>{
+        el.querySelector('.fav')?.addEventListener('click', async (e) => {
           const btn = e.currentTarget;
           btn.disabled = true;
-          try{
-            const isFav = btn.textContent === "★";   // estado actual en UI
+          try {
+            const isFav = btn.textContent === "★";
             const rec = await toggleFavorite(id, isFav);
-            btn.textContent = rec.favorite ? "★" : "☆";
-          }catch(err){ console.error(err); }
-          finally{ btn.disabled = false; }
+            btn.textContent = rec.favourite ? "★" : "☆";
+          } catch (err) { console.error(err); }
+          finally { btn.disabled = false; }
         });
       });
     }
 
-    function updateBulkButtons(){ deleteBtn.disabled = state.selected.size===0; }
+    function updateBulkButtons() { deleteBtn.disabled = state.selected.size === 0; }
 
-    async function load(){
-      if(!grid) return;
-      msg.textContent = "";
+    // --- FUNCIÓN DE CARGA PRINCIPAL ---
+    async function load() {
+      if (!grid) return;
       grid.innerHTML = `<p class="p">Cargando…</p>`;
-      try{
-        const opts = { page:state.page, perPage:state.perPage, sort:state.sort };
-        const res = state.q
-          ? await searchPhotos(state.q, opts)   // q + opts
-          : await listPhotos(opts);             // solo opts
+      msg.textContent = "";
 
-        state.totalPages = res.totalPages || 1;
-        if(!res.items.length){
-          grid.innerHTML = `<p class="p">No hay fotos para mostrar.</p>`;
+      try {
+        // Construcción del filtro COMBINADO
+        const searchFilter = state.q ? `(title ~ "${state.q}" || location ~ "${state.q}" || tags ~ "${state.q}")` : "";
+        const finalFilter = [state.filter, searchFilter].filter(Boolean).join(" && ");
+
+        const opts = { page: state.page, perPage: state.perPage, sort: state.sort, filter: finalFilter };
+        const res = await listPhotos(opts);
+
+        if (!res.items.length) {
+          grid.innerHTML = `<p class="p">No se encontraron fotos con los filtros actuales.</p>`;
           return;
         }
         grid.innerHTML = res.items.map(card).join("");
         bindCardEvents();
         updateBulkButtons();
         sortBtn.textContent = state.sort.startsWith('-') ? '↕ Ordenar (recientes)' : '↕ Ordenar (antiguas)';
-      }catch(err){
+      } catch (err) {
         console.error(err);
-        grid.innerHTML = `<p class="p" style="color:#ef4444">No se pudieron cargar las fotos.</p>`;
-        if(String(err).includes("403") || String(err).includes("Unauthorized")){
-          msg.textContent = "Comprueba que estás logueado con el mismo usuario que creó las fotos.";
-        }
+        grid.innerHTML = `<p class="p" style="color:#ef4444;">Error al cargar las fotos.</p>`;
       }
     }
 
-    // Buscar (debounce)
-    function debounce(fn, ms=300){ let t; return (...a)=>{ clearTimeout(t); t=setTimeout(()=>fn(...a), ms); }; }
-    qInput?.addEventListener('input', debounce(e=>{ state.q = e.target.value.trim(); state.page=1; load(); }, 300));
+    // --- MANEJADORES DE EVENTOS DE LA UI ---
+    function debounce(fn, ms = 300) { let t; return (...a) => { clearTimeout(t); t = setTimeout(() => fn(...a), ms); }; }
+    qInput?.addEventListener('input', debounce(e => {
+      state.q = e.target.value.trim();
+      state.page = 1;
+      load();
+    }, 300));
 
-    // Ordenar
-    sortBtn?.addEventListener('click', ()=>{
+    filterChips.forEach(chip => {
+      chip.addEventListener('click', () => {
+        if (chip.disabled) return;
+        
+        filterChips.forEach(c => c.classList.remove('active'));
+        chip.classList.add('active');
+
+        // ✅ Lógica de filtrado corregida
+        if (chip.classList.contains('favoritos')) {
+          state.filter = 'favourite = true';
+        } else if (chip.classList.contains('todos')) {
+          state.filter = '';
+        }
+        // Puedes añadir más 'else if' para vídeos o álbumes aquí
+
+        state.page = 1;
+        load();
+      });
+    });
+
+    sortBtn?.addEventListener('click', () => {
       state.sort = state.sort.startsWith('-') ? 'created' : '-created';
       state.page = 1; load();
     });
 
-    // Subir
-    uploadBtn?.addEventListener('click', ()=> fileInput?.click());
-    fileInput?.addEventListener('change', async ()=>{
-      const files = [...(fileInput.files||[])];
-      for(const f of files){
-        try{ await uploadPhoto({ file:f }); }
-        catch(err){ console.error("Falló subida", f.name, err); }
+    uploadBtn?.addEventListener('click', () => fileInput?.click());
+    fileInput?.addEventListener('change', async () => {
+      for (const f of [...(fileInput.files || [])]) {
+        try { await uploadPhoto({ file: f }); }
+        catch (err) { console.error("Falló subida", f.name, err); }
       }
       fileInput.value = "";
       load();
     });
 
-    // Selección / borrado
-    selectBtn?.addEventListener('click', ()=>{
+    selectBtn?.addEventListener('click', () => {
       state.selecting = !state.selecting;
       state.selected.clear();
       selectBtn.classList.toggle('active', state.selecting);
       load();
     });
 
-    deleteBtn?.addEventListener('click', async ()=>{
-      if(!state.selected.size) return;
-      if(!confirm(`¿Borrar ${state.selected.size} foto(s)?`)) return;
-      for(const id of state.selected){
-        try{ await deletePhoto(id); }catch(err){ console.error(err); }
+    deleteBtn?.addEventListener('click', async () => {
+      if (!state.selected.size || !confirm(`¿Borrar ${state.selected.size} foto(s)?`)) return;
+      for (const id of state.selected) {
+        try { await deletePhoto(id); } catch (err) { console.error(err); }
       }
-      state.selected.clear(); load();
+      state.selected.clear();
+      load();
     });
 
+    // Carga inicial
     load();
-  </script>
+</script>
 </body>
 </html>

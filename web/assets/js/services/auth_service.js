@@ -1,15 +1,17 @@
 import { pb } from "../pb.js";
 
-export async function login(email, password) {
-  return pb.collection("users").authWithPassword(email, password);
+export async function login(identity, password) {
+  return pb.collection("users").authWithPassword(identity, password);
 }
 
 export function logout() { 
   pb.authStore.clear(); 
 }
+
 export function currentUser() {
   return pb.authStore.model;
 }
+
 export function isLoggedIn() {
   return !!pb.authStore.token;
 }
@@ -25,4 +27,8 @@ export function requireAuth(redirectTo = "login.html") {
 export function logoutAndGo(url = "login.html") {
   logout();
   location.href = url;
+}
+
+export async function requestPasswordReset(email) {
+  return pb.collection("users").requestPasswordReset(email);
 }

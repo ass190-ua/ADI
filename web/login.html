@@ -11,7 +11,6 @@
 </head>
 <body data-part="body">
   <div class="page" data-component="MainLayout">
-    <!-- Header público con CTA -->
     <header class="header landing-header" data-component="AppHeader" data-variant="public">
       <div class="logo" data-part="logo">
         <a href="index.html" data-part="home-link"><img src="assets/img/logo_header.png" alt="Memories+"></a>
@@ -22,7 +21,6 @@
       </nav>
     </header>
 
-    <!-- Main centrado (estilo BookCase: card compacta y enlaces de ayuda) -->
     <main class="container auth-page" data-component="AuthMain">
       <section class="card pad" style="width:min(380px,92%); margin-inline:auto;" data-component="AuthCard">
         <h1 class="h2" style="margin:0 0 6px; text-align:center;" data-part="title">Iniciar sesión</h1>
@@ -30,35 +28,18 @@
           Accede para ver tus recuerdos.
         </p>
 
-        <!-- Prototipo sin JS: simulamos login navegando con GET a home.html -->
-        <form class="form" aria-label="Formulario de acceso"
-              action="#" method="post"
-              data-component="AuthForm">
-
-          <!-- ID de acceso (correo o usuario) -->
+        <form class="form" aria-label="Formulario de acceso" action="#" method="post" data-component="AuthForm">
           <div class="input" data-part="field">
             <label for="loginId" data-part="label">Correo o usuario</label>
-            <input id="loginId" name="loginId" type="text"
-                   placeholder="correo@dominio.com / tuUsuario"
-                   autocomplete="username" required
-                   data-part="input">
+            <input id="loginId" name="loginId" type="text" placeholder="correo@dominio.com / tuUsuario" autocomplete="username" required data-part="input">
           </div>
-
-          <!-- Contraseña -->
           <div class="input" data-part="field">
             <label for="loginPass" data-part="label">Contraseña</label>
-            <input id="loginPass" name="password" type="password"
-                   placeholder="••••••••" autocomplete="current-password" required
-                   data-part="input">
-            <!-- (Opcional) Mostrar contraseña se omite en prototipo sin JS -->
+            <input id="loginPass" name="password" type="password" placeholder="••••••••" autocomplete="current-password" required data-part="input">
           </div>
-
-          <!-- Acción principal -->
           <div class="actions" data-part="actions" style="margin-top:12px;">
             <button class="btn primary" type="submit" style="width:100%; text-align:center;">Iniciar sesión</button>
           </div>
-
-          <!-- Enlaces de ayuda (olvido y registro) -->
           <div class="p" style="margin-top:14px; text-align:center;" data-part="help">
             <a href="#reset-modal" class="link" data-part="forgot">¿Olvidaste tu contraseña?</a>
           </div>
@@ -70,19 +51,15 @@
       </section>
     </main>
 
-        <!-- Modal reset password (pop-up con :target) -->
     <div id="reset-modal" class="modal" aria-hidden="true" data-component="ResetPasswordModal">
-      <div class="modal-dialog card pad" role="dialog" aria-modal="true" aria-labelledby="reset-title" data-part="dialog">
+      <div class="modal-dialog card pad" role="dialog" aria-modal="true" aria-labelledby="reset-title">
         <h2 id="reset-title" class="h3" data-part="title">Recuperar contraseña</h2>
         <p class="p" style="margin-bottom:12px;" data-part="subtitle">Introduce tu correo y te enviaremos un enlace.</p>
-
-        <form class="form" action="#reset-sent" method="get" data-component="ResetForm">
+        <form class="form" method="post" data-component="ResetForm">
           <div class="input" data-part="field">
             <label for="reset-email" data-part="label">Correo electrónico</label>
-            <input id="reset-email" type="email" name="email"
-                  placeholder="tucorreo@ejemplo.com" required data-part="input">
+            <input id="reset-email" type="email" name="email" placeholder="tucorreo@ejemplo.com" required data-part="input">
           </div>
-
           <div class="actions row" style="margin-top:12px; gap:8px;" data-part="actions">
             <button type="submit" class="btn primary" data-part="submit">Enviar</button>
             <a href="#" class="btn ghost" data-part="close">Cerrar</a>
@@ -91,13 +68,10 @@
       </div>
     </div>
 
-    <!-- Toast confirmación de recuperación de contraseña -->
-    <div id="reset-sent" class="toast success" aria-live="polite" aria-atomic="true"
-        data-component="Toast" data-state="success">
+    <div id="reset-sent" class="toast success" aria-live="polite" aria-atomic="true" data-component="Toast" data-state="success">
       <div class="toast-body" data-part="body">
-        <strong data-part="title">¡Solicitud recibida!</strong>
-        Si existe una cuenta con ese correo, te enviaremos un enlace para restablecer la contraseña.
-        <a class="toast-close" href="login.html" aria-label="Cerrar" data-part="close">✕</a>
+        <strong data-part="title">¡Solicitud recibida!</strong> Si existe una cuenta con ese correo, te enviaremos un enlace para restablecer la contraseña.
+        <a class="toast-close" href="#" aria-label="Cerrar" data-part="close">✕</a>
       </div>
     </div>
 
@@ -121,51 +95,69 @@
   </div>
 
   <script type="module">
-    import { login, isLoggedIn } from "./assets/js/services/auth_service.js";
+    import { login, isLoggedIn, requestPasswordReset } from "./assets/js/services/auth_service.js";
 
-    // Redirige si ya hay sesión activa
     if (isLoggedIn && isLoggedIn()) {
-      window.location.href = "home.html"; // o "events.html" si prefieres
+      window.location.href = "home.html";
     }
 
-    const form = document.querySelector('[data-component="AuthForm"]');
-    const emailInput = document.querySelector('#loginId');
-    const passInput  = document.querySelector('#loginPass');
-    const submitBtn  = form.querySelector('button[type="submit"]');
+    // --- Lógica del formulario de LOGIN ---
+    const loginForm = document.querySelector('[data-component="AuthForm"]');
+    const loginIdInput = document.querySelector('#loginId');
+    const loginPassInput  = document.querySelector('#loginPass');
+    const loginSubmitBtn  = loginForm.querySelector('button[type="submit"]');
 
-    // Mensaje de error accesible (sin romper tu layout)
-    const errorEl = document.createElement('p');
-    errorEl.className = 'p';
-    errorEl.style.marginTop = '8px';
-    errorEl.style.textAlign = 'center';
-    errorEl.style.color = 'var(--danger, #ff6b6b)';
-    errorEl.hidden = true;
-    errorEl.setAttribute('role', 'alert');
-    form.append(errorEl);
+    const loginErrorEl = document.createElement('p');
+    loginErrorEl.className = 'p';
+    loginErrorEl.style.cssText = 'margin-top:8px; text-align:center; color: var(--error);';
+    loginErrorEl.hidden = true;
+    loginForm.append(loginErrorEl);
 
-    form.addEventListener('submit', async (e) => {
+    loginForm.addEventListener('submit', async (e) => {
       e.preventDefault();
-
-      const email = emailInput.value.trim();
-      const password = passInput.value;
-
-      // UI bloqueo ligero
-      submitBtn.disabled = true;
-      const prevText = submitBtn.textContent;
-      submitBtn.textContent = "Entrando…";
-      errorEl.hidden = true;
+      
+      const identity = loginIdInput.value.trim();
+      const password = loginPassInput.value;
+      
+      loginSubmitBtn.disabled = true;
+      loginSubmitBtn.textContent = "Entrando…";
+      loginErrorEl.hidden = true;
 
       try {
-        await login(email, password);
+        // Esta línea ahora funciona gracias a los cambios en auth_service.js
+        await login(identity, password);
         window.location.href = "home.html";
       } catch (err) {
-        console.error(err);
-        errorEl.textContent = "Correo o contraseña incorrectos.";
-        errorEl.hidden = false;
-      } finally {
-        submitBtn.disabled = false;
-        submitBtn.textContent = prevText;
+        loginErrorEl.textContent = "Credenciales incorrectas.";
+        loginErrorEl.hidden = false;
+        loginSubmitBtn.disabled = false;
+        loginSubmitBtn.textContent = "Iniciar sesión";
       }
+    });
+
+    // --- Lógica del formulario de RECUPERAR CONTRASEÑA ---
+    const resetForm = document.querySelector('[data-component="ResetForm"]');
+    const resetEmailInput = document.querySelector('#reset-email');
+    const resetSubmitBtn = resetForm.querySelector('button[type="submit"]');
+    
+    resetForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const email = resetEmailInput.value.trim();
+        if (!email) return;
+
+        resetSubmitBtn.disabled = true;
+        resetSubmitBtn.textContent = "Enviando...";
+
+        try {
+            await requestPasswordReset(email);
+            window.location.hash = 'reset-sent';
+        } catch (err) {
+            console.error("Error en solicitud de reseteo (oculto al usuario):", err);
+            window.location.hash = 'reset-sent';
+        } finally {
+            resetSubmitBtn.disabled = false;
+            resetSubmitBtn.textContent = "Enviar";
+        }
     });
   </script>
 </body>
