@@ -47,6 +47,23 @@
   cursor: pointer;
 }
 
+/* pequeño estilo para las iniciales del avatar */
+    .avatar-initials{
+      width:36px;height:36px;border-radius:999px;
+      display:inline-grid;place-items:center;
+      background:#334155;color:#e5e7eb;font-weight:700;font-size:.9rem;
+    }
+    .photo-card .cover{ position:relative; }
+    .photo-card .fav{
+      position:absolute; right:8px; top:8px;
+      background:rgba(0,0,0,.5); border:1px solid rgba(255,255,255,.2);
+      border-radius:8px; padding:.15rem .4rem; color:#ffd24d;
+    }
+    .photo-card .sel{
+      position:absolute; left:8px; top:8px;
+      width:18px; height:18px;
+    }
+
 .avatar-lg .avatar-initials { width: 80px; height: 80px; font-size: 1.2rem; }
 
 /* ---------- Formularios ---------- */

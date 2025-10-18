@@ -109,11 +109,10 @@
 
     // Si ya hay sesión, opcionalmente redirige:
     if (isLoggedIn()) {
-      // Si prefieres, comenta la siguiente línea para permitir registrar estando logueado
-      // location.href = "home.html";
+      // location.href = "home.html"; si descomentamos esta línea, el usuario puede registrarse aunque ya tenga cuenta
     }
 
-    // Para evitar conflictos, limpia sesión previa silenciosamente
+    // Para evitar conflictos, limpia sesión
     logout();
 
     const form = document.querySelector('[data-component="RegisterForm"]');
@@ -158,8 +157,8 @@
 
       try {
         await registerUser({ username: u, email: mail, password: p1, passwordConfirm: p2 });
-        await login(mail, p1);              // login automático
-        location.href = "home.html";        // o "events.html"
+        await login(mail, p1); // login automático
+        location.href = "home.html";
       } catch (err) {
         console.error(err);
         let msg = "Error al crear la cuenta.";

@@ -7,24 +7,6 @@
   <link rel="stylesheet" href="css/layout.css">
   <link rel="stylesheet" href="css/components.css">
   <link rel="stylesheet" href="css/pages.css">
-  <style>
-    /* pequeño estilo para las iniciales del avatar */
-    .avatar-initials{
-      width:36px;height:36px;border-radius:999px;
-      display:inline-grid;place-items:center;
-      background:#334155;color:#e5e7eb;font-weight:700;font-size:.9rem;
-    }
-    .photo-card .cover{ position:relative; }
-    .photo-card .fav{
-      position:absolute; right:8px; top:8px;
-      background:rgba(0,0,0,.5); border:1px solid rgba(255,255,255,.2);
-      border-radius:8px; padding:.15rem .4rem; color:#ffd24d;
-    }
-    .photo-card .sel{
-      position:absolute; left:8px; top:8px;
-      width:18px; height:18px;
-    }
-  </style>
 </head>
 <body data-part="body">
   <div class="page" data-component="MainLayout">
@@ -170,7 +152,7 @@
     // Estado
     const state = { page: 1, perPage: 24, sort: "-created", q: "", selecting: false, selected: new Set(), filter: "" };
 
-    // --- RENDERIZADO Y EVENTOS DE LAS TARJETAS ---
+    // Renderizado de tarjetas
     function card(rec) {
       const src = rec.field ? fileUrl(rec, rec.field, "600x0") : "";
       const fav = rec.favourite ? "★" : "☆";
@@ -207,15 +189,14 @@
     }
 
     function updateBulkButtons() { deleteBtn.disabled = state.selected.size === 0; }
-
-    // --- FUNCIÓN DE CARGA PRINCIPAL ---
+    
+    // Carga de fotos
     async function load() {
       if (!grid) return;
       grid.innerHTML = `<p class="p">Cargando…</p>`;
       msg.textContent = "";
 
       try {
-        // Construcción del filtro COMBINADO
         const searchFilter = state.q ? `(title ~ "${state.q}" || location ~ "${state.q}" || tags ~ "${state.q}")` : "";
         const finalFilter = [state.filter, searchFilter].filter(Boolean).join(" && ");
 
@@ -236,7 +217,7 @@
       }
     }
 
-    // --- MANEJADORES DE EVENTOS DE LA UI ---
+    // Eventos UI
     function debounce(fn, ms = 300) { let t; return (...a) => { clearTimeout(t); t = setTimeout(() => fn(...a), ms); }; }
     qInput?.addEventListener('input', debounce(e => {
       state.q = e.target.value.trim();
@@ -251,13 +232,12 @@
         filterChips.forEach(c => c.classList.remove('active'));
         chip.classList.add('active');
 
-        // ✅ Lógica de filtrado corregida
         if (chip.classList.contains('favoritos')) {
           state.filter = 'favourite = true';
         } else if (chip.classList.contains('todos')) {
           state.filter = '';
         }
-        // Puedes añadir más 'else if' para vídeos o álbumes aquí
+        // Otros filtros (videos, álbumes) deshabilitados por ahora
 
         state.page = 1;
         load();
@@ -295,7 +275,6 @@
       load();
     });
 
-    // Carga inicial
     load();
 </script>
 </body>

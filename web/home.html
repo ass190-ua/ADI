@@ -152,10 +152,10 @@
     import { pb } from "./assets/js/pb.js";
     import { listEvents, fileUrl } from "./assets/js/services/events_services.js";
 
-    // 1) Solo usuarios logueados
+    // Solo usuarios logueados
     requireAuth("login.html");
 
-    // 2) Avatar real o iniciales (con guardas)
+    // Avatar real o iniciales (con guardas)
     const user = currentUser();
     const avatarImg = document.querySelector('[data-part="avatar"]');
     const summaryEl = document.querySelector('[data-part="summary"]');
@@ -187,14 +187,14 @@
       }
     }
 
-    // 3) Saludo personalizado
+    // Saludo personalizado
     const heroTitle = document.querySelector('[data-component="HeroCard"] [data-part="title"]');
     if (heroTitle && user) {
       const name = user?.name || user?.username || "";
       heroTitle.textContent = name ? `¡Hola, ${name}!` : "¡Bienvenido a tu espacio!";
     }
 
-    // 4) Logout real
+    // Logout real
     const logoutLink = [...document.querySelectorAll('[data-part="menu-item"]')]
       .find(a => a.textContent.includes("Cerrar sesión"));
     if (logoutLink) {
@@ -204,7 +204,7 @@
       });
     }
 
-    // 5) Actividad reciente (últimos 5 eventos del usuario)
+    // Actividad reciente (últimos 5 eventos del usuario)
     const activityCard = document.querySelector('[data-component="RecentActivity"]');
     const activityList = activityCard?.querySelector('[data-part="list"]');
 
@@ -254,7 +254,6 @@
     async function loadActivity() {
       if (!user || !activityCard || !activityList) return;
       try {
-        // Si tus reglas filtran por user, esto ya es "mis eventos"
         const res = await listEvents({ page: 1, perPage: 5, sort: "-updated" });
         if (!res.items.length) {
           activityCard.style.display = "none";

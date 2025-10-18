@@ -42,7 +42,6 @@ describe("users_services", () => {
     expect(svc.userAvatarUrl({ id: "u1" })).toBeNull();
 
     const url = svc.userAvatarUrl({ id: "u1", avatar: "perfil.jpg" }, "100x100");
-    // nuestro mock genera: http://mock/<id>/<file>?t=1
     expect(url).toContain("/u1/");
     expect(url).toContain("perfil.jpg");
     expect(url).toContain("t=1"); // con token
@@ -76,6 +75,6 @@ describe("users_services", () => {
     expect(pbMock.__stores.users.find(x => x.id === "u1")).toBeUndefined();
     // y se limpia la sesión
     expect(pbMock.pb.authStore.model).toBeNull();
-    expect(pbMock.pb.authStore.token).toBe(""); // getter devuelve "" si no hay sesión
+    expect(pbMock.pb.authStore.token).toBe("");
   });
 });

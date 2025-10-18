@@ -11,7 +11,7 @@
 <body data-part="body">
   <div class="page" data-component="MainLayout">
 
-    <!-- Header (privado, como Home/Photos) -->
+    <!-- Header -->
     <header class="app-header" data-component="AppHeader" data-variant="private">
       <div class="brand" data-part="brand">
         <a class="logo" href="home.html" data-part="logo-link">
@@ -201,13 +201,13 @@
     import { requireAuth, logoutAndGo } from "./assets/js/services/auth_service.js";
     import { me, refreshMe, updateMe, deleteMe, userAvatarUrl } from "./assets/js/services/users_services.js";
 
-    // 1) Protección + logout real
+    // Protección + logout real
     requireAuth("login.html");
     const logoutLink = [...document.querySelectorAll('[data-part="menu-item"]')]
       .find(a => a.textContent.includes("Cerrar sesión"));
     logoutLink?.addEventListener("click", (e) => { e.preventDefault(); logoutAndGo("login.html"); });
 
-    // 2) Helpers
+    // Helpers
     const $  = (sel, root=document) => root.querySelector(sel);
     const $$ = (sel, root=document) => [...root.querySelectorAll(sel)];
 
@@ -253,8 +253,7 @@
       }
     }
 
-    // 3) Refs UI
-    // Header
+    // Refs UI
     const headerSummary = $('[data-part="summary"]');
     const headerImg     = $('[data-part="avatar"]');
 
@@ -284,7 +283,7 @@
     formBasic?.appendChild(msgBasic);
     formSec?.appendChild(msgSec);
 
-    // 4) Carga de datos
+    // Carga de datos
     let user = me(); // rápido desde authStore
 
     async function hydrate() {
@@ -302,7 +301,7 @@
 
     await hydrate();
 
-    // 5) Preview avatar local
+    // Preview avatar local
     const MAX_MB = 10;
     avatarInput?.addEventListener("change", () => {
       const f = avatarInput.files?.[0];
@@ -321,7 +320,7 @@
       profileImg?.addEventListener("load", () => URL.revokeObjectURL(url), { once: true });
     });
 
-    // 6) Guardar “Datos básicos”
+    // Guardar “Datos básicos”
     formBasic?.addEventListener("submit", async (e) => {
       e.preventDefault();
       msgBasic.textContent = "";
@@ -358,7 +357,7 @@
       }
     });
 
-    // 7) Cambiar contraseña
+    // Cambiar contraseña
     formSec?.addEventListener("submit", async (e) => {
       e.preventDefault();
       msgSec.textContent = "";
@@ -387,7 +386,7 @@
       }
     });
 
-    // 8) Zona de peligro
+    // Zona de peligro
     const btnDeactivate = $('[data-part="deactivate"]');
     const btnDelete     = $('[data-part="delete"]');
 

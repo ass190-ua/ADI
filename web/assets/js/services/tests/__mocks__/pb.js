@@ -115,7 +115,6 @@ export const pb = {
     getUrl(rec, file, opts = {}) {
       // Incluye bit de token (t=1 si hay token) para que los tests lo verifiquen
       const t = opts.token ? 1 : 0;
-      // Ignoramos thumb en la URL, no es necesario para los tests (se podría incluir si quieres)
       return `http://mock/${rec.id}/${file}?t=${t}`;
     },
   },

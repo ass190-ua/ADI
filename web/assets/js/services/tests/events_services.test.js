@@ -94,8 +94,6 @@ describe("events_services", () => {
     await svc.createEvent({ title: "B", user: "u99" });
 
     res = await svc.listMyRecentEvents(5);
-    // nuestro mock no aplica el filtro realmente, pero comprobamos que el servicio
-    // HA ENVIADO el filtro correcto a getList (lo importante de la capa)
     const { params } = calls.events.getList.at(-1);
     expect(params.filter).toBe('user = "u42"');
     expect(params.sort).toBe("-updated,-created");

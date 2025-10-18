@@ -147,9 +147,7 @@
     import { pb } from './assets/js/pb.js';
     import { currentUser, logoutAndGo, isLoggedIn } from './assets/js/services/auth_service.js';
 
-    // ————————————————————————————————————————————————
     // Header: avatar / menú usuario
-    // ————————————————————————————————————————————————
     const me = currentUser();
     const headerWrap = document.querySelector('[data-component="UserMenu"] [data-part="summary"]');
     const headerImg  = document.querySelector('[data-component="UserMenu"] [data-part="avatar"]');
@@ -179,17 +177,13 @@
       if (userMenu) userMenu.style.display = 'none';
     }
 
-    // ————————————————————————————————————————————————
     // Logo → home si logueado, index si no
-    // ————————————————————————————————————————————————
     const logoLink = document.querySelector('[data-part="logo-link"]');
     if (logoLink) {
       logoLink.setAttribute('href', isLoggedIn() ? 'home.html' : 'index.html');
     }
 
-    // ————————————————————————————————————————————————
     // Sidebar dinámica según sesión
-    // ————————————————————————————————————————————————
     const sidebarNav = document.querySelector('[data-component="SiteNav"]');
     const currentFile = location.pathname.split('/').pop() || 'legalpolitics.html';
 

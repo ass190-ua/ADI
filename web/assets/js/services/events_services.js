@@ -18,11 +18,11 @@ const safeLike = (s) => String(s ?? "").replace(/"/g, '\\"');
  * @param {Object} opts
  * @param {number} opts.page
  * @param {number} opts.perPage
- * @param {string} opts.sort            e.g. "-created"
- * @param {string} opts.filter          filtro PocketBase
- * @param {string} opts.expand          relaciones, e.g. "user,cover"
- * @param {string} opts.fields          proyección de campos
- * @param {boolean} opts.skipTotal      acelera en listas grandes
+ * @param {string} opts.sort
+ * @param {string} opts.filter
+ * @param {string} opts.expand
+ * @param {string} opts.fields
+ * @param {boolean} opts.skipTotal
  */
 export async function listEvents({
   page = 1,
@@ -49,7 +49,7 @@ export async function searchEvents(q, opts = {}) {
 }
 
 export async function getEvent(id, opts = {}) {
-  return pb.collection(C).getOne(id, opts); // opts: { expand, fields }
+  return pb.collection(C).getOne(id, opts);
 }
 
 //Acepta FormData o objeto plano

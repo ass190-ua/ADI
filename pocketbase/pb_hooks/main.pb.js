@@ -30,18 +30,18 @@ onRecordCreateRequest((e) => {
 onRecordCreateRequest((e) => {
   if (e.collection?.name !== "contact_messages") return;
 
-  // 1) Crear el registro primero (no bloquear la escritura)
+  // Crear el registro primero (no bloquear la escritura)
   e.next();
 
   // ---------- Config rápida ----------
   const ADMIN_TO   = ["memoriesplus.soporte@gmail.com"]; // Se pueden añadir más
-  const ADMIN_CC   = [];                                  // opcional, p.ej. para auditoría
+  const ADMIN_CC   = []; // opcional, p.ej. para auditoría
   const ADMIN_BCC  = ["memoriesplus@gmail.com"]; // opcional, p.ej. para archivo silencioso
   const BRAND_NAME = "Memories+";
   const BRAND_URL  = "Memories+"; // Cuando esté disponible y hosteado se puede poner la URL
   const ACCUSE_SUBJECT = "✅ Hemos recibido tu mensaje · " + BRAND_NAME;
 
-  // ---------- Helpers ----------
+  // Helpers
   const looksLikeEmail = (s) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test((s||"").trim());
   const esc = (s) => String(s ?? "")
       .replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;")

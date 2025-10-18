@@ -101,7 +101,7 @@
       window.location.href = "home.html";
     }
 
-    // --- Lógica del formulario de LOGIN ---
+    // Lógica del formulario de login
     const loginForm = document.querySelector('[data-component="AuthForm"]');
     const loginIdInput = document.querySelector('#loginId');
     const loginPassInput  = document.querySelector('#loginPass');
@@ -124,7 +124,6 @@
       loginErrorEl.hidden = true;
 
       try {
-        // Esta línea ahora funciona gracias a los cambios en auth_service.js
         await login(identity, password);
         window.location.href = "home.html";
       } catch (err) {
@@ -135,7 +134,7 @@
       }
     });
 
-    // --- Lógica del formulario de RECUPERAR CONTRASEÑA ---
+    // Lógica del formulario de recuperar contraseña
     const resetForm = document.querySelector('[data-component="ResetForm"]');
     const resetEmailInput = document.querySelector('#reset-email');
     const resetSubmitBtn = resetForm.querySelector('button[type="submit"]');

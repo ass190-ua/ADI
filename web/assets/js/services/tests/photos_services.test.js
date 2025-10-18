@@ -1,8 +1,6 @@
 import { jest } from '@jest/globals';
 jest.unstable_mockModule("../../pb.js", () => import("./__mocks__/pb.js"));
 
-// (Opcional) Polyfill de File en JSDOM por si no existiese
-// Node 18 + JSDOM suele tenerla, pero así evitamos sustos en CI.
 if (typeof File === "undefined") {
   global.File = class extends Blob {
     constructor(chunks, filename, opts={}) { super(chunks, opts); this.name = filename; }
@@ -104,7 +102,7 @@ describe("photos_services", () => {
 
   test("toggleFavorite invierte el booleano a partir del valor actual", async () => {
     const rec = await pbMock.pb.collection("photos").create({ title: "Fav", field: "f.jpg", favourite: true });
-    const updated = await svc.toggleFavorite(rec.id, /* isCurrentlyFavorite= */ true);
+    const updated = await svc.toggleFavorite(rec.id, true);
     expect(updated.favourite).toBe(false);
 
     // vuelve a llamar, ahora partimos de false

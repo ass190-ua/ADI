@@ -129,7 +129,7 @@
     import { currentUser, logoutAndGo, isLoggedIn } from './assets/js/services/auth_service.js';
     import { sendContactMessage } from './assets/js/services/contact_messages_service.js';
 
-    // 1. Lógica del Header 
+    // Lógica del Header 
     const me = currentUser();
     const headerWrap = document.querySelector('[data-component="UserMenu"] [data-part="summary"]');
     const headerImg  = document.querySelector('[data-component="UserMenu"] [data-part="avatar"]');
@@ -161,9 +161,7 @@
         if(userMenu) userMenu.style.display = 'none';
     }
 
-    // ————————————————————————————————————————————————
     // Actualizar enlace del logo según sesión
-    // ————————————————————————————————————————————————
     const logoLink = document.querySelector('[data-part="logo-link"]');
     if (logoLink) {
       if (isLoggedIn()) {
@@ -173,9 +171,7 @@
       }
     }
 
-    // ————————————————————————————————————————————————
     // Sidebar dinámica según sesión
-    // ————————————————————————————————————————————————
     const sidebarNav = document.querySelector('[data-component="SiteNav"]');
 
     function buildLink({ href, label, current = false }) {
@@ -214,7 +210,7 @@
       });
     }
 
-    // 2. Lógica del formulario de contacto
+    // Lógica del formulario de contacto
     const nameInput = document.getElementById('c-name');
     const emailInput = document.getElementById('c-email');
     if (me) {
