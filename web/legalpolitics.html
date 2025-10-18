@@ -32,7 +32,7 @@
       <div class="user-actions" data-part="user-actions">
         <details class="user-menu" data-component="UserMenu">
           <summary aria-label="Abrir menú de usuario" data-part="summary">
-            <img class="avatar" src="assets/img/perfil.jpg" alt="Tu avatar" data-part="avatar">
+            <img class="avatar" src="" alt="Tu avatar" data-part="avatar" style="display:none;">
           </summary>
           <nav class="menu" aria-label="Menú de usuario" data-part="menu">
             <a href="profile.html" data-part="menu-item">👤 Perfil</a>
@@ -45,13 +45,7 @@
     <!-- App shell: sidebar + contenido principal -->
     <main class="app-shell" data-component="AppShell">
       <aside class="sidebar" data-component="Sidebar">
-        <nav class="sidebar-nav" aria-label="Principal" data-component="SiteNav">
-          <a href="home.html" data-part="nav-link">🏠 Inicio</a>
-          <a href="photos.html" data-part="nav-link">🖼️ Fotos</a>
-          <a href="chats.html" data-part="nav-link">💬 Chats</a>
-          <a href="events.html" data-part="nav-link">🎉 Eventos</a>
-          <a href="legalpolitics.html" aria-current="page" data-part="nav-link">⚖️ Políticas</a>
-        </nav>
+        <nav class="sidebar-nav" aria-label="Principal" data-component="SiteNav"></nav>
       </aside>
 
       <!-- Contenido principal de la página legal -->
@@ -112,7 +106,9 @@
 
           <section data-component="LegalSection" data-part="section">
             <h2 data-part="subtitle">10. Contacto</h2>
-            <p>Si tienes dudas acerca de estas políticas, puedes contactar con nosotros en la dirección electrónica: <a href="mailto:memoriesplus@gmail.com">memoriesplus@gmail.com</a>.</p>
+            <p>Si tienes dudas acerca de estas políticas, puedes contactar con nosotros en la dirección electrónica:
+              <a href="mailto:memoriesplus.soporte@gmail.com">memoriesplus.soporte@gmail.com</a>.
+            </p>
             <p class="p">Estas políticas entran en vigor desde su publicación y son válidas hasta nuevo aviso.</p>
           </section>
         </article>
@@ -146,5 +142,86 @@
       </div>
     </footer>
   </div>
+
+  <script type="module">
+    import { pb } from './assets/js/pb.js';
+    import { currentUser, logoutAndGo, isLoggedIn } from './assets/js/services/auth_service.js';
+
+    // ————————————————————————————————————————————————
+    // Header: avatar / menú usuario
+    // ————————————————————————————————————————————————
+    const me = currentUser();
+    const headerWrap = document.querySelector('[data-component="UserMenu"] [data-part="summary"]');
+    const headerImg  = document.querySelector('[data-component="UserMenu"] [data-part="avatar"]');
+    const logoutLink = [...document.querySelectorAll('[data-part="menu-item"]')].find(a => a.textContent.includes("Cerrar sesión"));
+
+    function mountAvatarOrInitials({ container, imgEl, nameOrUser, fileUrl }) {
+      if (!container) return;
+      container.querySelector('.avatar-initials')?.remove();
+      if (fileUrl) {
+        if (imgEl) { imgEl.src = fileUrl; imgEl.alt = nameOrUser || "avatar"; imgEl.style.display = "block"; }
+      } else {
+        if (imgEl) imgEl.style.display = "none";
+        const initials = (nameOrUser||"?").toString().trim().split(/\s+/).map(w=>w[0]).slice(0,2).join("").toUpperCase();
+        const div = document.createElement('div');
+        div.className = 'avatar-initials';
+        div.textContent = initials;
+        container.appendChild(div);
+      }
+    }
+
+    if (isLoggedIn()) {
+      const meUrl = me?.avatar ? pb.files.getUrl(me, me.avatar, { token: pb.authStore.token, thumb: "100x100" }) : null;
+      mountAvatarOrInitials({ container: headerWrap, imgEl: headerImg, nameOrUser: me?.name || me?.username, fileUrl: meUrl });
+      if (logoutLink) logoutLink.addEventListener("click", (e) => { e.preventDefault(); logoutAndGo("login.html"); });
+    } else {
+      const userMenu = document.querySelector('[data-component="UserMenu"]');
+      if (userMenu) userMenu.style.display = 'none';
+    }
+
+    // ————————————————————————————————————————————————
+    // Logo → home si logueado, index si no
+    // ————————————————————————————————————————————————
+    const logoLink = document.querySelector('[data-part="logo-link"]');
+    if (logoLink) {
+      logoLink.setAttribute('href', isLoggedIn() ? 'home.html' : 'index.html');
+    }
+
+    // ————————————————————————————————————————————————
+    // Sidebar dinámica según sesión
+    // ————————————————————————————————————————————————
+    const sidebarNav = document.querySelector('[data-component="SiteNav"]');
+    const currentFile = location.pathname.split('/').pop() || 'legalpolitics.html';
+
+    function buildLink({ href, label, current = false }) {
+      const a = document.createElement('a');
+      a.href = href;
+      a.textContent = label;
+      a.setAttribute('data-part', 'nav-link');
+      if (current) a.setAttribute('aria-current', 'page');
+      return a;
+    }
+
+    const items = isLoggedIn()
+      ? [
+          { href: 'home.html',          label: '🏠 Inicio' },
+          { href: 'photos.html',        label: '🖼️ Fotos' },
+          { href: 'chats.html',         label: '💬 Chats' },
+          { href: 'events.html',        label: '🎉 Eventos' },
+          { href: 'legalpolitics.html', label: '⚖️ Políticas' },
+        ]
+      : [
+          { href: 'index.html',         label: '🏠 Inicio' },
+          { href: 'legalpolitics.html', label: '⚖️ Políticas' },
+        ];
+
+    if (sidebarNav) {
+      sidebarNav.innerHTML = '';
+      items.forEach(item => {
+        const isCurrent = item.href === currentFile;
+        sidebarNav.appendChild(buildLink({ ...item, current: isCurrent }));
+      });
+    }
+  </script>
 </body>
 </html>

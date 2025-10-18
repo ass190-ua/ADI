@@ -1,8 +1,7 @@
-// users_services.js
 import { pb } from "../pb.js";
 
 export function me() {
-  return pb.authStore.model; // rápido desde sesión
+  return pb.authStore.model; 
 }
 
 export async function refreshMe() {

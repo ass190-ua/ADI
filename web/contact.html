@@ -42,10 +42,7 @@
     <!-- Shell de la app: sidebar + contenido -->
     <main class="app-shell" data-component="AppShell">
       <aside class="sidebar" data-component="Sidebar">
-        <nav class="sidebar-nav" aria-label="Principal" data-component="SiteNav">
-          <a href="index.html" data-part="nav-link">🏠 Inicio</a>
-          <a href="contact.html" aria-current="page" data-part="nav-link">✉️ Contacto</a>
-        </nav>
+        <nav class="sidebar-nav" aria-label="Principal" data-component="SiteNav"></nav>
       </aside>
 
       <!-- Contenido principal -->
@@ -127,12 +124,12 @@
     </footer>
   </div>
 
-  <!-- ✅ SCRIPT COMPLETO Y FUNCIONAL -->
   <script type="module">
     import { pb } from './assets/js/pb.js';
     import { currentUser, logoutAndGo, isLoggedIn } from './assets/js/services/auth_service.js';
+    import { sendContactMessage } from './assets/js/services/contact_messages_service.js';
 
-    // 1. Lógica del Header (ahora comprueba si hay sesión)
+    // 1. Lógica del Header 
     const me = currentUser();
     const headerWrap = document.querySelector('[data-component="UserMenu"] [data-part="summary"]');
     const headerImg  = document.querySelector('[data-component="UserMenu"] [data-part="avatar"]');
@@ -162,6 +159,59 @@
     } else {
         const userMenu = document.querySelector('[data-component="UserMenu"]');
         if(userMenu) userMenu.style.display = 'none';
+    }
+
+    // ————————————————————————————————————————————————
+    // Actualizar enlace del logo según sesión
+    // ————————————————————————————————————————————————
+    const logoLink = document.querySelector('[data-part="logo-link"]');
+    if (logoLink) {
+      if (isLoggedIn()) {
+        logoLink.setAttribute('href', 'home.html');
+      } else {
+        logoLink.setAttribute('href', 'index.html');
+      }
+    }
+
+    // ————————————————————————————————————————————————
+    // Sidebar dinámica según sesión
+    // ————————————————————————————————————————————————
+    const sidebarNav = document.querySelector('[data-component="SiteNav"]');
+
+    function buildLink({ href, label, current = false }) {
+      const a = document.createElement('a');
+      a.href = href;
+      a.textContent = label;
+      a.setAttribute('data-part', 'nav-link');
+      if (current) a.setAttribute('aria-current', 'page');
+      return a;
+    }
+
+    // Detectar archivo actual para marcar aria-current si no lo indicamos a mano
+    const currentFile = location.pathname.split('/').pop() || 'contact.html';
+
+    // Items según estado de sesión
+    const items = isLoggedIn()
+      ? [
+          { href: 'home.html',   label: '🏠 Inicio' },
+          { href: 'photos.html',  label: '🖼️ Fotos' },
+          { href: 'chats.html', label: '💬 Chats' },
+          { href: 'events.html', label: '🎉 Eventos' },
+          { href: 'contact.html',label: '✉️ Contacto' },
+        ]
+      : [
+          { href: 'index.html',  label: '🏠 Inicio' },
+          { href: 'contact.html',label: '✉️ Contacto' },
+        ];
+
+    // Render
+    if (sidebarNav) {
+      sidebarNav.innerHTML = '';
+      items.forEach(item => {
+        // Marca como actual si coincide con el archivo cargado
+        const isCurrent = item.href === currentFile || (item.current === true);
+        sidebarNav.appendChild(buildLink({ ...item, current: isCurrent }));
+      });
     }
 
     // 2. Lógica del formulario de contacto
@@ -206,7 +256,7 @@
       submitBtn.textContent = 'Enviando...';
 
       try {
-        await pb.collection('contact_messages').create(data);
+        await sendContactMessage(data);
         window.location.hash = 'enviado';
         form.reset();
       } catch (err) {

@@ -1,4 +1,3 @@
-// assets/js/services/photos_services.js
 import { pb } from "../pb.js";
 
 const COLL = "photos";
@@ -23,7 +22,6 @@ export function fileUrl(rec, fileOrField, thumb) {
   return pb.files.getUrl(rec, filename, opts);
 }
 
-// ✅ ÚNICA FUNCIÓN DE LISTADO. Acepta un filtro.
 export async function listPhotos({ page = 1, perPage = 24, sort = "-created", filter = "" } = {}) {
   return pb.collection(COLL).getList(page, perPage, { sort, filter });
 }
