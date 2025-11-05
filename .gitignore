@@ -1,0 +1,54 @@
+# === DEPENDENCIAS ===
+node_modules/
+pnpm-lock.yaml
+yarn.lock
+package-lock.json
+
+# === BUILD / DIST ===
+dist/
+build/
+coverage/
+
+# === CONFIGURACIÓN LOCAL ===
+.env
+.env.local
+.env.*.local
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# === LOGS ===
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# === SISTEMA / TEMPORALES ===
+*.log
+*.tmp
+*.swp
+*.swo
+*.bak
+
+# === CACHE ===
+.cache/
+.eslintcache
+vite.config.ts.timestamp-*
+vite.config.js.timestamp-*
+*.tsbuildinfo
+
+# === TESTS ===
+/test-results/
+/cypress/screenshots/
+/cypress/videos/
+
+# === DOCUMENTOS GENERADOS ===
+*.zip
+*.rar
+*.7z
+
+# === SERVIDOR POCKETBASE LOCAL (si lo usas) ===
+/pb_data/
+/pb_public/
+/pb_hooks/
