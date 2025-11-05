@@ -8,6 +8,7 @@ const LandingView = () => import('../views/LandingView.vue');
 const HomeView = () => import('../views/HomeView.vue');
 const ContactView = () => import('../views/ContactView.vue');
 const PhotosView = () => import('../views/PhotosView.vue');
+const FriendsView = () => import('../views/FriendsView.vue');
 const ChatsView = () => import('../views/ChatsView.vue');
 const ProfileView = () => import('../views/ProfileView.vue');
 const LegalPoliciesView = () => import('../views/LegalPoliciesView.vue');
@@ -49,6 +50,12 @@ const routes = [
     path: '/photos',
     name: 'photos',
     component: PhotosView,
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/friends',
+    name: 'friends',
+    component: FriendsView,
     meta: { requiresAuth: true }
   },
   {

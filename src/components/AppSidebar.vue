@@ -29,6 +29,7 @@ const baseLinks = computed(() => {
     return [
       { to: '/home',   label: '🏠 Inicio' },
       { to: '/photos', label: '🖼️ Fotos' },
+      { to: '/friends', label: '👥 Amigos' },
       { to: '/chats',  label: '💬 Chats' },
       { to: '/events', label: '🎉 Eventos' },
     ];
@@ -51,7 +52,9 @@ const contextualLinks = computed(() => {
   if (name === 'profile' || path === '/profile') {
     extras.push({ to: '/profile', label: '👤 Perfil' });
   }
-
+  if (name === 'friends' || path === '/friends') {
+    extras.push({ to: '/friends', label: '👥 Amigos' });
+  }
   
   return extras;
 });
