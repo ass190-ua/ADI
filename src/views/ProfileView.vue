@@ -57,7 +57,7 @@
               <div v-else class="avatar-initials" style="width:64px; height:64px; font-size:24px;">{{ userInitials }}</div>
             </div>
             <div>
-              <button class="btn ghost" type="button" @click="triggerAvatarUpload">Cambiar avatar</button>
+              <button class="btn ghost" type="button" @click="triggerAvatarUpload" style="color: white;">Cambiar avatar</button>
               <input ref="avatarInput" type="file" accept="image/*" style="display:none;" @change="handleAvatarUpload" />
             </div>
           </div>
