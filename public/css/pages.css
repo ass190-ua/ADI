@@ -1,126 +1,100 @@
-/* =====================================================
+/* =============================================================
    PAGES.css — Estilos específicos de páginas / vistas
    (Landing, Home, Chats, Auth, Perfil, Contacto, Events, etc.)
-   ===================================================== */
+   -------------------------------------------------------------
+   Objetivo:
+   - Reunir estilos que solo aplican a ciertas páginas.
+   - Mantener componentes globales en BASE.css / COMPONENTS.css.
+   - Comentar cada bloque con intención y notas de UX.
+   ============================================================= */
 
-/* ---------- Landing ---------- */
+/* =============================
+   LANDING (portada / marketing)
+   ============================= */
+/* Hero básico centrado */
 .landing .hero{ 
-  text-align:center; 
+  text-align:center;                         /* Centra titulares y textos intro */
 }
+/* Marco para contenido de preview (capturas/demo) */
 .landing .preview{ 
-  border:1px dashed var(--border); 
+  border:1px dashed var(--border);           /* Borde discontinuo para distinguir */
   border-radius:16px; 
   padding:10px; 
   opacity:.85; 
 }
+/* Header translúcido con leve blur sobre la hero */
 .landing-header{ 
   background: linear-gradient(180deg, rgba(255,255,255,.02), rgba(0,0,0,0)); 
   backdrop-filter: blur(6px); 
 }
 
-/* Hero "one-screen" */
+/* Hero a pantalla casi completa con fondo decorativo */
 .hero-full{ 
-  display:flex; 
-  align-items:center; 
-  justify-content:center; 
-  text-align:center; 
-  padding:24px 0; 
-  position:relative; 
+  display:flex; align-items:center; justify-content:center; text-align:center; 
+  padding:24px 0; position:relative; 
 }
-.hero-full::before{
+.hero-full::before{                           /* Capa de gradientes radiales detrás */
   content:""; position:absolute; inset:0; z-index:-1;
   background:
     radial-gradient(600px 300px at 20% 30%, rgba(122,162,247,.14), transparent 70%),
     radial-gradient(600px 300px at 80% 20%, rgba(166,218,149,.12), transparent 70%);
 }
+/* Contenedor central de la hero (máximo legible) */
 .hero-center{ 
-  width:min(980px,92%); 
-  margin-inline:auto; 
-  display:flex; 
-  flex-direction:column; 
-  gap:16px;            /* un pelín más compacto para ayudar al footer */
-  align-items:center; 
+  width:min(980px,92%); margin-inline:auto; 
+  display:flex; flex-direction:column; gap:16px; align-items:center; 
 }
-.hero-center .h1{ 
-  max-width:700px; 
-  margin:0; 
-}
-.hero-center .lead{ 
-  max-width:640px; 
-  font-size:1.1rem; 
-  margin-top:-2px;
-}
-.hero-center .cta{ 
-  display:flex; 
-  gap:12px; 
-  flex-wrap:wrap; 
-  justify-content:center; 
-}
+.hero-center .h1{ max-width:700px; margin:0; }
+.hero-center .lead{ max-width:640px; font-size:1.1rem; margin-top:-2px; }
+.hero-center .cta{ display:flex; gap:12px; flex-wrap:wrap; justify-content:center; }
+/* Texto degradado para palabras-clave */
 .grad{ 
   background: linear-gradient(90deg, var(--primary), var(--accent)); 
-  -webkit-background-clip:text; 
-  background-clip:text; 
-  color:transparent; 
+  -webkit-background-clip:text; background-clip:text; color:transparent; 
 }
 
-/* --- Landing: preview controlada y beneficios en línea --- */
+/* ---------- Landing: preview controlada + fallback ---------- */
 .preview-large{
-  max-width: 860px;        /* evita que la imagen se haga gigante */
-  margin-inline: auto;
-  border-radius: 16px;
-  overflow: hidden;
-  box-shadow: var(--shadow);
+  max-width: 860px;                           /* Evita capturas gigantes */
+  margin-inline: auto; border-radius: 16px; overflow: hidden; box-shadow: var(--shadow);
 }
 .preview-large img{
-  width: 100%;
-  height: clamp(260px, 42vh, 420px);  /* controla el alto para no forzar scroll */
-  object-fit: cover;
-  display: block;
+  width: 100%; height: clamp(260px, 42vh, 420px); /* Altura adaptativa, sin desbordes */
+  object-fit: cover; display: block;
 }
-.preview-fallback{
-  min-height: 260px;
-  display: none;           /* se muestra desde el onerror del <img> */
-  place-items: center;
+.preview-fallback{                             /* Placeholder si falla la imagen */
+  min-height: 260px; display: none;            /* Mostrar con onerror en el <img> */
+  place-items: center; 
   background: linear-gradient(180deg, rgba(255,255,255,.03), rgba(0,0,0,.12));
   color: var(--muted);
 }
 
-/* Beneficios siempre en una sola fila */
+/* ---------- Beneficios en una fila (wrap solo en móvil) ---------- */
 .benefits {
-  display: flex;
-  justify-content: center;
-  align-items: stretch;
-  gap: 12px;
-  margin-top: 18px;
-  flex-wrap: nowrap;   /* 🔒 no se permite salto de línea */
+  display: flex; justify-content: center; align-items: stretch; gap: 12px; margin-top: 18px;
+  flex-wrap: nowrap;                            /* 🔒 Sin salto en desktop */
 }
-
-.benefits > .card {
-  flex: 1 1 0;         /* todos ocupan el mismo espacio */
-  min-width: 0;        /* permite que encojan si la pantalla es muy estrecha */
-  text-align: center;
-  padding: 10px 12px;
+.benefits > .card { 
+  flex: 1 1 0; min-width: 0;                   /* Equitativo y con posibilidad de encoger */
+  text-align: center; padding: 10px 12px; 
 }
-
-/* En móviles permitimos wrap */
-@media (max-width: 680px){
+@media (max-width: 680px){                     /* En móvil sí permitimos multi-línea */
   .benefits{ flex-wrap: wrap; }
   .benefits > .card{ flex: 1 1 46%; }
 }
 
-/* ---------- Home ---------- */
+/* ============================
+   HOME (dashboard del usuario)
+   ============================ */
 .home .grid-cards{ 
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); 
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); /* Cards fluidas */
 }
-.card.link{ 
-  cursor:pointer; 
-  transition: transform .12s ease; 
-}
-.card.link:hover{ 
-  transform: translateY(-4px); 
-}
+.card.link{ cursor:pointer; transition: transform .12s ease; }
+.card.link:hover{ transform: translateY(-4px); }
 
-/* ---------- Footer tipo BookCase ---------- */
+/* ========================
+   FOOTER estilo "BookCase"
+   ======================== */
 .book-footer{ 
   background: rgba(255,255,255,.02); 
   border-top:1px solid rgba(0,0,0,.35); 
@@ -128,611 +102,236 @@
   color:#cfd8e3; 
 }
 .book-footer .navline{ 
-  display:flex; 
-  align-items:center; 
-  justify-content:center; 
-  gap:14px; 
-  flex-wrap:wrap; 
-  margin-bottom:6px; 
+  display:flex; align-items:center; justify-content:center; gap:14px; flex-wrap:wrap; margin-bottom:6px; 
 }
-.book-footer .footer-link{ 
-  color:#e6edf3; 
-  font-weight:500; 
-}
-.book-footer .footer-link:hover{ 
-  text-decoration: underline; 
-}
-.book-footer .sep{ 
-  opacity:.6; 
-}
-.book-footer .social{ 
-  display:flex; 
-  gap:12px; 
-}
+.book-footer .footer-link{ color:#e6edf3; font-weight:500; }
+.book-footer .footer-link:hover{ text-decoration: underline; }
+.book-footer .sep{ opacity:.6; }
+.book-footer .social{ display:flex; gap:12px; }
 .book-footer .social .icon{ 
-  display:inline-flex; 
-  align-items:center; 
-  justify-content:center; 
-  width:28px; 
-  height:28px; 
-  border-radius:999px; 
-  background: rgba(255,255,255,.06); 
-  color:#e6edf3; 
+  display:inline-flex; align-items:center; justify-content:center; width:28px; height:28px; border-radius:999px; 
+  background: rgba(255,255,255,.06); color:#e6edf3; 
   transition: transform .12s ease, background .12s ease, color .12s ease; 
 }
 .book-footer .social .icon:hover{ 
-  transform: translateY(-2px); 
-  background: rgba(255,255,255,.12); 
-  color:#fff; 
+  transform: translateY(-2px); background: rgba(255,255,255,.12); color:#fff; 
 }
-.book-footer .copy{ 
-  text-align:center; 
-  color: rgba(255,255,255,.7); 
-  font-size: 12px; 
-}
-
+.book-footer .copy{ text-align:center; color: rgba(255,255,255,.7); font-size: 12px; }
 @media (max-width:560px){
-  .hero-center .h1{ font-size:28px; }
+  .hero-center .h1{ font-size:28px; }            /* Ajuste de jerarquía en pantallas pequeñas */
   .preview-large{ max-width:92vw; }
 }
 
-/* ---------- Auth (login/register) centrado ---------- */
+/* ================================
+   AUTH (login / registro) centrado
+   ================================ */
 .auth-page{ 
-  display:grid; 
-  place-items:center; 
-  min-height:100%; 
+  display:grid; place-items:center; min-height:100%;   /* Centrado perfecto en viewport */
 }
 
-/* ---------- Perfil ---------- */
+/* ===================================
+   PERFIL (cabecera y avatar editable)
+   =================================== */
 .profile-hero{
   height:160px; border-radius:16px;
   background:
     radial-gradient(600px 280px at 15% 40%, rgba(122,162,247,.20), transparent 70%),
     radial-gradient(600px 280px at 85% 20%, rgba(166,218,149,.16), transparent 70%),
     linear-gradient(180deg, rgba(255,255,255,.02), rgba(255,255,255,0));
-  position: relative; 
-  overflow: hidden;
+  position: relative; overflow: hidden;          /* Recorta la decoración */
 }
-.profile-header-card{ 
-  margin-top:-46px; 
-  position:relative; 
-  z-index:1; 
-}
-.avatar-lg{ 
-  width:88px; 
-  height:88px; 
-  border-radius:50%; 
-  overflow:hidden; 
-}
-.avatar-lg img{ 
-  width:100%; 
-  height:100%; 
-  object-fit:cover; 
-  display:block; 
-}
-.avatar-edit{ 
-  position:relative; 
-}
-.avatar-edit input[type="file"]{ 
-  position:absolute; 
-  inset:0; 
-  opacity:0; 
-  cursor:pointer; 
-  z-index:3; 
-}
+.profile-header-card{ margin-top:-46px; position:relative; z-index:1; }
+.avatar-lg{ width:88px; height:88px; border-radius:50%; overflow:hidden; }
+.avatar-lg img{ width:100%; height:100%; object-fit:cover; display:block; }
+/* Contenedor para input de subir avatar, con overlay de icono */
+.avatar-edit{ position:relative; }
+.avatar-edit input[type="file"]{ position:absolute; inset:0; opacity:0; cursor:pointer; z-index:3; }
 .avatar-badge{
-  position:absolute; 
-  inset:0; 
-  margin:auto; 
-  width:48px; 
-  height:48px; 
-  border-radius:50%;
-  background: rgba(0,0,0,0.6); 
-  display:grid; 
-  place-items:center; 
-  color:#fff; 
-  font-size:22px;
-  z-index:2; 
-  opacity:0; 
-  transition: opacity .2s;
+  position:absolute; inset:0; margin:auto; width:48px; height:48px; border-radius:50%;
+  background: rgba(0,0,0,0.6); display:grid; place-items:center; color:#fff; font-size:22px; z-index:2; opacity:0; transition: opacity .2s;
 }
-.avatar-edit:hover .avatar-badge{ 
-  opacity:1; 
-  transform: translateY(-1px); 
-  transition: transform .12s ease; 
-}
+.avatar-edit:hover .avatar-badge{ opacity:1; transform: translateY(-1px); transition: transform .12s ease; }
 .avatar-badge::before{ content:"📷"; }
 
-/* ---------- Selects (mejoras de UX) ---------- */
-.input select:hover{ 
-  border-color: rgba(122,162,247,.6); 
-}
-.input select:focus{ 
-  outline:2px solid var(--primary); 
-  outline-offset:2px; 
-}
-.input select option{ 
-  background: var(--panel); 
-  color: var(--text); 
-}
-.input select option:checked, .input select option:hover{ 
-  background: rgba(122,162,247,.25); 
-  color: var(--text); 
-}
+/* Selects: mejorar focus/hover y consistencia de tema */
+.input select:hover{ border-color: rgba(122,162,247,.6); }
+.input select:focus{ outline:2px solid var(--primary); outline-offset:2px; }
+.input select option{ background: var(--panel); color: var(--text); }
+.input select option:checked, .input select option:hover{ background: rgba(122,162,247,.25); color: var(--text); }
 
-/* ---------- Contacto ---------- */
+/* ======================================
+   CONTACTO (mapa y layout de formulario)
+   ====================================== */
 .contact-map{
-  margin-top:12px; 
-  width:100%; 
-  aspect-ratio: 16/9; 
-  border-radius:12px; 
-  overflow:hidden; 
-  border:1px solid var(--border);
-  background: var(--panel); 
-  display:grid; 
-  place-items:center;
+  margin-top:12px; width:100%; aspect-ratio: 16/9; border-radius:12px; overflow:hidden; border:1px solid var(--border);
+  background: var(--panel); display:grid; place-items:center;    /* Placeholder si no hay mapa */
 }
-.contact-map .map-fallback{ 
-  color: var(--text); 
-  opacity:.7; 
-  font-size:.95rem; 
-}
-.contact-hero{
-  display:flex; 
-  align-items:center; 
-  justify-content:space-between; 
-  gap:12px;
+.contact-map .map-fallback{ color: var(--text); opacity:.7; font-size:.95rem; }
+.contact-hero{ 
+  display:flex; align-items:center; justify-content:space-between; gap:12px;
   background:
     radial-gradient(600px 280px at 15% 40%, rgba(122,162,247,.18), transparent 70%),
     radial-gradient(600px 280px at 85% 20%, rgba(166,218,149,.14), transparent 70%);
 }
-.contact-grid{ 
-  margin-top:14px; 
-  grid-template-columns: 1.4fr .9fr; 
-  gap:16px; 
-}
+/* Dos columnas: formulario + info; colapsa a una en móvil */
+.contact-grid{ margin-top:14px; grid-template-columns: 1.4fr .9fr; gap:16px; }
 @media (max-width: 900px){ .contact-grid{ grid-template-columns: 1fr; } }
-.contact-form .consent{ 
-  display:flex; 
-  align-items:center; 
-  gap:8px; 
+.contact-form .consent{ display:flex; align-items:center; gap:8px; }
+.contact-actions{ justify-content:flex-end; gap:8px; margin-top:6px; }
+.contact-form .input input, .contact-form .input textarea{ background: var(--surface, #0f1320); border-radius:12px; }
+
+/* ==============================================
+   CHATS (lista de hilos + panel de conversación)
+   ============================================== */
+/* Contenedor de 2 columnas: lista (320px) + panel */
+.chats-grid {
+  margin-top: 12px; display: grid; grid-template-columns: 320px 1fr; gap: 16px;
+  height: var(--chat-viewport);                 /* Ajuste dinámico a viewport */
 }
-.contact-actions{ 
-  justify-content:flex-end; 
-  gap:8px; 
-  margin-top:6px; 
-}
-.contact-form .input input, .contact-form .input textarea{ 
-  background: var(--surface, #0f1320); 
-  border-radius:12px; 
+/* Móvil: una columna; la lista se oculta cuando hay chat activo */
+@media (max-width: 980px) {
+  .chats-grid { grid-template-columns: 1fr; height: auto; }
+  .chats-list { display: none; }
+  .chats-grid.chat-active .chats-list { display: none; }
+  .chats-grid.chat-active .chat-panel { display: flex; }
 }
 
-/* ---------- Vista Chats (lista + panel) ---------- */
-.chats-grid{
-  margin-top:12px;
-  display:grid;
-  grid-template-columns: 320px 1fr;
-  gap:16px;
+/* Panel lateral con hilos */
+.chats-list { padding: 12px; display: flex; flex-direction: column; gap: 8px; height: 100%; overflow: auto; }
+.thread-list { list-style: none; padding: 0; margin: 0; display: grid; gap: 6px; }
+.thread {                                         /* Ítem de hilo de conversación */
+  display: grid; grid-template-columns: 44px 1fr auto; align-items: center; gap: 10px;
+  padding: 8px; border-radius: 12px; color: var(--text); cursor: pointer; outline: none;
 }
-@media (max-width:980px){ .chats-grid{ grid-template-columns: 1fr; } }
+.thread:hover { background: rgba(122, 162, 247, 0.1); border-color: transparent !important; }
+.thread[aria-current="true"] { background: rgba(122, 162, 247, 0.14); border-color: transparent !important; outline: none !important; }
+/* Eliminamos contorno por defecto (se compensa con fondo activo) */
+.thread:focus,
+.thread:focus-visible { outline: none !important; border-color: transparent !important; box-shadow: none !important; }
+.thread .avatar { width: 44px; height: 44px; border-radius: 50%; overflow: hidden; }
+.thread .avatar img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.thread .meta { display: grid; grid-template-columns: 1fr; row-gap: 2px; width: 100%; min-width: 0; }
+.thread .name { font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.thread .preview { font-size: 0.9rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--muted); }
+.thread .badge { background: var(--primary); color: #fff; font-size: 0.75rem; padding: 2px 8px; border-radius: 999px; font-weight: 600; margin-left: auto; }
 
-.chats-list{
-  padding:12px;
-  display:flex;
-  flex-direction:column;
-  gap:8px;
-  height: var(--chat-viewport);   
-  overflow:auto;
+/* Panel de conversación con textura de fondo y layout en columnas */
+.chat-panel {
+  display: flex; flex-direction: column; align-items: stretch; justify-content: flex-start;
+  padding: 0; height: 100%; text-align: initial; overflow: hidden;
+  background-color: var(--bg);                    /* color base del tema */
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40' viewBox='0 0 40 40'%3E%3Cg fill-rule='evenodd'%3E%3Cg fill='%231f2937' fill-opacity='0.4'%3E%3Cpath d='M0 38.59l2.83-2.83 1.41 1.41L1.41 40H0v-1.41zM0 1.4l2.83 2.83 1.41-1.41L1.41 0H0v1.41zM38.59 40l-2.83-2.83 1.41-1.41L40 38.59V40h-1.41zM40 1.41l-2.83 2.83-1.41-1.41L38.59 0H40v1.41zM20 18.6l2.83-2.83 1.41 1.41L21.41 20l2.83 2.83-1.41 1.41L20 21.41l-2.83 2.83-1.41-1.41L18.59 20l-2.83-2.83 1.41-1.41L20 18.59z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
 }
-.thread-list{ 
-  list-style:none; 
-  padding:0; 
-  margin:0; 
-  display:grid; 
-  gap:6px; 
-}
-.thread{
-  display:grid; 
-  grid-template-columns: 44px 1fr auto; 
-  align-items:center; 
-  gap:10px;
-  padding:8px; border-radius:12px; color: var(--text); border:1px solid transparent;
-}
-.thread:hover{ 
-  background: rgba(122,162,247,.10); 
-  border-color: rgba(122,162,247,.25); 
-}
-.thread[aria-current="true"]{ 
-  background: rgba(122,162,247,.14); 
-  border-color: rgba(122,162,247,.4); 
-}
-.thread .avatar{ 
-  width:44px; 
-  height:44px; 
-  border-radius:50%; 
-  overflow:hidden; 
-}
-.thread .avatar img{ 
-  width:100%; 
-  height:100%; 
-  object-fit:cover; 
-  display:block; 
-}
-.thread .meta{ 
-  display:grid; 
-  grid-template-columns: 1fr auto; 
-  row-gap:2px; 
-  column-gap:8px; 
-  width:100%; 
-}
-.thread .name{ 
-  font-weight:600; 
-}
-.thread .time{ 
-  opacity:.7; 
-  font-size:.9em; 
-}
-.thread .preview{ 
-  grid-column:1 / -1; 
-  opacity:.8; 
-  white-space:nowrap; 
-  overflow:hidden; 
-  text-overflow:ellipsis; 
-}
-.thread .badge{ 
-  background:#ef4444; 
-  color:#fff; 
-  font-size:.75rem; 
-  padding:2px 8px; 
-  border-radius:999px; 
+[data-theme='light'] .chat-panel {              /* Variante clara de la textura */
+  background-color: var(--bg);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40' viewBox='0 0 40 40'%3E%3Cg fill-rule='evenodd'%3E%3Cg fill='%23e5e7eb' fill-opacity='0.6'%3E%3Cpath d='M0 38.59l2.83-2.83 1.41-1.41L1.41 40H0v-1.41zM0 1.4l2.83 2.83 1.41-1.41L1.41 0H0v1.41zM38.59 40l-2.83-2.83 1.41-1.41L40 38.59V40h-1.41zM40 1.41l-2.83 2.83-1.41-1.41L38.59 0H40v1.41zM20 18.6l2.83-2.83 1.41 1.41L21.41 20l2.83 2.83-1.41 1.41L20 21.41l-2.83 2.83-1.41-1.41L18.59 20l-2.83-2.83 1.41-1.41L20 18.59z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
 }
 
-/* ---------- Panel de chat vacío y entrada ---------- */
-.chat-panel{
-  display:flex;
-  flex-direction:column;
-  align-items:stretch;
-  justify-content:flex-start;
-  padding:12px;
-  height: var(--chat-viewport);   
-  text-align: initial;
+/* Header del chat (3 filas potenciales: título, acciones, búsqueda) */
+.chat-header { 
+  display: flex; flex-direction: column; gap: 10px; padding: 12px 20px;
+  background: var(--panel); border-bottom: 1px solid var(--border); box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); z-index: 2;
 }
-.empty-chat .avatar-lg{ 
-  width:72px; 
-  height:72px; 
-}
-.chat-input{ 
-  margin-top:14px; 
-  width:min(720px, 100%); 
-}
+.chat-header .avatar { width: 40px; height: 40px; border-radius: 50%; overflow: hidden; }
+.chat-header .avatar img { width: 100%; height: 100%; object-fit: cover; }
+.chat-header .avatar-initials { width: 40px; height: 40px; font-size: 1rem; }
+.chat-header .input { background: var(--bg); border-radius: 10px; }
 
-/* ---------- Conversación WhatsApp-like ---------- */
-.chat-header{
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  margin:0 0 8px 0;
-  padding:10px 12px;
-  border-bottom:1px solid var(--border);
-}
-/* Hilo activo ocupa toda la columna */
-.chat-thread{
-  display:none; 
-  flex:1 1 auto; 
-  min-height:0; 
-  overflow:hidden;
-}
-.chat-thread:target{
-  display:flex; 
-  flex-direction:column; 
-  gap:8px;
-}
-.chat-thread > .chat-compose { 
-  margin-top: auto;   
-}
+/* Separador "sticky" para marcar fechas en la timeline */
+.chat-sticky-header { position: sticky; top: 8px; z-index: 1; display: grid; place-items: center; padding: 4px 0 10px; }
+.chat-sticky-header::before { content: attr(aria-label); font-size: 12px; font-weight: 600; opacity: 0.9; background: var(--panel); border: 1px solid var(--border); padding: 4px 10px; border-radius: 999px; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); }
 
-/* Secciones de timeline */
-.chat-timeline{ 
-  display:flex; 
-  flex-direction:column; 
-  gap:6px; 
-  flex:1 1 auto; 
-  min-height:0; 
-}
-.chat-sticky-header{
-  position:sticky; 
-  top:0; 
-  z-index:1;
-  display:grid; 
-  place-items:center; 
-  padding:8px 0 2px;
-}
-.chat-sticky-header::before{
-  content: attr(aria-label);
-  font-size:12px; opacity:.9;
-  background: #0f172a; border:1px solid var(--border);
-  padding:4px 10px; border-radius:999px;
-}
+/* Área de scroll principal del hilo */
+.chat-timeline { flex: 1 1 auto; min-height: 0; overflow-y: auto; overflow-x: hidden; padding: 0 8px; scroll-behavior: smooth; }
+/* Scrollbars personalizadas (WebKit) */
+.chat-timeline::-webkit-scrollbar,
+.chats-list::-webkit-scrollbar { width: 6px; }
+.chat-timeline::-webkit-scrollbar-track,
+.chats-list::-webkit-scrollbar-track { background: transparent; }
+.chat-timeline::-webkit-scrollbar-thumb,
+.chats-list::-webkit-scrollbar-thumb { background: var(--border); border-radius: 10px; }
+.chat-timeline::-webkit-scrollbar-thumb:hover,
+.chats-list::-webkit-scrollbar-thumb:hover { background: var(--muted); }
 
-/* El scroll de mensajes está aquí, no en la página */
-.chat-scroll{
-  flex:1 1 auto; 
-  min-height:0; 
-  overflow:auto;
-  padding:8px 8px 0;
-  scroll-behavior:smooth;
+/* Composer fijo en la parte inferior del panel */
+.chat-compose { 
+  display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 10px; padding: 12px 20px; 
+  background: var(--panel); border-top: 1px solid var(--border); z-index: 2; 
 }
+.chat-compose .input input { 
+  width: 100%; border-radius: 999px; padding: 10px 16px; background: var(--bg); border: 1px solid var(--border); transition: border-color 0.2s; 
+}
+.chat-compose .input input:focus { border-color: var(--primary); background: var(--panel); }
+.chat-compose .send-btn { height: 44px; width: 44px; border-radius: 50%; padding: 0; display: grid; place-items: center; flex-shrink: 0; }
+.chat-compose .send-btn .icon-send { width: 20px; height: 20px; stroke: var(--chat-bubble-out-text); stroke-width: 2; fill: none; stroke-linecap: round; stroke-linejoin: round; transform: translateX(1px); }
 
-.chat-panel .msg{
-  padding: 0 !important;
-  border: 0 !important;
-  background: transparent !important;
-  border-radius: 0 !important;
-}
+/* Resaltado de términos buscados dentro de burbujas */
+.bubble mark { background: #facc15; color: #111827; border-radius: 3px; padding: 0 2px; }
 
-/* ---------- Composer fijo al fondo del panel ---------- */
-.chat-compose{
-  display:grid;
-  grid-template-columns: 36px 1fr 36px auto;
-  align-items:center;
-  gap:10px;
-  padding:8px 10px;
-  border-top:1px solid var(--border);
-  background: var(--panel);
-  border-radius:12px;
-  margin-top:8px;
-}
-.chat-compose .input{ 
-  flex:1; 
-}
-.chat-compose .input input{ 
-  width:100%; 
-}
+/* =========================================
+   MENSAJES (burbujas con agrupación visual)
+   ========================================= */
+.msgs { list-style: none; margin: 0; padding: 16px; display: grid; gap: 4px; }
+.msg { display: grid; background: transparent; padding: 0; border: 0; border-radius: 0; margin-top: 8px; max-width: 70%; }
+@media (max-width: 600px) { .msg { max-width: 80%; } }
+.msg.in { justify-self: start; }
+.msg.out { justify-self: end; }
 
-/* Router sin JS */
-.chat-thread:target ~ .empty-chat{ 
-  display:none; 
-}
+/* Burbujas de entrada/salida con colitas y metadatos */
+.msg .bubble { position: relative; padding: 8px 12px 14px; border-radius: 18px; line-height: 1.4; word-wrap: break-word; text-align: left; }
+.msg.in .bubble { background: var(--chat-bubble-in-bg); color: var(--chat-bubble-in-text); border-top-left-radius: 6px; }
+.msg.out .bubble { background: var(--chat-bubble-out-bg); color: var(--chat-bubble-out-text); border-top-right-radius: 6px; }
+.msg.in .bubble::after, .msg.out .bubble::after { content: ""; position: absolute; bottom: 0; width: 12px; height: 10px; background: inherit; z-index: -1; }
+.msg.in .bubble::after { left: -4px; clip-path: polygon(100% 100%, 0 100%, 100% 0); }
+.msg.out .bubble::after { right: -4px; clip-path: polygon(100% 100%, 0 100%, 0 0); }
+/* Compacta separación cuando se agrupan mensajes seguidos del mismo emisor */
+.msg.grouped { margin-top: 0; }
+.msg.in.grouped .bubble { border-top-left-radius: 18px; }
+.msg.out.grouped .bubble { border-top-right-radius: 18px; }
+.msg.in.grouped .bubble::after, .msg.out.grouped .bubble::after { content: none; }
+/* Metadatos de tiempo y ticks de lectura */
+.bubble .meta { position: absolute; right: 10px; bottom: 4px; display: inline-flex; gap: 6px; align-items: center; font-size: 11px; opacity: 0.9; }
+.bubble.out .meta { color: rgba(255, 255, 255, 0.8); }
+.bubble.in .meta { color: var(--muted); }
+.bubble .ticks.read { color: #8ab4ff; opacity: 1; }
 
-@supports selector(:has(*)){
-  @media (max-width:900px){
-    .chats-grid:has(.chat-thread:target) .chats-list{ display:none; }
-  }
-}
+/* Botones iconográficos dentro del chat (enviar/adjuntar) */
+.icon-btn{ min-width:40px; height:40px; display:grid; place-items:center; border-radius:999px; background:transparent; border:1px solid var(--border, rgba(255,255,255,.1)); }
+.icon-btn[disabled]{ opacity:.6; }
+.send-btn{ height:40px; border-radius:999px; padding-inline:14px; }
 
-/* ---------- Mensajes (burbujas compactas) ---------- */
-.msgs{
-  list-style:none;
-  margin:0;
-  padding:0 2px 10px;
-  display:grid;
-  gap:6px;
-}
+/* Indicador animado “escribiendo…” */
+.typing .bubble{ width:72px; }
+.typing-dots{ display:inline-grid; grid-auto-flow:column; gap:4px; align-items:center; }
+.typing-dots i{ width:6px; height:6px; border-radius:50%; background: currentColor; opacity:.5; animation: dot 1.2s infinite ease-in-out; }
+.typing-dots i:nth-child(2){ animation-delay:.15s } 
+.typing-dots i:nth-child(3){ animation-delay:.3s }
+@keyframes dot{ 0%,80%,100%{ transform:translateY(0); opacity:.5; } 40%{ transform:translateY(-3px); opacity:1; } }
 
-/* SIN contenedor visual alrededor */
-.msg{
-  display:grid;
-  background:transparent;      
-  padding:0;                   
-  border:0;                    
-  border-radius:0;
-}
-
-/* Burbujas más finas */
-.msg .bubble{
-  position:relative;
-  max-width: 100%;   
-  padding: 6px 10px 12px;      
-  border-radius:14px;
-  line-height:1.35;
-  box-shadow:none;
-}
-
-/* Direcciones */
-.msg.in{  
-  justify-content:start; 
-}
-.msg.out{ 
-  justify-content:end; 
-}
-
-/* Colores */
-.msg.in .bubble{
-  background:#1f2937; 
-  color:#e5e7eb; 
-  border-top-left-radius:6px;
-  margin-left: 0;
-  align-self: flex-start;              
-}
-.msg.out .bubble{
-  background:#3456d0; 
-  color:#fff;
-  border-top-right-radius:6px;
-  margin-right: 0;              
-  align-self: flex-end;         
-}
-
-/* Colitas sutiles */
-.msg.in  .bubble::after,
-.msg.out .bubble::after{
-  content:""; 
-  position:absolute; 
-  bottom:0; 
-  width:10px; 
-  height:10px; 
-  background:inherit;
-}
-.msg.in  .bubble::after{ 
-  left:-3px;  
-  border-bottom-left-radius:10px;  
-  transform:translateY(1px) rotate(45deg); 
-}
-.msg.out .bubble::after{ 
-  right:-3px; 
-  border-bottom-right-radius:10px; 
-  transform:translateY(1px) rotate(-45deg); 
-}
-
-/* Meta (hora/ticks) discreta */
-.bubble .meta{
-  position:absolute; 
-  right:8px; 
-  bottom:2px;
-  display:inline-flex; 
-  gap:6px; 
-  align-items:center;
-  font-size:10px; 
-  opacity:.8;
-}
-.bubble .ticks{ 
-  font-weight:700; 
-  opacity:.65; 
-}
-.bubble .ticks.read{ 
-  color:#8ab4ff; 
-  opacity:1; 
-}
-
-/* Agrupación de mensajes del mismo emisor */
-.msg.in + .msg.in .bubble,
-.msg.out + .msg.out .bubble{ 
-  margin-top:-2px; 
-}
-
-/* Botones de envío y adjuntar (iconos) */
-.icon-btn{ 
-  min-width:40px; 
-  height:40px; 
-  display:grid; 
-  place-items:center; 
-  border-radius:999px; 
-  background:transparent; 
-  border:1px solid var(--border, rgba(255,255,255,.1)); 
-}
-.icon-btn[disabled]{ 
-  opacity:.6; 
-}
-.send-btn{ 
-  height:40px; 
-  border-radius:999px; 
-  padding-inline:14px; 
-}
-
-/* Indicador “escribiendo…” */
-.typing .bubble{ 
-  width:72px; 
-}
-.typing-dots{ 
-  display:inline-grid; 
-  grid-auto-flow:column; 
-  gap:4px; 
-  align-items:center; 
-}
-.typing-dots i{ 
-  width:6px; 
-  height:6px; 
-  border-radius:50%; 
-  background: currentColor; 
-  opacity:.5; 
-  animation: dot 1.2s infinite ease-in-out; 
-}
-.typing-dots i:nth-child(2){ 
-  animation-delay:.15s 
-} 
-.typing-dots i:nth-child(3){ 
-  animation-delay:.3s 
-}
-@keyframes dot{ 
-  0%,80%,100%{ 
-    transform:translateY(0); 
-    opacity:.5; 
-  } 
-  40%{ 
-    transform:translateY(-3px); 
-    opacity:1; 
-  } 
-}
-
-/* ---------- Events (lista) ---------- */
+/* =========================================
+   EVENTS (listado y detalle) + CREATE EVENT
+   ========================================= */
+/* Rejilla de cards de eventos */
 .events-grid{ 
-  margin-top:14px; 
-  display:grid; 
+  margin-top:14px; display:grid; 
   grid-template-columns: repeat( auto-fill, minmax(260px, 1fr) ); 
   gap:16px; 
 }
-.event-card .event-cover{ 
-  display:block; 
-  overflow:hidden; 
-  border-radius:12px 12px 0 0; 
-}
-.event-card .event-cover img{ 
-  width:100%; 
-  height:180px; 
-  object-fit:cover; 
-  display:block; 
-}
-.badge.soft{ 
-  background: rgba(122,162,247,.14); 
-  color: var(--text); 
-  border:1px solid rgba(122,162,247,.35); 
-  padding: 2px 8px; 
-  border-radius:999px; 
-  font-size:.8rem; 
-}
+.event-card .event-cover{ display:block; overflow:hidden; border-radius:12px 12px 0 0; }
+.event-card .event-cover img{ width:100%; height:180px; object-fit:cover; display:block; }
+.badge.soft{ background: rgba(122,162,247,.14); color: var(--text); border:1px solid rgba(122,162,247,.35); padding: 2px 8px; border-radius:999px; font-size:.8rem; }
 
-/* ---------- Event detail ---------- */
-.event-hero{ 
-  overflow:hidden; 
-  border-radius:16px; 
-}
-.event-hero img{ 
-  width:100%; 
-  height: clamp(180px, 36vh, 320px); 
-  object-fit: cover; 
-  display:block; 
-}
-.event-hero figcaption{ 
-  background: linear-gradient(180deg, rgba(0,0,0,.0), rgba(0,0,0,.35)); 
-  margin-top:-72px; 
-  border-radius: 0 0 16px 16px; 
-}
+/* Hero/portada de detalle de evento */
+.event-hero{ overflow:hidden; border-radius:16px; }
+.event-hero img{ width:100%; height: clamp(180px, 36vh, 320px); object-fit: cover; display:block; }
+.event-hero figcaption{ background: linear-gradient(180deg, rgba(0,0,0,.0), rgba(0,0,0,.35)); margin-top:-72px; border-radius: 0 0 16px 16px; }
 
-/* ---------- Create Event (uploader) ---------- */
-.cover-uploader{ 
-  border-radius:16px; 
-  overflow:hidden; 
-  position:relative; 
-}
-.cover-uploader img{ 
-  display:block; 
-  width:100%; 
-  height:220px; 
-  object-fit: cover; 
-}
-.cover-uploader input[type="file"]{ 
-  position:absolute; 
-  inset:0; 
-  opacity:0; 
-  cursor:pointer; 
-  z-index:3; 
-}
+/* Uploader de portada de evento (overlay al hover) */
+.cover-uploader{ border-radius:16px; overflow:hidden; position:relative; }
+.cover-uploader img{ display:block; width:100%; height:220px; object-fit: cover; }
+.cover-uploader input[type="file"]{ position:absolute; inset:0; opacity:0; cursor:pointer; z-index:3; }
 .cover-badge{
-  position:absolute; 
-  inset:0; 
-  margin:auto; 
-  display:grid; 
-  place-items:center; 
-  text-align:center;
-  width:220px; 
-  height:44px; 
-  border-radius:999px; 
-  background: rgba(0,0,0,.6); 
-  color:#fff; 
-  font-weight:600; 
-  z-index:2; 
-  opacity:0; 
-  transition: opacity .18s ease;
+  position:absolute; inset:0; margin:auto; display:grid; place-items:center; text-align:center;
+  width:220px; height:44px; border-radius:999px; background: rgba(0,0,0,.6); color:#fff; font-weight:600; z-index:2; opacity:0; transition: opacity .18s ease;
 }
-.cover-uploader:hover .cover-badge{ 
-  opacity:1; 
-}
+.cover-uploader:hover .cover-badge{ opacity:1; }

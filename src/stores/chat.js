@@ -1,42 +1,61 @@
+// ===========================================================================
+// chat.js — Store de chat (Pinia + PocketBase)
+// ---------------------------------------------------------------------------
+// Objetivo del módulo
+// - Gestionar el subsistema de mensajería: amigos, solicitudes, 
+//   conversaciones (privadas y de grupo) y mensajes.
+// - Encapsular llamadas a PocketBase y exponer acciones simples
+//   para usar desde las vistas FriendsView.vue y ChatsView.vue.
+// - Mantener el estado reactivo (listas, mapa de mensajes, selección actual).
+// ===========================================================================
+
 import { defineStore } from 'pinia';
 import { pb } from '../services/pb.js';
 import { useAuthStore } from './auth.js';
 
-/**
- * Chat store
- *
- * This store manages everything related to the messaging subsystem:
- * - Friends and friendship requests
- * - Conversations (private and group)
- * - Messages within a conversation
- *
- * It exposes convenient actions to fetch and mutate these resources via
- * PocketBase.  See FriendsView.vue and ChatsView.vue for usage examples.
- */
+// -----------------------------
+// Definición del store de chat
+// -----------------------------
 export const useChatStore = defineStore('chat', {
+  // -----------------------
+  // Estado global del chat
+  // -----------------------
   state: () => ({
-    /** Array of friend user models (users with accepted requests) */
+    /** Lista de usuarios amigos (solicitudes aceptadas) */
     friends: [],
-    /** Array of pending friend request records addressed to the current user */
+
+    /** Solicitudes de amistad pendientes dirigidas al usuario actual */
     friendRequests: [],
-    /** Array of conversation records the current user participates in */
+
+    /** Conversaciones en las que participa el usuario (privadas o grupo) */
     conversations: [],
+
     /**
-     * Map of conversationId → array of message records.
-     * Each message record includes an `expand.sender` with user details (if available).
+     * Mapa: conversationId → array de mensajes
+     * Cada mensaje trae expand.sender con los datos del usuario (si aplica).
      */
     messages: {},
-    /** ID of the currently selected conversation */
+
+    /** ID de la conversación seleccionada actualmente */
     currentConversationId: null,
-    /** Loading flag for async operations */
+
+    /** Flag de carga para operaciones asíncronas */
     loading: false,
-    /** Last error message */
-    error: null
+
+    /** Último mensaje de error (si ocurre) */
+    error: null,
   }),
+
+  // --------------------------------------
+  // Acciones (fetch/mutate en PocketBase)
+  // --------------------------------------
   actions: {
+    // ---------------------------------------------
+    // Amigos: obtener lista de amistades aceptadas
+    // ---------------------------------------------
     /**
-     * Fetch all accepted friendships for the current user.
-     * Friendships are represented by friend_requests with status="accepted".
+     * Carga todas las amistades del usuario actual.
+     * Las amistades se representan como registros en 'friend_requests' con status="accepted".
      */
     async fetchFriends() {
       const auth = useAuthStore();
@@ -45,13 +64,12 @@ export const useChatStore = defineStore('chat', {
       try {
         const records = await pb.collection('friend_requests').getFullList({
           filter: `(sender="${userId}" && status="accepted") || (recipient="${userId}" && status="accepted")`,
-          expand: 'sender,recipient'
+          expand: 'sender,recipient',
         });
-        // Map each record to the other user (friend)
+
+        // Para cada registro, toma el "otro" usuario como amigo
         this.friends = records.map((r) => {
-          // In the record the sender/recipient fields hold IDs, not expand; `expand` contains the full user objects
-          const friend =
-            r.sender === userId ? r.expand?.recipient : r.expand?.sender;
+          const friend = r.sender === userId ? r.expand?.recipient : r.expand?.sender;
           return friend;
         });
       } catch (err) {
@@ -60,43 +78,44 @@ export const useChatStore = defineStore('chat', {
       }
     },
 
-    // Dentro de defineStore('chat', { state, actions, ... })
+    // --------------------------------------
+    // Buscar usuarios (apoyo a FriendsView)
+    // --------------------------------------
+    /**
+     * Busca usuarios por nombre, username o email.
+     * Intenta primero con usuarios verificados y, si no hay resultados, relaja el filtro.
+     * @param {string} q Término de búsqueda
+     * @param {number} page Página (por defecto 1)
+     * @param {number} perPage Tamaño de página (por defecto 10)
+     */
     async searchUsers(q, page = 1, perPage = 10) {
       const meId = pb.authStore.model?.id || '';
       const safe = (q || '').replace(/"/g, '\\"').trim();
 
-      // Construye el filtro SIN usar @request en el lado cliente
+      // Constructor de filtros (opcionalmente exige verified=true)
       const buildFilter = (requireVerified) => {
         const parts = [];
-
-        if (meId) {
-          parts.push(`id != "${meId}"`);              // ← excluirte a ti mismo
-        }
-        if (requireVerified) {
-          parts.push('verified = true');              // ← solo verificados
-        }
-        if (safe) {
-          // ?~ = búsqueda laxa (substring, case-insensitive)
-          parts.push(`(name ?~ "${safe}" || username ?~ "${safe}" || email ?~ "${safe}")`);
-        }
+        if (meId) parts.push(`id != "${meId}"`); // Excluye al propio usuario
+        if (requireVerified) parts.push('verified = true');
+        if (safe) parts.push(`(name ?~ "${safe}" || username ?~ "${safe}" || email ?~ "${safe}")`);
         return parts.join(' && ') || 'true';
       };
 
-      // 1) Intento estricto: solo verificados
+      // 1) Estricto: solo verificados
       let filter = buildFilter(true);
       let res = await pb.collection('users').getList(page, perPage, {
         filter,
         sort: 'name,username',
-        fields: 'id,name,username,avatar,email,emailVisibility,verified,created'
+        fields: 'id,name,username,avatar,email,emailVisibility,verified,created',
       });
 
-      // 2) Fallback dev: si no hay resultados, reintentar sin verified=true
+      // 2) Fallback: sin "verified=true" si no hubo resultados
       if (res.totalItems === 0 && safe) {
         filter = buildFilter(false);
         res = await pb.collection('users').getList(page, perPage, {
           filter,
           sort: 'name,username',
-          fields: 'id,name,username,avatar,email,emailVisibility,verified,created'
+          fields: 'id,name,username,avatar,email,emailVisibility,verified,created',
         });
       }
 
@@ -109,8 +128,11 @@ export const useChatStore = defineStore('chat', {
       };
     },
 
+    // ------------------------------------
+    // Solicitudes de amistad (pendientes)
+    // ------------------------------------
     /**
-     * Fetch all pending friend requests directed to the current user.
+     * Obtiene las solicitudes de amistad PENDIENTES dirigidas al usuario.
      */
     async fetchFriendRequests() {
       const auth = useAuthStore();
@@ -119,7 +141,7 @@ export const useChatStore = defineStore('chat', {
       try {
         const records = await pb.collection('friend_requests').getFullList({
           filter: `recipient="${userId}" && status="pending"`,
-          expand: 'sender'
+          expand: 'sender',
         });
         this.friendRequests = records;
       } catch (err) {
@@ -128,46 +150,47 @@ export const useChatStore = defineStore('chat', {
       }
     },
 
+    // ----------------------------
+    // Enviar solicitud de amistad
+    // ----------------------------
     /**
-     * Send a friend request to another user identified either by their id or username.
-     * Avoids sending duplicates by checking existing requests.
-     * @param {string} userIdOrUsername The ID or username of the desired friend
+     * Envía una solicitud de amistad por ID de usuario o por username.
+     * Evita duplicados comprobando si ya existe relación/solicitud.
+     * @param {string} userIdOrUsername ID o username del destinatario
      */
     async sendFriendRequest(userIdOrUsername) {
       const auth = useAuthStore();
       const myId = auth.user?.id;
       if (!myId) return;
       try {
-        // Resolve the recipient's ID
+        // Resolver ID de destinatario
         let recipientId = null;
-        // simple heuristic: PocketBase user IDs are 15 characters long,
-        // whereas usernames are free‑form. Adjust if your IDs differ.
+        // Heurística: IDs alfanuméricos de 15 chars (ajustar si tu PB usa otra longitud)
         if (/^[a-zA-Z0-9]{15}$/.test(userIdOrUsername)) {
           recipientId = userIdOrUsername;
         } else {
-          const target = await pb
-            .collection('users')
-            .getFirstListItem(`username="${userIdOrUsername}"`);
+          const target = await pb.collection('users').getFirstListItem(`username="${userIdOrUsername}"`);
           recipientId = target.id;
         }
-        // Check for existing request or friendship between these two users
+
+        // Comprobar si ya existe solicitud/amistad en cualquier sentido
         const existing = await pb
           .collection('friend_requests')
           .getFirstListItem(
             `(sender="${myId}" && recipient="${recipientId}") || (sender="${recipientId}" && recipient="${myId}")`,
-            { $autoCancel: false }
+            { $autoCancel: false },
           )
           .catch(() => null);
-        if (existing) {
-          throw new Error(
-            'Ya existe una solicitud o amistad con este usuario.'
-          );
-        }
+        if (existing) throw new Error('Ya existe una solicitud o amistad con este usuario.');
+
+        // Crear solicitud pendient
         await pb.collection('friend_requests').create({
           sender: myId,
           recipient: recipientId,
-          status: 'pending'
+          status: 'pending',
         });
+
+        // Refrescar bandeja de solicitudes
         await this.fetchFriendRequests();
       } catch (err) {
         console.error('Error sending friend request:', err);
@@ -175,29 +198,32 @@ export const useChatStore = defineStore('chat', {
       }
     },
 
+    // ----------------------------------------
+    // Aceptar / Rechazar solicitud de amistad
+    // ----------------------------------------
     /**
-     * Accept or reject a friend request.
-     * After responding, the lists are refreshed.
-     * @param {string} requestId The record ID of the friend_request
-     * @param {boolean} accept Whether to accept (true) or reject (false) the request
+     * Actualiza el estado de una solicitud (accepted/rejected) y refresca listas.
+     * @param {string} requestId ID del registro en 'friend_requests'
+     * @param {boolean} accept true → aceptar | false → rechazar
      */
     async respondFriendRequest(requestId, accept = true) {
       try {
         await pb.collection('friend_requests').update(requestId, {
-          status: accept ? 'accepted' : 'rejected'
+          status: accept ? 'accepted' : 'rejected',
         });
         await this.fetchFriendRequests();
-        if (accept) {
-          await this.fetchFriends();
-        }
+        if (accept) await this.fetchFriends();
       } catch (err) {
         console.error('Error responding to friend request:', err);
         this.error = 'Error actualizando solicitud';
       }
     },
 
+    // ------------------------
+    // Conversaciones: listado
+    // ------------------------
     /**
-     * Fetch all conversations that include the current user.
+     * Carga todas las conversaciones en las que participa el usuario actual.
      */
     async fetchConversations() {
       const auth = useAuthStore();
@@ -207,7 +233,7 @@ export const useChatStore = defineStore('chat', {
       try {
         const convos = await pb.collection('conversations').getFullList({
           filter: `participants ~ "${userId}"`,
-          expand: 'participants'
+          expand: 'participants',
         });
         this.conversations = convos;
       } catch (err) {
@@ -218,10 +244,12 @@ export const useChatStore = defineStore('chat', {
       }
     },
 
+    // ---------------------------
+    // Crear conversación privada
+    // ---------------------------
     /**
-     * Create a new private conversation with a single friend.
-     * On success, selects the new conversation as current.
-     * @param {string} friendId The friend's user ID
+     * Crea una conversación 1:1 con un amigo y la selecciona como actual.
+     * @param {string} friendId ID del amigo
      */
     async createConversationWith(friendId) {
       const auth = useAuthStore();
@@ -231,7 +259,7 @@ export const useChatStore = defineStore('chat', {
         const convo = await pb.collection('conversations').create({
           isGroup: false,
           name: '',
-          participants: [myId, friendId]
+          participants: [myId, friendId],
         });
         this.conversations.push(convo);
         this.currentConversationId = convo.id;
@@ -242,26 +270,27 @@ export const useChatStore = defineStore('chat', {
       }
     },
 
+    // ----------------------------
+    // Crear conversación de grupo
+    // ----------------------------
     /**
-     * Create a new group conversation with a name and multiple participants.
-     * The current user is automatically added if not present.
-     * On success, selects the new conversation as current.
-     * @param {string} name The group name
-     * @param {string[]} participantIds Array of user IDs to include
+     * Crea un grupo con nombre y participantes; añade al usuario actual si falta.
+     * Selecciona el nuevo grupo como conversación activa.
+     * @param {string} name Nombre del grupo
+     * @param {string[]} participantIds IDs de usuarios participantes
      */
     async createGroupConversation(name, participantIds) {
       const auth = useAuthStore();
       const myId = auth.user?.id;
       if (!myId) return;
-      // Ensure the current user is part of the group
-      const ids = participantIds.includes(myId)
-        ? participantIds
-        : [...participantIds, myId];
+
+      // Garantiza que el creador está incluido en participants
+      const ids = participantIds.includes(myId) ? participantIds : [...participantIds, myId];
       try {
         const convo = await pb.collection('conversations').create({
           isGroup: true,
-          name: name,
-          participants: ids
+          name,
+          participants: ids,
         });
         this.conversations.push(convo);
         this.currentConversationId = convo.id;
@@ -272,10 +301,13 @@ export const useChatStore = defineStore('chat', {
       }
     },
 
+    // -----------------------------------
+    // Mensajes: listado por conversación
+    // -----------------------------------
     /**
-     * Fetch all messages for a given conversation.
-     * The fetched records include the sender's expanded user object.
-     * @param {string} conversationId The conversation record ID
+     * Carga todos los mensajes de una conversación.
+     * Incluye expand del remitente para pintar nombres/avatares.
+     * @param {string} conversationId ID de la conversación
      */
     async fetchMessages(conversationId) {
       if (!conversationId) return;
@@ -284,7 +316,7 @@ export const useChatStore = defineStore('chat', {
         const msgs = await pb.collection('messages').getFullList({
           filter: `conversation="${conversationId}"`,
           sort: 'created',
-          expand: 'sender'
+          expand: 'sender',
         });
         this.messages[conversationId] = msgs;
       } catch (err) {
@@ -295,11 +327,13 @@ export const useChatStore = defineStore('chat', {
       }
     },
 
+    // ------------------------
+    // Enviar mensaje de texto
+    // ------------------------
     /**
-     * Send a text message in a conversation.
-     * Immediately appends the new message to the local list on success.
-     * @param {string} conversationId The target conversation ID
-     * @param {string} content The message text
+     * Envía un mensaje y lo añade al estado local tras el éxito.
+     * @param {string} conversationId ID de la conversación destino
+     * @param {string} content Texto del mensaje
      */
     async sendMessage(conversationId, content) {
       const auth = useAuthStore();
@@ -309,15 +343,11 @@ export const useChatStore = defineStore('chat', {
         const msg = await pb.collection('messages').create({
           conversation: conversationId,
           sender: myId,
-          content: content
+          content,
         });
-        // Expand with current user for consistent UI rendering
-        msg.expand = {
-          sender: auth.user
-        };
-        if (!this.messages[conversationId]) {
-          this.messages[conversationId] = [];
-        }
+        // Asegurar expand.sender para una UI consistente sin refetch
+        msg.expand = { sender: auth.user };
+        if (!this.messages[conversationId]) this.messages[conversationId] = [];
         this.messages[conversationId].push(msg);
       } catch (err) {
         console.error('Error sending message:', err);
@@ -325,10 +355,12 @@ export const useChatStore = defineStore('chat', {
       }
     },
 
+    // ---------------------------------------------
+    // Suscripción en tiempo real (mensajes nuevos)
+    // ---------------------------------------------
     /**
-     * Subscribe to realtime updates for a specific conversation.
-     * New messages are appended to the conversation's message list.
-     * @param {string} conversationId The conversation to subscribe to
+     * Se suscribe a mensajes de una conversación y va anexando los nuevos.
+     * @param {string} conversationId Conversación a escuchar
      */
     async subscribeToConversation(conversationId) {
       const self = this;
@@ -336,21 +368,22 @@ export const useChatStore = defineStore('chat', {
         (data) => {
           const record = data.record;
           if (record.conversation === conversationId) {
-            if (!self.messages[conversationId]) {
-              self.messages[conversationId] = [];
-            }
+            if (!self.messages[conversationId]) self.messages[conversationId] = [];
             self.messages[conversationId].push(record);
           }
         },
-        { filter: `conversation="${conversationId}"` }
+        { filter: `conversation="${conversationId}"` },
       );
     },
 
+    // --------------------------------
+    // Cancelar suscripciones realtime
+    // --------------------------------
     /**
-     * Unsubscribe from all realtime message listeners.
+     * Cancela todas las suscripciones activas a la colección 'messages'.
      */
     async unsubscribeFromConversation() {
       pb.collection('messages').unsubscribe();
-    }
-  }
+    },
+  },
 });

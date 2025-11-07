@@ -1,38 +1,42 @@
+// ======================================================================
+// events.js — Store de eventos (Pinia + PocketBase)
+// ----------------------------------------------------------------------
+// Objetivo del módulo
+// - Gestionar todas las operaciones CRUD de la colección 'events'.
+// - Centralizar el estado de la lista de eventos y el evento actual.
+// - Exponer acciones asíncronas para cargar, crear, actualizar y borrar.
+// - Manejar errores y estado de carga global.
+// ======================================================================
+
 import { defineStore } from 'pinia';
 import { pb } from '../services/pb.js';
 
-/**
- * Store managing CRUD operations for Events.
- *
- * Uses the PocketBase SDK to interact with the `events` collection. The
- * store keeps a list of events, the currently viewed or edited event,
- * and exposes actions to load, create, update and delete events.
- */
 export const useEventsStore = defineStore('events', {
+  // -----------------------------------
+  // Estado global del store de eventos
+  // -----------------------------------
   state: () => ({
-    events: [],
-    currentEvent: null,
-    loading: false,
-    error: null,
-    totalPages: 0,
-    currentPage: 1
+    events: [],         // Lista de eventos visibles
+    currentEvent: null, // Evento seleccionado o en edición
+    loading: false,     // Bandera de carga asíncrona
+    error: null,        // Mensaje de error (si ocurre)
+    totalPages: 0,      // Paginación: total de páginas
+    currentPage: 1,     // Página actual cargada
   }),
+
+  // -----------------------------------------
+  // Acciones CRUD sobre la colección 'events'
+  // -----------------------------------------
   actions: {
+    // ----------------------------------
+    // Obtener lista paginada de eventos
+    // ----------------------------------
     /**
-     * Load a page of events from the backend. Defaults to the first page
-     * with 10 items per page. Sorting is descending by creation date.
-     *
-     * @param {number} page Page number to fetch
-     * @param {number} perPage Number of events per page
-     */
-    /**
-     * Load a page of events from the backend.  Supports optional
-     * sorting and filtering parameters.  When no sort is provided
-     * events are returned by creation date descending.
-     *
-     * @param {number} page Page number to fetch
-     * @param {number} perPage Number of events per page
-     * @param {Object} options Optional options: { sort, filter }
+     * Carga una página de eventos desde PocketBase.
+     * Admite parámetros opcionales de ordenación y filtro.
+     * @param {number} page Número de página a obtener (por defecto 1)
+     * @param {number} perPage Eventos por página (por defecto 10)
+     * @param {Object} options { sort, filter } opciones de orden y filtro
      */
     async fetchEvents(page = 1, perPage = 10, options = {}) {
       this.loading = true;
@@ -41,7 +45,10 @@ export const useEventsStore = defineStore('events', {
         const params = {};
         if (options.sort) params.sort = options.sort;
         if (options.filter) params.filter = options.filter;
+
         const res = await pb.collection('events').getList(page, perPage, params);
+
+        // Actualizar estado local
         this.events = res.items;
         this.totalPages = res.totalPages || 1;
         this.currentPage = page;
@@ -52,17 +59,14 @@ export const useEventsStore = defineStore('events', {
       }
     },
 
+    // ------------------------
+    // Obtener un único evento
+    // ------------------------
     /**
-     * Fetch a single event by its ID and set it as the current event.
-     *
-     * @param {string} id The event ID
-     */
-    /**
-     * Fetch a single event by its ID and set it as the current event.  You
-     * can optionally pass query params such as expand or fields.
-     *
-     * @param {string} id The event ID
-     * @param {Object} query Optional parameters for the request
+     * Carga un evento individual por su ID y lo marca como actual.
+     * Permite pasar parámetros adicionales (expand, fields, etc.).
+     * @param {string} id ID del evento
+     * @param {Object} query Parámetros opcionales para la consulta
      */
     async fetchEvent(id, query = {}) {
       if (!id) return;
@@ -77,18 +81,20 @@ export const useEventsStore = defineStore('events', {
       }
     },
 
+    // -------------------
+    // Crear nuevo evento
+    // -------------------
     /**
-     * Create a new event. Accepts either a plain object or FormData. When
-     * creating with files (e.g. cover images) you should use FormData.
-     *
-     * @param {Object|FormData} data The event data to create
+     * Crea un nuevo evento. Admite objeto plano o FormData.
+     * Si incluye archivos (ej. imágenes), usar FormData.
+     * @param {Object|FormData} data Datos del evento
      */
     async createEvent(data) {
       this.loading = true;
       this.error = null;
       try {
         const created = await pb.collection('events').create(data);
-        // Prepend new events for visibility on top of the list.
+        // Inserta el nuevo evento al inicio de la lista
         this.events.unshift(created);
       } catch (err) {
         this.error = err?.message || 'Error al crear el evento';
@@ -98,12 +104,14 @@ export const useEventsStore = defineStore('events', {
       }
     },
 
+    // ----------------------------
+    // Actualizar evento existente
+    // ----------------------------
     /**
-     * Update an existing event by ID. Accepts either a plain object or
-     * FormData. On success the local list is updated accordingly.
-     *
-     * @param {string} id Event ID to update
-     * @param {Object|FormData} data The fields to update
+     * Actualiza un evento existente (objeto plano o FormData).
+     * Refresca tanto la lista como el evento actual si coincide.
+     * @param {string} id ID del evento a actualizar
+     * @param {Object|FormData} data Campos a modificar
      */
     async updateEvent(id, data) {
       if (!id) return;
@@ -111,7 +119,6 @@ export const useEventsStore = defineStore('events', {
       this.error = null;
       try {
         const updated = await pb.collection('events').update(id, data);
-        // Update the current event and list if needed.
         if (this.currentEvent && this.currentEvent.id === id) {
           this.currentEvent = updated;
         }
@@ -125,10 +132,12 @@ export const useEventsStore = defineStore('events', {
       }
     },
 
+    // ----------------
+    // Eliminar evento
+    // ----------------
     /**
-     * Delete an event. Removes it from the local list on success.
-     *
-     * @param {string} id Event ID
+     * Elimina un evento por ID y lo retira de la lista local.
+     * @param {string} id ID del evento a eliminar
      */
     async deleteEvent(id) {
       if (!id) return;
@@ -136,7 +145,6 @@ export const useEventsStore = defineStore('events', {
       this.error = null;
       try {
         await pb.collection('events').delete(id);
-        // Remove from local store
         this.events = this.events.filter(e => e.id !== id);
         if (this.currentEvent && this.currentEvent.id === id) {
           this.currentEvent = null;
@@ -147,6 +155,6 @@ export const useEventsStore = defineStore('events', {
       } finally {
         this.loading = false;
       }
-    }
-  }
+    },
+  },
 });

@@ -1,5 +1,14 @@
 <template>
+  <!--
+    EventCreate — Crear evento
+    ---------------------------------------------------------------------------------
+      - Header privado (usuario autenticado) + sidebar.
+      - Formulario con portada opcional, título, fecha/hora, ubicación y descripción.
+      - Vista previa de la portada con ObjectURL y limpieza.
+      - Envío a PocketBase mediante FormData (incluye user organizador).
+  -->
   <div class="page" data-component="MainLayout">
+    <!-- Header privado reutilizable -->
     <AppHeader variant="private" />
 
     <main class="app-shell" data-component="AppShell">
@@ -8,32 +17,63 @@
       <!-- Contenido principal -->
       <section class="app-main container" data-component="EventCreateContent">
         <h1 class="h2" style="margin:0 0 10px;" data-part="title">Crear evento</h1>
-        <form class="card pad form" autocomplete="off" novalidate @submit.prevent="handleSubmit" @reset="resetForm" data-component="EventForm">
-          <!-- Uploader de portada -->
+
+        <!-- Formulario de creación -->
+        <form
+          class="card pad form"
+          autocomplete="off"
+          novalidate
+          @submit.prevent="handleSubmit"
+          @reset="resetForm"
+          data-component="EventForm"
+        >
+          <!-- Uploader de portada: muestra una vista previa y sube el archivo -->
           <figure class="cover-uploader card" data-component="CoverUploader">
+            <!-- Preview (SVG vacío por defecto) -->
             <img :src="coverPreview" alt="Portada del evento (opcional)" data-part="preview" />
-            <input id="cover-file" ref="coverInput" name="cover" type="file" accept="image/*" aria-label="Subir portada" data-part="input" @change="onCoverChange" />
-            <label for="cover-file" class="cover-badge" title="Subir portada" aria-label="Subir portada" data-part="button">📷 Subir portada</label>
+            <!-- Input real (oculto por estilos del componente) -->
+            <input
+              id="cover-file"
+              ref="coverInput"
+              name="cover"
+              type="file"
+              accept="image/*"
+              aria-label="Subir portada"
+              data-part="input"
+              @change="onCoverChange"
+            />
+            <!-- Botón/label accesible -->
+            <label for="cover-file" class="cover-badge" title="Subir portada" aria-label="Subir portada" data-part="button">
+              📷 Subir portada
+            </label>
           </figure>
 
+          <!-- Campos principales -->
           <div class="grid grid-2" style="margin-top:12px;" data-part="grid">
+            <!-- Título (requerido) -->
             <div class="input" data-part="field" style="grid-column: 1 / -1;">
               <label for="e-title" data-part="label">Título del evento</label>
               <input id="e-title" name="title" type="text" placeholder="Ej. Cumple de Alba" required v-model="form.title" data-part="input" />
             </div>
+            <!-- Fecha y hora (requerido) -->
             <div class="input" data-part="field">
               <label for="e-date" data-part="label">Fecha y hora</label>
               <input id="e-date" name="date" type="datetime-local" required v-model="form.date" data-part="input" />
             </div>
+            <!-- Ubicación (texto libre o URL de meeting) -->
             <div class="input" data-part="field">
               <label for="e-location" data-part="label">Ubicación</label>
               <input id="e-location" name="location" type="text" placeholder="Parque Central / https://meet..." v-model="form.location" data-part="input" />
             </div>
           </div>
+
+          <!-- Descripción opcional -->
           <div class="input" data-part="field">
             <label for="e-desc" data-part="label">Descripción</label>
             <textarea id="e-desc" name="description" rows="6" placeholder="Cuéntales a los invitados qué habrá, dress code, qué traer…" v-model="form.description" data-part="textarea"></textarea>
           </div>
+
+          <!-- Acciones de formulario -->
           <div class="actions" style="justify-content:flex-end; gap:8px; margin-top:8px;" data-part="actions">
             <router-link class="btn ghost" :to="{ name: 'events' }" data-part="cancel">Cancelar</router-link>
             <button class="btn" type="reset" style="color: white;" data-part="reset">Limpiar</button>
@@ -42,6 +82,8 @@
             </button>
           </div>
         </form>
+
+        <!-- Mensaje de estado simple -->
         <p v-if="message" id="create-msg" class="p" style="margin-top:8px;">{{ message }}</p>
       </section>
     </main>
@@ -51,6 +93,15 @@
 </template>
 
 <script setup>
+// ============================================================
+// EventCreate — Lógica del formulario
+// ------------------------------------------------------------
+// - Usa Pinia (useEventsStore) para crear el registro en PB.
+// - Construye FormData para permitir subida de imagen (cover).
+// - Convierte el datetime-local a ISO antes de enviar.
+// - Incluye el ID del usuario autenticado como organizador.
+// ============================================================
+
 import AppHeader from '../components/AppHeader.vue';
 import AppSidebar from '../components/AppSidebar.vue';
 import AppFooter from '../components/AppFooter.vue';
@@ -65,22 +116,28 @@ const router = useRouter();
 const authStore = useAuthStore();
 const eventsStore = useEventsStore();
 
-// Reactive form state
+// -------------------------------
+// Estado reactivo del formulario
+// -------------------------------
 const form = reactive({
   title: '',
-  date: '',
+  date: '',         // Bound a <input type="datetime-local">
   location: '',
-  description: ''
+  description: '',
 });
 
-const submitting = ref(false);
-const message = ref('');
+const submitting = ref(false); // bloquea botón mientras se envía
+const message = ref('');       // feedback al usuario
 
-// Cover file and preview handling
-const coverInput = ref(null);
-const coverFile = ref(null);
+// -----------------------------------
+// Portada: input file + vista previa
+// -----------------------------------
+const coverInput = ref(null);  // ref al <input type="file">
+const coverFile = ref(null);   // File seleccionado
+// SVG vacío como preview por defecto (altura controlada por CSS del uploader)
 const coverPreview = ref('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="400" height="200"></svg>');
 
+// Gestiona cambio de archivo: crea ObjectURL y actualiza preview
 function onCoverChange() {
   const f = coverInput.value?.files?.[0];
   coverFile.value = f || null;
@@ -90,10 +147,11 @@ function onCoverChange() {
   }
   const url = URL.createObjectURL(f);
   coverPreview.value = url;
-  // Revoke after load
+  // Liberar memoria tras un pequeño retardo
   setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
 
+// Reseteo del formulario y del estado visual
 function resetForm() {
   form.title = '';
   form.date = '';
@@ -104,17 +162,21 @@ function resetForm() {
   message.value = '';
 }
 
+// Envío del formulario a PocketBase usando el store
 async function handleSubmit() {
+  // Validación mínima en cliente
   if (!form.title || !form.date) {
     message.value = 'El título y la fecha son obligatorios.';
     return;
   }
   submitting.value = true;
   message.value = '';
-  // Construct FormData
+
+  // Construcción de FormData (necesaria para archivos)
   const fd = new FormData();
   fd.append('title', form.title.trim());
-  // Convert local datetime to ISO
+
+  // Convertir datetime-local a ISO (PB espera ISO 8601)
   if (form.date) {
     const d = new Date(form.date);
     fd.append('date', d.toISOString());
@@ -122,14 +184,16 @@ async function handleSubmit() {
   if (form.location) fd.append('location', form.location.trim());
   if (form.description) fd.append('description', form.description.trim());
   if (coverFile.value) fd.append('cover', coverFile.value);
-  // Include current user id as organizer
+
+  // Asociar organizador (usuario actual)
   if (authStore.user?.id) fd.append('user', authStore.user.id);
+
   try {
     await eventsStore.createEvent(fd);
     message.value = 'Evento creado correctamente ✅';
-    // Redirect to detail of the new event if eventsStore returns created id
-    // In our store, createEvent does not return the created record, so
-    // reload events and redirect to list.
+
+    // Nota: createEvent() no retorna el registro creado.
+    // Por simplicidad, redirigimos al listado tras un breve retardo.
     setTimeout(() => {
       router.push({ name: 'events' });
     }, 800);
@@ -140,7 +204,9 @@ async function handleSubmit() {
   }
 }
 
-// Avatar and initials for current user
+// -------------------------------------------
+// Avatar e iniciales en header (reutilizado)
+// -------------------------------------------
 const avatarUrl = computed(() => {
   const user = authStore.user;
   if (user && user.avatar) {
@@ -160,7 +226,3 @@ function logout() {
   router.push('/login');
 }
 </script>
-
-<style scoped>
-/* No scoped styles here; rely on imported CSS files for styling. */
-</style>

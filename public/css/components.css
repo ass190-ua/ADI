@@ -1,105 +1,134 @@
-/* =====================================================
+/* ========================================================
    COMPONENTS.css — Componentes reutilizables
-   (Listas, avatares, formularios, hero, galerías, modales, toasts, chat genérico, etc.)
-   ===================================================== */
+   (Listas, avatares, formularios, hero, galerías, modales,
+    toasts, chat genérico, grid de amigos, etc.)
+   --------------------------------------------------------
+   Nota: se añaden comentarios explicativos sin modificar
+   la especificidad ni el comportamiento original.
+   ======================================================== */
 
-/* ---------- Tarjetas (títulos comunes dentro de card) ---------- */
+/* ---------- Tarjetas: títulos internos comunes ---------- */
 .card .title{ 
-  font-weight:650; 
-  margin-bottom:8px; 
+  font-weight:650;   /* Seminegrita visible para títulos en cards */
+  margin-bottom:8px; /* Separación del contenido siguiente */
 }
 .card .subtitle{ 
-  color: var(--muted); 
-  font-size:14px; 
+  color: var(--muted); /* Color de subtítulo atenuado */
+  font-size:14px;      /* Tamaño algo menor que el texto base */
 }
 
 /* ---------- Lista con avatar ---------- */
 .list{ 
-  display:flex; flex-direction:column; 
+  display:flex; /* Lista como columna flexible */
+  flex-direction:column; 
 }
 .list-item{ 
-  display:flex; align-items:center; gap:14px; padding:12px; border-bottom:1px solid var(--border); 
+  display:flex;                          /* Ítem con contenido en fila */
+  align-items:center;                    /* Centra verticalmente avatar y texto */
+  gap:14px;                              /* Espacio entre avatar y texto */
+  padding:12px;                          /* Área clicable cómoda */
+  border-bottom:1px solid var(--border); /* Separador visual entre ítems */
 }
 .list-item:hover{ 
-  background: rgba(255,255,255,.03); 
+  background: rgba(255,255,255,.03); /* Resalte sutil al hover (oscuro) */
 }
 .avatar{ 
-  width:40px; height:40px; border-radius:999px; overflow:hidden; border:1px solid var(--border); 
+  width:40px; height:40px;        /* Tamaño base de avatar en listas */
+  border-radius:999px;            /* Forma circular */
+  overflow:hidden;                /* Recorta imagen a círculo */
+  border:1px solid var(--border); /* Borde para contraste */
 }
 .meta{ 
-  margin-left:auto; color: var(--muted); font-size:12px; 
+  margin-left:auto;               /* Empuja metadatos a la derecha */
+  color: var(--muted); 
+  font-size:12px; 
 }
 
 /* ---------- Avatar con iniciales (para usuarios sin foto) ---------- */
 .avatar-initials {
-  width: 36px;
+  width: 36px;                      /* Tamaño compacto por defecto */
   height: 36px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, #4f6df5, #89a2ff);
-  color: white;
+  border-radius: 50%;               /* Círculo */
+  background: linear-gradient(135deg, #4f6df5, #89a2ff); /* Fondo degradado visible */
+  color: white;                   /* Buen contraste sobre fondo */
   display: flex;
   align-items: center;
   justify-content: center;
   font-weight: 600;
   font-size: 0.9rem;
-  text-transform: uppercase;
+  text-transform: uppercase;        /* Iniciales en mayúsculas */
   box-shadow: 0 0 4px rgba(0,0,0,0.2);
-  cursor: pointer;
+  cursor: pointer;                  /* Indica interactividad si se usa como botón */
 }
 
-/* pequeño estilo para las iniciales del avatar */
-    .avatar-initials{
-      width:36px;height:36px;border-radius:999px;
-      display:inline-grid;place-items:center;
-      background:#334155;color:#e5e7eb;font-weight:700;font-size:.9rem;
-    }
-    .photo-card .cover{ position:relative; }
-    .photo-card .fav{
-      position:absolute; right:8px; top:8px;
-      background:rgba(0,0,0,.5); border:1px solid rgba(255,255,255,.2);
-      border-radius:8px; padding:.15rem .4rem; color:#ffd24d;
-    }
-    .photo-card .sel{
-      position:absolute; left:8px; top:8px;
-      width:18px; height:18px;
-    }
+/*
+  IMPORTANTE: Regla duplicada para .avatar-initials.
+  Esta segunda definición (más abajo) prevalece por cascada,
+  ya que aparece después en el archivo con la misma especificidad.
+  Mantengo ambas y lo documento por si se desea unificar estilos.
+*/
+.avatar-initials{
+  width:36px; height:36px; /* Mismo tamaño que arriba (refuerzo) */
+  border-radius:999px;     /* Círculo */
+  display:inline-grid;     /* Centrado con grid */
+  place-items:center;
+  background:#334155;    /* Fondo alternativo (slate) */
+  color:#e5e7eb;         /* Texto claro */
+  font-weight:700;         /* Un poco más grueso */
+  font-size:.9rem;
+}
+.photo-card .cover{ position:relative; }
+.photo-card .fav{
+  position:absolute; right:8px; top:8px;   /* Insignia de favorito en esquina */
+  background:rgba(0,0,0,.5);             /* Fondo oscuro translúcido */
+  border:1px solid rgba(255,255,255,.2); /* Borde sutil */
+  border-radius:8px; padding:.15rem .4rem; color:#ffd24d; /* Dorado */
+}
+.photo-card .sel{
+  position:absolute; left:8px; top:8px;  /* Checkbox/selector en esquina */
+  width:18px; height:18px;
+}
 
-.avatar-lg .avatar-initials { width: 80px; height: 80px; font-size: 1.2rem; }
+/* Tamaño grande para avatares con iniciales (p.ej., perfil) */
+.avatar-lg .avatar-initials { 
+  width: 80px; height: 80px; 
+  font-size: 1.2rem; 
+}
 
-/* ---------- Formularios ---------- */
+/* ---------- Formularios reutilizables ---------- */
 .form{ 
-  display:grid; 
-  gap:14px; 
-  max-width:520px; 
+  display:grid;    /* Disposición en grid para campos */
+  gap:14px;        /* Separación vertical homogénea */
+  max-width:520px; /* Ancho cómodo para lectura */
 }
 .form .actions{ 
-  display:flex; 
+  display:flex;    /* Botones en fila */
   gap:10px; 
 }
 .actions .btn{ 
-  width:100%; 
+  width:100%;      /* Botón crece dentro del contenedor */
   text-align:center; 
   display:block; 
 }
 
-/* ---------- Hero ---------- */
+/* ---------- Sección hero (landing/promos) ---------- */
 .hero{ 
-  padding: clamp(32px, 6vw, 88px) 0; 
+  padding: clamp(32px, 6vw, 88px) 0; /* Padding fluido según viewport */
   display:grid; 
   gap:22px; 
 }
 .hero .cta{ 
   display:flex; 
-  gap:12px; 
+  gap:12px; /* Espacio entre botones de acción */
 }
 
-/* ---------- Galería ---------- */
+/* ---------- Galería de imágenes (masonry simple) ---------- */
 .gallery{ 
-  columns: 4 260px; 
+  columns: 4 260px;    /* Hasta 4 columnas con ancho mínimo 260px */
   column-gap:14px; 
 }
 .gallery .tile{ 
-  break-inside: avoid; 
+  break-inside: avoid; /* Evita cortes de bloque en columnas */
   margin-bottom:14px; 
   overflow:hidden; 
   border-radius:14px; 
@@ -110,37 +139,37 @@
   display:block; 
 }
 
-/* ---------- Chips por tipo de evento (variantes) ---------- */
+/* ---------- Chips por tipo de evento (variantes de color) ---------- */
 .type-birthday{ 
-  background: rgba(250,204,21,.12); 
+  background: rgba(250,204,21,.12); /* Amarillo suave */
   border-color: rgba(250,204,21,.3); 
   color:#ffe082; 
 }
 .type-trip{     
-  background: rgba(16,185,129,.12); 
+  background: rgba(16,185,129,.12); /* Verde suave */
   border-color: rgba(16,185,129,.3); 
   color:#a6e3c7; 
 }
 .type-wedding{  
-  background: rgba(236,72,153,.12); 
+  background: rgba(236,72,153,.12); /* Rosa suave */
   border-color: rgba(236,72,153,.3); 
   color:#f5a6cf; 
 }
 
-/* ---------- Chips de filtro (variantes de .chip base) ---------- */
+/* ---------- Chips de filtro (derivan de .chip base) ---------- */
 .chip{ 
-  border-radius:20px; 
+  border-radius:20px;           /* Más redondeado que la base */
   padding:6px 14px; 
   font-weight:500; 
   cursor:pointer; 
-  border:1px solid transparent; 
-  transition: background .2s, color .2s, transform .1s; 
+  border:1px solid transparent; /* Evita salto de layout al activar */
+  transition: background .2s, color .2s, transform .1s; /* Interacciones */
 }
 .chip:hover{ 
-  transform: translateY(-2px); 
+  transform: translateY(-2px);  /* Micro-elevación al hover */
 }
 .chip.todos{ 
-  background: rgba(59,130,246,0.2); 
+  background: rgba(59,130,246,0.2); /* Azul tenue */
   color:#a2c4ff; 
   border-color:#3b82f6; 
 }
@@ -149,7 +178,7 @@
   color:#fff; 
 }
 .chip.favoritos{ 
-  background: rgba(234,179,8,0.15); 
+  background: rgba(234,179,8,0.15); /* Amarillo */
   color:#facc15; 
   border-color:#eab308; 
 }
@@ -158,7 +187,7 @@
   color:#0b1220; 
 }
 .chip.videos{ 
-  background: rgba(34,197,94,0.15); 
+  background: rgba(34,197,94,0.15); /* Verde */
   color:#22c55e; 
   border-color:#22c55e; 
 }
@@ -167,7 +196,7 @@
   color:#fff; 
 }
 .chip.albumnes{ 
-  background: rgba(168,85,247,0.15); 
+  background: rgba(168,85,247,0.15); /* Violeta */
   color:#a855f7; 
   border-color:#a855f7; 
 }
@@ -178,7 +207,7 @@
 
 /* ---------- Chips de acciones del chat ---------- */
 .chip.search{ 
-  background: rgba(59,130,246,0.15); 
+  background: rgba(59,130,246,0.15); /* Azul búsqueda */
   color:#3b82f6; 
   border-color:#3b82f6; 
 }
@@ -188,7 +217,7 @@
 }
 
 .chip.mute{ 
-  background: rgba(245,158,11,0.15); 
+  background: rgba(245,158,11,0.15); /* Amarillo silencio */
   color:#f59e0b; 
   border-color:#f59e0b; 
 }
@@ -198,7 +227,7 @@
 }
 
 .chip.archive{ 
-  background: rgba(148,163,184,0.15); 
+  background: rgba(148,163,184,0.15); /* Gris archivo */
   color:#94a3b8; 
   border-color:#94a3b8; 
 }
@@ -207,31 +236,29 @@
   color:#0b1220; 
 }
 
-/* ---------- Modal genérico (con :target) ---------- */
+/* ---------- Modal genérico (activable por :target) ---------- */
 .modal{ 
-  display:none; 
-  position:fixed; 
-  inset:0; 
-  background:rgba(0,0,0,.65); 
-  justify-content:center; 
+  display:none;                 /* Oculta por defecto */
+  position:fixed; inset:0;      /* Cubre viewport completo */
+  background:rgba(0,0,0,.65); /* Oscurece el fondo */
+  justify-content:center;       /* Centra el diálogo */
   align-items:center; 
-  z-index:50; 
+  z-index:50;                   /* Sobre el contenido */
 }
 .modal:target{ 
-  display:flex; 
+  display:flex;                 /* Se muestra al navegar a #id */
 }
 .modal-dialog{ 
-  width:min(400px, 90%); 
+  width:min(400px, 90%);        /* Diálogo responsive */
 }
 
-/* ---------- Toast genérico (con :target) ---------- */
+/* ---------- Toast genérico (activable por :target) ---------- */
 .toast{ 
   display:none; 
   position:fixed; 
-  left:50%; 
-  bottom:24px; 
+  left:50%; bottom:24px;        /* Anclado abajo, centrado */
   transform:translateX(-50%); 
-  z-index:60; 
+  z-index:60;                   /* Por encima del modal */
 }
 .toast:target{ 
   display:block; 
@@ -243,12 +270,10 @@
   border-radius:12px; 
   padding:12px 14px; 
   box-shadow:0 10px 30px rgba(0,0,0,.25); 
-  display:flex; 
-  align-items:center; 
-  gap:10px; 
+  display:flex; align-items:center; gap:10px; 
 }
 .toast.success .toast-body{ 
-  outline:2px solid rgba(66,186,150,.35); 
+  outline:2px solid rgba(66,186,150,.35); /* Borde verde para éxito */
 }
 .toast-close{ 
   margin-left:12px; 
@@ -256,27 +281,94 @@
 
 /* ---------- Chat genérico (burbujas simples) ---------- */
 .chat{ 
-  display:flex; 
-  flex-direction:column; 
-  gap:10px; 
+  display:flex; flex-direction:column; gap:10px; /* Timeline vertical */
 }
 .msg{ 
-  max-width:70%; 
+  max-width:70%; /* Limita el ancho de burbuja */
   padding:10px 12px; 
   border-radius:14px; 
   border:1px solid var(--border); 
 }
 .msg.me{ 
-  margin-left:auto; 
-  background: rgba(122,162,247,.14); 
-  border-color: rgba(122,162,247,.3); 
+  margin-left:auto;                    /* Alinea a la derecha (emisor) */
+  background: rgba(122,162,247,.14); /* Fondo azulado */
+  border-color: rgba(122,162,247,.3);
 }
 .msg.them{ 
-  background: rgba(255,255,255,.02); 
+  background: rgba(255,255,255,.02); /* Fondo tenue (receptor) */
 }
 .msg .time{ 
-  display:block; 
-  margin-top:6px; 
-  font-size:12px; 
-  color: var(--muted); 
+  display:block; margin-top:6px; font-size:12px; color: var(--muted); 
+}
+
+/* ---------- Grid de Amigos (FriendsView) ---------- */
+.friend-grid {
+  display: grid;
+  /* Crea columnas que se auto-ajustan, con un mínimo de 240px */
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 16px;
+}
+
+.friend-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 20px;
+  border-radius: 12px;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  transition: all 0.2s ease;
+}
+.friend-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow);
+  border-color: rgba(122, 162, 247, 0.4); /* Resalta con --primary */
+}
+
+/* Avatar más grande en la tarjeta de amigo */
+.friend-card .avatar-initials {
+  width: 64px;
+  height: 64px;
+  font-size: 1.5rem;
+  margin-bottom: 12px;
+  /* Sombra sutil en el avatar */
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.friend-card .user-info {
+  display: flex;
+  flex-direction: column;
+  min-width: 0; /* Para que text-overflow funcione */
+  margin-bottom: 16px;
+}
+
+.friend-card .user-info .name {
+  font-weight: 600;
+  font-size: 1.1rem;
+  color: var(--text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 180px; /* Evita que nombres largos rompan el layout */
+}
+
+.friend-card .user-info .detail {
+  font-size: 0.9rem;
+  color: var(--muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 180px;
+}
+
+/* Acciones al fondo */
+.friend-card .actions {
+  display: flex;
+  gap: 8px;
+  width: 100%;
+}
+.friend-card .actions .btn {
+  flex: 1; /* Los botones ocupan el mismo espacio */
+  justify-content: center; /* Centra el texto del botón */
 }

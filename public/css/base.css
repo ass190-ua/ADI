@@ -1,174 +1,296 @@
-/* =====================================================
+/* ========================================================
    BASE.css — Reset, variables, tipografía, utilidades
-   (Todo lo global que debería cargar en TODAS las páginas)
-   ===================================================== */
+   --------------------------------------------------------
+   Este archivo define:
+   - El estilo global base (reset mínimo, colores, fuentes).
+   - Variables CSS reutilizables (tema oscuro y claro).
+   - Componentes visuales comunes: botones, inputs, grids...
+   ========================================================= */
 
-/* ---------- Reset mínimo y fuente ---------- */
+
+/* =======================================================
+   RESET BÁSICO Y TIPOGRAFÍA GLOBAL
+   -------------------------------------------------------
+   Normaliza la presentación entre navegadores y establece
+   una fuente coherente en toda la app.
+   ======================================================= */
 * { box-sizing: border-box; }
-html, body{ 
+
+html, body { 
   height: 100%; 
 }
-body{ 
+
+body { 
   margin: 0; 
   font-family: system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, Helvetica Neue, Arial;
   line-height: 1.45;
   color: var(--text);
   background: var(--bg);
 }
-img{ 
+
+img { 
   max-width: 100%; 
   display: block;
 }
-a{ 
+
+a { 
   color: inherit; 
   text-decoration: none; 
 }
 
-/* ---------- Tema por defecto (oscuro) + Light ---------- */
-:root{
-  --bg:#0f1115; --panel:#151924; --text:#e8e8ea; --muted:#a3a3ad;
-  --primary:#7aa2f7; --accent:#a6da95; --error:#ef6b73; --warning:#f7c94b; --border:#232836;
-  --card-radius:16px; --pad:16px; --gap:16px; --shadow:0 6px 18px rgba(0,0,0,.25);
-  --header-h:80px;
+
+/* ========================================================
+   TEMAS Y VARIABLES CSS
+   --------------------------------------------------------
+   Define la paleta y estilos base para:
+   - Tema oscuro (por defecto)
+   - Tema claro (cuando [data-theme="light"])
+   También incluye variables de espaciado y layout general.
+   ======================================================== */
+:root {
+  /* Colores base (tema oscuro) */
+  --bg: #0f1115;
+  --panel: #151924;
+  --text: #e8e8ea;
+  --muted: #a3a3ad;
+  --primary: #7aa2f7;
+  --accent: #a6da95;
+  --error: #ef6b73;
+  --warning: #f7c94b;
+  --border: #232836;
+
+  /* Layout y componentes */
+  --card-radius: 16px;
+  --pad: 16px;
+  --gap: 16px;
+  --shadow: 0 6px 18px rgba(0,0,0,.25);
+
+  /* Medidas estructurales */
+  --header-h: 80px;
   --footer-h: 150px;       
-  --page-vgap: 24px;      
+  --page-vgap: 24px;
+
+  /* Variables específicas para la vista de chat */
   --chat-viewport: calc(100dvh - var(--header-h) - var(--footer-h) - var(--page-vgap));
-}
-[data-theme="light"]{
-  --bg:#ffffff; --panel:#f7f7fa; --text:#1f2328; --muted:#667085;
-  --primary:#3b82f6; --accent:#10b981; --error:#ef4444; --warning:#f59e0b; --border:#e5e7eb;
+  --chat-bubble-in-bg: #1f2937;
+  --chat-bubble-in-text: #e5e7eb;
+  --chat-bubble-out-bg: #3456d0;
+  --chat-bubble-out-text: #ffffff;
 }
 
+/* Tema claro: redefine los mismos tokens de color */
+[data-theme="light"] {
+  --bg: #ffffff;
+  --panel: #f7f7fa;
+  --text: #1f2328;
+  --muted: #667085;
+  --primary: #3b82f6;
+  --accent: #10b981;
+  --error: #ef4444;
+  --warning: #f59e0b;
+  --border: #e5e7eb;
+
+  --chat-bubble-in-bg: #f3f4f6;
+  --chat-bubble-in-text: #1f2328;
+  --chat-bubble-out-bg: var(--primary);
+  --chat-bubble-out-text: #ffffff;
+}
+
+/* Refuerzo visual general */
 body { 
   background: var(--bg); 
   color: var(--text); 
 }
 
-/* ---------- Contenedor y tarjetas ---------- */
-.container{
+
+/* ==================================================
+   CONTENEDORES Y TARJETAS (CARDS)
+   -------------------------------------------------
+   Estructura visual de las secciones y componentes.
+   ================================================== */
+.container {
   width: min(1200px, 92%);
   margin-inline: auto;
 }
-.card{
-  background:var(--panel);
-  border:1px solid var(--border);
-  border-radius:var(--card-radius);
-  box-shadow:var(--shadow);
-}
-.card.pad{
-  padding: var(--pad);
-}
-.card.media{
-  overflow: hidden;
+
+.card {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: var(--card-radius);
+  box-shadow: var(--shadow);
 }
 
-/* ---------- Tipografías de utilidad ---------- */
-.h1{
+.card.pad { padding: var(--pad); }
+.card.media { overflow: hidden; }
+
+
+/* =============================================
+   TIPOGRAFÍAS Y ESTILOS DE TEXTO DE UTILIDAD
+   ---------------------------------------------
+   Clases para títulos y párrafos reutilizables.
+   ============================================= */
+.h1 {
   font-size: clamp(28px, 3vw, 40px);
   font-weight: 700;
   letter-spacing: .2px;
 }
-.h2{
+
+.h2 {
   font-size: clamp(22px, 2.2vw, 28px);
   font-weight: 650;
 }
-.p{
+
+.p {
   color: var(--muted);
 }
 
-/* ---------- Botones, badges y chips (base) ---------- */
-.btn{ 
-  display:inline-flex; 
-  align-items:center; 
-  gap:10px; 
-  padding:10px 16px; 
-  border-radius:12px; 
-  border:1px solid var(--border); 
+
+/* ==================================================
+   BOTONES, BADGES Y CHIPS
+   --------------------------------------------------
+   Estilos visuales base para elementos interactivos.
+   ================================================== */
+.btn { 
+  display: inline-flex; 
+  align-items: center; 
+  gap: 10px; 
+  padding: 10px 16px; 
+  border-radius: 12px; 
+  border: 1px solid var(--border); 
   background: linear-gradient(180deg, rgba(255,255,255,.02), rgba(0,0,0,.08)); 
 }
-.btn.primary{ 
+
+.btn.primary { 
   background: var(--primary); 
-  color:#fff; 
+  color: #fff; 
   border-color: transparent; 
 }
-.btn.ghost{ 
-  background: transparent; 
-}
-.badge{ 
-  display:inline-flex; 
-  align-items:center; 
-  padding:2px 8px; 
-  border-radius:999px; 
-  font-size:12px; 
+
+.btn.ghost { background: transparent; }
+
+.badge { 
+  display: inline-flex; 
+  align-items: center; 
+  padding: 2px 8px; 
+  border-radius: 999px; 
+  font-size: 12px; 
   background: var(--border); 
   color: var(--muted); 
 }
-.chip{ 
-  display:inline-flex; 
-  align-items:center; 
-  gap:8px; 
-  padding:6px 10px; 
-  border-radius:999px; 
-  border:1px solid var(--border); 
+
+.chip { 
+  display: inline-flex; 
+  align-items: center; 
+  gap: 8px; 
+  padding: 6px 10px; 
+  border-radius: 999px; 
+  border: 1px solid var(--border); 
   color: var(--muted); 
 }
 
-/* ---------- Inputs ---------- */
-.input{ 
-  display:flex; 
-  flex-direction:column; 
-  gap:8px; 
+
+/* =========================================================
+   INPUTS Y FORMULARIOS
+   -----------------------------------------------------
+   Apariencia consistente para campos de texto y selectores.
+   ========================================================= */
+.input { 
+  display: flex; 
+  flex-direction: column; 
+  gap: 8px; 
 }
-.input input, .input select, .input textarea{
-  padding:12px 14px; background: transparent; border:1px solid var(--border);
-  border-radius:12px; color: var(--text); outline: none;
+
+.input input, .input select, .input textarea,
+input.input, select.input, textarea.input {
+  padding: 6px 10px;
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  color: var(--text); 
+  outline: none;
+  font-family: inherit; 
+  font-size: 1rem;      
 }
-.input label{ 
+
+.input label { 
   color: var(--muted); 
   font-size: 14px; 
 }
 
-/* ---------- Grids y helpers ---------- */
-.row{display:flex;
-  gap:10px;
-  align-items:center;
+
+/* =======================================================
+   GRID SYSTEM Y HELPERS DE LAYOUT
+   -----------------------------------------------------
+   Grillas y filas reutilizables para layouts responsivos.
+   ======================================================= */
+.row {
+  display: flex;
+  gap: 10px;
+  align-items: center;
 }
-.grid{ 
-  display:grid; 
+
+.grid { 
+  display: grid; 
   gap: var(--gap); 
 }
-.grid-2{ 
-  grid-template-columns: repeat(2, 1fr); 
+
+.grid-2 { grid-template-columns: repeat(2, 1fr); }
+.grid-3 { grid-template-columns: repeat(3, 1fr); }
+.grid-4 { grid-template-columns: repeat(4, 1fr); }
+
+/* Responsividad progresiva */
+@media (max-width: 1024px) { 
+  .grid-4 { grid-template-columns: repeat(3, 1fr); } 
 }
-.grid-3{ 
-  grid-template-columns: repeat(3, 1fr); 
+@media (max-width: 840px) { 
+  .grid-3, .grid-4 { grid-template-columns: repeat(2, 1fr); } 
 }
-.grid-4{ 
-  grid-template-columns: repeat(4, 1fr); 
+@media (max-width: 560px) { 
+  .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; } 
 }
 
-@media (max-width:1024px){ 
-  .grid-4{ grid-template-columns: repeat(3, 1fr); } 
-}
-@media (max-width: 840px){ 
-  .grid-3, .grid-4{ grid-template-columns: repeat(2, 1fr); } 
-}
-@media (max-width: 560px){ 
-  .grid-2, .grid-3, .grid-4{ grid-template-columns: 1fr; } 
+
+/* ===================================================
+   ACCESIBILIDAD Y ELEMENTOS VISUALES
+   ---------------------------------------------------
+   Mejora el enfoque (focus) y la navegación asistida.
+   =================================================== */
+:focus-visible { 
+  outline: 2px solid var(--primary); 
+  outline-offset: 2px; 
+  border-radius: 8px; 
 }
 
-/* ---------- Accesibilidad ---------- */
-:focus-visible{ 
-  outline:2px solid var(--primary); 
-  outline-offset:2px; 
-  border-radius:8px; 
+.visually-hidden {
+  position: absolute !important;
+  clip: rect(0 0 0 0) !important;
+  width: 1px !important;
+  height: 1px !important;
+  margin: -1px !important;
+  overflow: hidden !important;
+  border: 0 !important;
 }
-.visually-hidden{
-  position:absolute!important;
-  clip:rect(0 0 0 0)!important;
-  width:1px!important;
-  height:1px!important;
-  margin:-1px!important;
-  overflow:hidden!important;
-  border:0!important;
+
+
+/* =====================================================
+   CORRECCIONES ESPECÍFICAS (Inputs de búsqueda)
+   -----------------------------------------------------
+   Corrige el color de texto y placeholder en los campos
+   de búsqueda, especialmente en modo oscuro.
+   ===================================================== */
+
+/* Color del texto del input forzado a var(--text) */
+input.input,
+input[type="search"].input,
+.chat-header input.input {
+  color: var(--text) !important;
+  opacity: 1; /* Evita transparencias involuntarias */
+}
+
+/* Color del texto del placeholder (ej. “Buscar chats...”) */
+input.input::placeholder,
+input[type="search"].input::placeholder,
+.chat-header input.input::placeholder {
+  color: var(--muted);
+  opacity: 1; /* Asegura visibilidad */
 }
