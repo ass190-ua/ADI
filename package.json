@@ -8,10 +8,12 @@
     "serve": "vite preview"
   },
   "dependencies": {
+    "@mdi/font": "^7.4.47",
+    "pinia": "^2.1.4",
+    "pocketbase": "^0.20.3",
     "vue": "^3.4.0",
     "vue-router": "^4.3.0",
-    "pinia": "^2.1.4",
-    "pocketbase": "^0.20.3"
+    "vuetify": "^3.10.11"
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^4.2.0",

@@ -101,7 +101,3 @@ async function handleRegister() {
   }
 }
 </script>
-
-<style scoped>
-/* No scoped styles; we rely on the imported CSS. */
-</style>

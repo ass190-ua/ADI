@@ -1,0 +1,149 @@
+MEMORIES+ — PRÁCTICA EVALUABLE 3 (FRAMEWORKS JAVASCRIPT / ADI 25–26)
+===================================================================
+
+Este proyecto contiene la práctica evaluable 3 de la asignatura Frameworks JavaScript (ADI, curso 2025–2026).
+
+El proyecto principal está desarrollado con Vue 3 + Vite, Pinia para el estado global y PocketBase como backend (API + base de datos + autenticación).
+Además se incluye un proyecto extra muy sencillo en React para cumplir el punto optativo de “otro framework con listado y eliminación de items”.
+
+--------------------------------------------------
+1. PROYECTO PRINCIPAL (VUE + POCKETBASE)
+--------------------------------------------------
+
+Arquitectura general
+--------------------
+- SPA en Vue 3 con Vue Router.
+- Pinia como gestor de estado:
+  - auth store: autenticación y usuario actual.
+  - events store: gestión de eventos (listado + CRUD).
+  - Otros stores para fotos, amigos, chat, etc.
+- PocketBase como backend:
+  - Colección users para cuentas de usuario.
+  - Colección events para eventos.
+  - Colecciones adicionales para fotos/galería, mensajes de chat, contacto, etc.
+- Rutas privadas protegidas mediante meta.requiresAuth y un guard global.
+
+Requisitos obligatorios implementados
+-------------------------------------
+
+1) Autenticación (login, logout, registro)
+- LoginView.vue: formulario de usuario/contraseña, validación básica, uso del auth store, redirección tras login correcto.
+- RegisterView.vue: creación de nuevos usuarios, validación de campos (obligatorios, longitud, coincidencia de contraseñas), login automático tras registro.
+- Logout: botón que llama a authStore.logout(), limpia token y usuario y redirige a /login.
+
+2) Listado de items (eventos)
+- EventsView.vue: listado de eventos desde el events store con filtros de periodo, búsqueda, orden y paginación, incluyendo un modo “Gestionar” para ver sólo eventos del usuario.
+
+3) Creación de items
+- EventCreate.vue: formulario para crear eventos (título, fecha, ubicación, descripción, portada), envío mediante FormData a la colección events de PocketBase.
+
+4) Ver detalles y editar items
+- EventDetail.vue: carga de un evento por id, muestra título, fecha, ubicación, descripción y datos del organizador.
+- Edición inline para el propietario: permite modificar título, fecha, ubicación, descripción y portada, actualizando en PocketBase.
+
+5) Eliminación de items
+- Desde el detalle del evento: botón de borrar con confirmación y redirección al listado tras eliminar.
+- Desde el listado: selección múltiple de eventos y borrado masivo.
+
+6) Validación de formularios
+- Login y registro: uso de atributos HTML (required, type="email", minlength) y validación adicional en JavaScript.
+- Creación/edición de eventos: comprobación de campos obligatorios y mensajes de error en la interfaz.
+
+7) Estado centralizado con Pinia
+- auth store: guarda user, token e isAuthenticated; acciones de login, logout, registro, etc.
+- events store: guarda la lista de eventos, la página actual, el total de páginas y el evento seleccionado; acciones para listar, crear, actualizar y borrar.
+
+--------------------------------------------------
+2. FUNCIONALIDADES ADICIONALES / OPTATIVAS
+--------------------------------------------------
+
+2.1. Búsqueda y paginación
+- Implementado en EventsView.vue.
+- Búsqueda por texto y filtros de periodo (hoy, semana, próximos, pasados).
+- Paginación con página actual, total de páginas y botones de navegación.
+- También existe búsqueda/paginación en la galería de fotos.
+
+2.2. Transiciones/animaciones y efecto “temblor” en errores
+- Se han añadido clases de transición (fade, fade-slide) para animar la aparición de ciertos elementos.
+- En LoginView.vue se ha implementado un efecto de “temblor” en la tarjeta de login cuando las credenciales son incorrectas, mediante:
+  - Clase CSS .shake con animación @keyframes.
+  - Lógica en el componente para activar/desactivar la clase al producirse un error de autenticación.
+
+2.3. Listado de otro recurso
+- Se ha implementado un módulo de fotos/galería con:
+  - Listado de imágenes.
+  - Subida de nuevas fotos asociadas al usuario.
+  - Marcado/desmarcado de favoritos.
+  - Eliminación de fotos.
+- No se ha desarrollado una vista de detalle/edición avanzada, pero sí hay interacción de listado/alta/borrado sobre este recurso adicional.
+
+2.4. Proyecto extra en otro framework
+- Se ha creado un proyecto adicional muy sencillo en React + Vite, separado del proyecto principal de Vue.
+- En este proyecto se implementa:
+  - Listado de eventos en una tabla.
+  - Eliminación de eventos mediante un botón “Eliminar” que actualiza el estado local.
+- Los datos se mantienen en memoria, lo cual es suficiente para demostrar el uso de otro framework con listado + eliminación, tal y como indica el enunciado.
+
+2.5. Módulo de amigos y chat funcional
+- Además del núcleo de eventos y fotos, la aplicación incluye:
+  - Un módulo de amigos (FriendsView.vue y store asociado) para:
+    - Listar usuarios/amigos.
+    - Buscar otros usuarios.
+    - Gestionar solicitudes de amistad (enviar, aceptar, rechazar).
+  - Un módulo de chat (ChatsView.vue y store de chat) que permite:
+    - Mostrar conversaciones entre el usuario autenticado y otros usuarios.
+    - Enviar y almacenar mensajes en una colección específica de PocketBase.
+    - Mantener el historial de conversación y el estado de la conversación activa en el cliente.
+- Este módulo añade una capa social a la aplicación, con persistencia de amistades y mensajes en el backend.
+
+2.6. Módulo de contacto (funcionalidad extra)
+- Formulario de contacto:
+  - Permite al usuario enviar un mensaje con nombre, email, asunto y contenido.
+  - Validación básica en cliente.
+- Integración con PocketBase:
+  - Colección específica para mensajes de contacto.
+  - Envío de datos mediante la API de PocketBase, utilizando un token de autenticación apropiado.
+- Envío de correos automáticos:
+  - Configuración de PocketBase para enviar correos electrónicos al recibir un mensaje de contacto (por ejemplo, confirmación al usuario o notificación al administrador).
+  - Requiere configuración de SMTP y reglas de acceso adecuadas.
+- Este módulo combina persistencia de mensajes, emails automáticos y uso de autenticación/token en la API.
+
+--------------------------------------------------
+3. CREDENCIALES DE PRUEBA (PROFESOR)
+--------------------------------------------------
+
+3.1. Superusuario de PocketBase
+- Email: admin@admin.com
+- Contraseña: admin12345
+
+Permite acceder al panel de administración de PocketBase para revisar las colecciones (users, events, fotos, chat, contacto, etc.) y sus registros.
+
+3.2. Usuario de prueba de la aplicación
+- Email: usuarioprueba@gmail.com
+- Nombre de usuario: UsuarioPrueba
+- Contraseña: usuarioprueba
+
+Este usuario puede utilizarse para iniciar sesión en la app sin necesidad de registrarse, y permite probar:
+- Listado y gestión de eventos.
+- Módulo de fotos.
+- Módulo de amigos y chat.
+- Formulario de contacto.
+
+--------------------------------------------------
+4. CÓMO PROBAR
+--------------------------------------------------
+
+1) Proyecto principal (Vue):
+- Instalar dependencias con "npm install".
+- Arrancar PocketBase con las colecciones configuradas (users, events, fotos, chat, contacto, etc.).
+- Ejecutar "npm run dev" para levantar el frontend.
+
+2) Proyecto extra (React):
+- Ir a la carpeta del proyecto React.
+- Ejecutar "npm install".
+- Ejecutar "npm run dev".
+
+3) Crear un usuario de prueba:
+- Se puede usar directamente el usuario de prueba indicado arriba, o crear nuevos usuarios desde la vista de registro de la app o desde el panel de administración de PocketBase.
+
+Este LEEME resume las partes obligatorias que se han implementado y las funcionalidades optativas/adicionales incluidas en la práctica.

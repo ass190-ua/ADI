@@ -1,12 +1,16 @@
 import { defineConfig } from 'vite';
 import vue from '@vitejs/plugin-vue';
+import vuetify from 'vuetify/vite';
 
-// Vite configuration for a simple Vue 3 project.
-// See https://vitejs.dev/config/ for full details.
 export default defineConfig({
-  plugins: [vue()],
+  plugins: [
+    vue(),
+    vuetify({
+      autoImport: true,
+    }),
+  ],
   server: {
     port: 5173,
-    open: false
-  }
+    open: false,
+  },
 });

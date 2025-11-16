@@ -2,9 +2,6 @@
    COMPONENTS.css — Componentes reutilizables
    (Listas, avatares, formularios, hero, galerías, modales,
     toasts, chat genérico, grid de amigos, etc.)
-   --------------------------------------------------------
-   Nota: se añaden comentarios explicativos sin modificar
-   la especificidad ni el comportamiento original.
    ======================================================== */
 
 /* ---------- Tarjetas: títulos internos comunes ---------- */
@@ -371,4 +368,51 @@
 .friend-card .actions .btn {
   flex: 1; /* Los botones ocupan el mismo espacio */
   justify-content: center; /* Centra el texto del botón */
+}
+
+/* ============================
+   Transiciones genéricas Vue
+   ============================ */
+
+/* Fade suave (para mensajes, toasts, etc.) */
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.2s ease;
+}
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+}
+
+/* Fade + slide hacia arriba (para tarjetas/modales) */
+.fade-slide-enter-active,
+.fade-slide-leave-active {
+  transition: opacity 0.25s ease, transform 0.25s ease;
+}
+.fade-slide-enter-from,
+.fade-slide-leave-to {
+  opacity: 0;
+  transform: translateY(10px);
+}
+
+/* ============================
+   Efecto “temblor” formulario
+   ============================ */
+
+@keyframes shake {
+  0%, 100% {
+    transform: translateX(0);
+  }
+  10%, 30%, 50%, 70%, 90% {
+    transform: translateX(-6px);
+  }
+  20%, 40%, 60%, 80% {
+    transform: translateX(6px);
+  }
+}
+
+/* Lo ponemos con !important para ganar a cualquier .card {... animation: ... } */
+.shake {
+  animation: shake 0.35s ease !important;
+  transform-origin: center center;
 }

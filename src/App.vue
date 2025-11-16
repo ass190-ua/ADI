@@ -1,14 +1,16 @@
 <template>
-  <!-- The root component simply renders the current route. -->
-  <router-view />
+  <v-app>
+    <v-main>
+      <router-view />
+    </v-main>
+  </v-app>
 </template>
 
 <script setup>
-// No script needed for the root component. All logic is contained in child views.
+// Nada especial aquí, todo va por Vuetify + router
 </script>
 
 <style>
-/* Reset any default margins/padding and let imported CSS control styling. */
 body {
   margin: 0;
   padding: 0;
