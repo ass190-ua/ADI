@@ -1,13 +1,8 @@
 <template>
-  <v-app>
-    <v-main>
-      <router-view />
-    </v-main>
-  </v-app>
+  <router-view />
 </template>
 
 <script setup>
-// Nada especial aquí, todo va por Vuetify + router
 </script>
 
 <style>
