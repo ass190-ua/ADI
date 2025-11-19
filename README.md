@@ -145,20 +145,28 @@ A continuación se detallan los puntos del enunciado y cómo se han resuelto.
 
 **Implementado.**
 
-Se ha creado un proyecto adicional muy sencillo en **React + Vite**, separado del proyecto principal de Vue, para cumplir el punto optativo:
+Se ha creado un proyecto adicional muy sencillo en **React + Vite**, separado del proyecto principal en Vue, para cumplir el punto optativo:
 
 > “Implementar el listado y eliminación de ítems con otro framework cualquiera (Svelte, Angular, React, …). No es necesario implementar editar y ver detalles en este caso.”
 
-Características del mini-proyecto React:
+En esta versión final, el mini-proyecto **no trabaja con datos en memoria**, sino que está **conectado al mismo backend PocketBase** utilizado en el resto de la práctica.
 
-- Lista una serie de **eventos** en una tabla (`App.jsx`).
-- Permite **eliminar** eventos haciendo clic en el botón “Eliminar”.
-- El estado se gestiona con `useState` y los cambios se reflejan en la interfaz sin recargar la página.
-- La implementación es intencionadamente simple y auto-contenida, centrada en demostrar el uso de **otro framework** con:
-  - Listado dinámico de items.
-  - Lógica de eliminación en cliente.
+#### Características del mini-proyecto React
 
-En la versión entregada, los datos se mantienen en memoria (no conectados a PocketBase), lo cual es suficiente para mostrar la mecánica pedida en el enunciado.
+- Framework: **React + Vite**.
+- Backend: **PocketBase**, colección `memories_react`.
+- El componente principal (`App.jsx`) permite:
+  - **Listar** eventos en una tabla, obteniéndolos de PocketBase mediante el SDK oficial.
+  - **Crear** nuevos eventos a través de un pequeño formulario (campo título, fecha y lugar).
+  - **Eliminar** eventos usando un botón “Eliminar” que borra el registro tanto en la interfaz como en PocketBase.
+- El estado se gestiona con `useState` y las operaciones contra PocketBase se realizan de forma asíncrona con `useEffect` y el cliente definido en `pb.js`.
+
+Aunque el enunciado solo exige **listado y eliminación** en el framework extra, se ha añadido también la **creación** de eventos como funcionalidad adicional.
+
+#### Datos de ejemplo
+
+Para poblar la colección `memories_react` se incluye el script `scripts/seedMemoriesReact.mjs`, que inserta varios eventos de prueba en PocketBase.  
+De esta forma, al arrancar el proyecto React se puede comprobar directamente el listado, la creación y la eliminación sobre datos reales persistidos en el backend.
 
 ---
 
